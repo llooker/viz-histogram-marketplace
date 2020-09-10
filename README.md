@@ -2,3 +2,4 @@
 
 Simple histogram for Looker using vega-lite. WIP.
 
+![](capture.gif)
