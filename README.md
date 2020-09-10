@@ -1,1 +1,4 @@
-# viz-simple_hist-marketplace
+# Simple Histogram
+
+Simple histogram for Looker using vega-lite. WIP.
+
