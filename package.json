@@ -1,0 +1,28 @@
+{
+  "name": "viz-binned-hist-marketplace",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "d3-format": "^2.0.0",
+    "vega": "^5.13.0",
+    "vega-embed": "^6.9.0",
+    "vega-lite": "^4.13.1"
+  },
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "watch": "webpack --config webpack.config.js --watch --progress"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
+    "babel-loader": "^8.1.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-minify": "^0.5.1",
+    "css-loader": "^3.6.0",
+    "to-string-loader": "^1.1.6",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12"
+  }
+}
