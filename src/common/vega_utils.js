@@ -1,3 +1,5 @@
+import { ORDINAL } from "vega-lite/build/src/type";
+
 export const formatType = (valueFormat) => {
     if (!valueFormat) return undefined
     let formatString = ''
@@ -28,7 +30,6 @@ export const formatType = (valueFormat) => {
 
 
 export const handleErrors = (vis, res, options) => {
-
   const check = (group, noun, count, min, max) => {
     if (!vis.addError || !vis.clearErrors) return false
     if (count < min) {
@@ -50,7 +51,6 @@ export const handleErrors = (vis, res, options) => {
     vis.clearErrors(group)
     return true
   }
-
 
   const { pivots, dimensions, measure_like: measures } = res.fields
 
@@ -162,7 +162,7 @@ export const prepareData = (data, queryResponse) => {
 
 }
 
-const tooltipFormatter = (datum) => {
+export const tooltipFormatter = (datum) => {
     if((datum['dtype'] === "quantitative" && datum['valueFormat'] === "") || datum['valueFormat'] === undefined) {
       return ",d"
     }
@@ -170,16 +170,42 @@ const tooltipFormatter = (datum) => {
   }
 
 export const histTooltipHandler = (datum, bins) => {
+  console.log(bins)
     return [{
       "title": datum['title'],
       "bin": bins,
-      "field": datum['lookerName'].replace('.','_'),
-      "type": "quantitative",
-      "format": tooltipFormatter(datum)
+      "field": bins.binned ? "label" : datum['lookerName'].replace('.','_'),
+      "type": bins.binned ? "ordinal" : "quantitative",
+      ...(!bins.binned && {"format": tooltipFormatter(datum)})
     },
     {
       "title": "Count of Records",
-      "aggregate": "count",
-      "type": "quantitative"
+      "type": "quantitative",
+      ...(!bins.binned && {"aggregate": "count"}),
+      ...(bins.binned && {"field": "count"}),
     }]
   }
+
+export const makeBins = (myData, field, breakpointsArray) => {
+  let preBin = []
+  let orderedArray = myData.map((e) => e[field]).sort((a,b) => a - b);
+  let breakpoints = breakpointsArray.split(',').map(e => eval(e))
+  breakpoints.push(orderedArray[orderedArray.length-1])
+
+  for(let i = 0; i < breakpoints.length - 1; i++){
+    let threshold = orderedArray.findIndex(n =>  n > breakpoints[i+1]);
+    if(threshold === -1) {
+      threshold = orderedArray.length
+    }
+
+    let count = orderedArray.splice(0, threshold).length
+    preBin.push({
+      "bin_start": breakpoints[i],
+      "bin_end": breakpoints[i+1],
+      "count": count
+    })
+    preBin[i]['label'] = `${preBin[i]['bin_start']}-${preBin[i]['bin_end']}`
+  }
+
+  return preBin;
+}

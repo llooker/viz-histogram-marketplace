@@ -13,6 +13,9 @@ var webpackConfig = {
         extensions: ['.js'],
         modules: ['node_modules'],
     },
+    optimization: {
+        minimize: false
+    },
     module: {
         rules: [
             { test: /\.(js)$/, exclude: /node_modules/, use: 'babel-loader' },
