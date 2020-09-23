@@ -1,4 +1,6 @@
-import { ORDINAL } from "vega-lite/build/src/type";
+import { format } from 'd3-format'
+import percentile from 'percentile'
+
 
 export const formatType = (valueFormat) => {
     if (!valueFormat) return undefined
@@ -26,8 +28,7 @@ export const formatType = (valueFormat) => {
     }
     
     return formatString
-  }
-
+};
 
 export const handleErrors = (vis, res, options) => {
   const check = (group, noun, count, min, max) => {
@@ -57,8 +58,7 @@ export const handleErrors = (vis, res, options) => {
   return (check('pivot-req', 'Pivot', pivots.length, options.min_pivots, options.max_pivots)
    && check('dim-req', 'Dimension', dimensions.length, options.min_dimensions, options.max_dimensions)
    && check('mes-req', 'Measure', measures.length, options.min_measures, options.max_measures))
-}
-
+};
 
 export const prepareData = (data, queryResponse) => {
     var myData = [];
@@ -160,52 +160,99 @@ export const prepareData = (data, queryResponse) => {
 
       return { dataProperties, myData }
 
-}
+};
 
 export const tooltipFormatter = (datum) => {
     if((datum['dtype'] === "quantitative" && datum['valueFormat'] === "") || datum['valueFormat'] === undefined) {
       return ",d"
     }
-    return datum['valueFormat']
-  }
+  return datum['valueFormat']
+};
 
-export const histTooltipHandler = (datum, bins) => {
-  console.log(bins)
-    return [{
+export const simpleHistTooltipHandler = (datum, bins) => {
+  return [
+    {
       "title": datum['title'],
       "bin": bins,
       "field": bins.binned ? "label" : datum['lookerName'].replace('.','_'),
-      "type": bins.binned ? "ordinal" : "quantitative",
+      "type": bins.binned ? "ordinal": "quantitative",
       ...(!bins.binned && {"format": tooltipFormatter(datum)})
     },
     {
       "title": "Count of Records",
       "type": "quantitative",
       ...(!bins.binned && {"aggregate": "count"}),
-      ...(bins.binned && {"field": "count"}),
-    }]
-  }
+      ...(bins.binned && {"field": "count_x"}),
+    }
+  ]
+};
 
-export const makeBins = (myData, field, breakpointsArray) => {
+export const binnedTooltipHandler = (datum, bins) => {
+  return [
+    {
+      "title": datum['title'],
+      "bin": bins,
+      "field": datum['lookerName'].replace('.', '_'),
+      "type": "quantitative",
+      "format": tooltipFormatter(datum)
+    },
+    {
+      "title": "Count of Records",
+      "aggregate": "count",
+      "type": "quantitative"
+    }
+  ]
+};
+
+export const makeBins = (myData, field, breakpointsArray, formatStyle, axis) => {
   let preBin = []
   let orderedArray = myData.map((e) => e[field]).sort((a,b) => a - b);
-  let breakpoints = breakpointsArray.split(',').map(e => eval(e))
-  breakpoints.push(orderedArray[orderedArray.length-1])
-
+  let breakpoints = breakpointsArray.split(',').map(e => { 
+    switch(e.trim()) {
+      case 'min': return orderedArray[0]; 
+      case 'max': return orderedArray[orderedArray.length-1];
+      default: return eval(e)
+    }
+  })
+  
+  //Find first element larger than target 
   for(let i = 0; i < breakpoints.length - 1; i++){
     let threshold = orderedArray.findIndex(n =>  n > breakpoints[i+1]);
     if(threshold === -1) {
       threshold = orderedArray.length
     }
 
+    //Count length of resulting array
     let count = orderedArray.splice(0, threshold).length
-    preBin.push({
-      "bin_start": breakpoints[i],
-      "bin_end": breakpoints[i+1],
-      "count": count
-    })
-    preBin[i]['label'] = `${preBin[i]['bin_start']}-${preBin[i]['bin_end']}`
+    preBin.push({})
+    preBin[i][`bin_start_${axis}`] = breakpoints[i]
+    preBin[i][`bin_end_${axis}`] = breakpoints[i+1]
+    preBin[i][`count_${axis}`] = count
+    preBin[i]['label'] = `${format(formatStyle)(preBin[i][`bin_start_${axis}`])} - ${format(formatStyle)(preBin[i][`bin_end_${axis}`])}`
+    preBin[i]['order'] = i + 1
+    
   }
-
   return preBin;
-}
+};
+
+export const winsorize = (myData, field, p) => {
+  p = p.split('_').map(e => eval(e));
+  let thresholds = percentile(p, myData.map(e => e[field]));
+
+  return myData.map((e) => {
+    let copy = Object.assign({}, e)
+    if(copy[field] <= thresholds[0]){
+      copy[field] = thresholds[0]
+    } else if(e[field] >= thresholds[1]){
+      copy[field] = thresholds[1]
+    }
+    return copy
+  }); 
+};
+
+export const fixChartSizing = () => {
+  const container = document.getElementById('vis');
+  const svg = container.querySelector('svg');
+  svg.setAttribute('height', container.clientHeight);
+  svg.setAttribute('width', container.clientWidth);
+};

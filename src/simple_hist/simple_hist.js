@@ -2,24 +2,37 @@ import embed from 'vega-embed'
 import { baseOptions } from '../common/options'
 import { 
   prepareData,
-  histTooltipHandler,
+  simpleHistTooltipHandler,
   tooltipFormatter,
-  makeBins
+  makeBins,
+  winsorize,
+  fixChartSizing
 } from '../common/vega_utils'
-import { QUANTITATIVE } from 'vega-lite/build/src/type';
+import { QUANTITATIVE, ORDINAL } from 'vega-lite/build/src/type';
   
 export function simpleHist(data, element, config, queryResponse, details, done, that){
   that.clearErrors();
 
-  const { dataProperties, myData } = prepareData(data, queryResponse);
+  let { dataProperties, myData } = prepareData(data, queryResponse);
+  
+  const options = Object.assign({}, baseOptions)
+  if(options['bin_type']['values'].length < 3){
+    options['bin_type']['values'][options['bin_type']['values'].length] = {
+      'Breakpoints': {
+        description: 'An array of allowable step sizes to choose from.', 
+        value: 'breakpoints'
+      }
+    }
+  }
+  
+
   const vegaSafeNameMes = queryResponse.fields.measure_like[0].name.replace('.', '_');
   const vegaSafeNameDim = queryResponse.fields.dimensions[0].name.replace('.', '_');
-  const width = element.clientWidth * 0.92;
-  const height = element.clientHeight * 0.92;
-
-  const options = Object.assign({}, baseOptions)
-  const max = Math.max(...myData.map(e => e[vegaSafeNameMes]))
-
+  const max = Math.max(...myData.map(e => e[vegaSafeNameMes]));
+  const min = Math.min(...myData.map(e => e[vegaSafeNameMes]));
+  const format = tooltipFormatter(dataProperties[vegaSafeNameMes]);
+  
+  
   if(config['bin_type'] === 'bins') {
     options['max_bins'] = {
       label: "Max number of Bins",
@@ -32,39 +45,69 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
       max: 200,
       default: 10
     }
+
   } else if(config['bin_type'] === 'steps') {
     options['step_size'] = {
       label: "Step Size",
       section: "  Values",
       type: "number",
-      order: 5,
+      order: 4,
       display: "text",
       default: Math.floor(max/10)  
     }
+
   } else {
     options['breakpoint_array'] = {
       label: "Breakpoints",
       section: "  Values",
+      order: 4,
       type: "string",
-      default: "1000,2000,3000"
+      default: `min, ${Math.floor(max/5)}, ${Math.floor(max/4)}, ${Math.floor(max/3)}, ${Math.floor(max/2)}, max`
     }
-    
+    options['breakpoint_ordinal'] = {
+      label: "Use Ordinal Bins",
+      order: 4,
+      section: "  Values",
+      type: "boolean",
+      display: "select",
+      default: false
+    }
+  }
+
+  if(config['winsorization']) {
+    options['percentile'] = {
+      label: "Percentiles",
+      section: "  Values",
+      type: "string",
+      order: 7,
+      display: "select",
+      display_size: "half",
+      default: '1_99',
+      values: [
+        {'1% - 99%' : '1_99'},
+        {'5% - 95%' : '5_95'}
+      ]
+    }
   }
   that.trigger('registerOptions', options)
 
+  if(config['winsorization']){
+    myData = winsorize(myData, vegaSafeNameMes, config['percentile']);
+  }
+
   let preBin = []
   if(config['bin_type'] === 'breakpoints'){
-    preBin = makeBins(myData, vegaSafeNameMes, config['breakpoint_array'])
+    preBin = makeBins(myData, vegaSafeNameMes, config['breakpoint_array'], format, 'x');
   }
-  
+
   const vegaChart = {
     "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
     "data": {
       "values": config['bin_type'] === 'breakpoints' ? preBin : myData
     },
-    "width": width,
-    "height": height,
-    "padding": 5,
+    "width": element.clientWidth,
+    "height": element.clientHeight,
+    "padding": 0,
     "selection": {
       "highlight": {
         "type": "single",
@@ -78,30 +121,37 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
     },
     "encoding": {
       "x": {
-        "type": QUANTITATIVE,
-        "bin": {
-          ...(config['bin_type'] === 'bins' && {"maxbins": config['max_bins']}),
-          ...(config['bin_type'] === 'steps' && {'step': config['step_size']}),
-          ...(config['bin_type'] === 'breakpoints' && {'binned': true})
-        },
-        "field": config['bin_type'] === 'breakpoints' ? "bin_start" : vegaSafeNameMes,
+        "type": config['breakpoint_ordinal'] ? ORDINAL : QUANTITATIVE,
+        ...(config['breakpoint_ordinal'] && {"sort": ["order"]}),
+        ...(!config['breakpoint_ordinal'] && { 
+          "bin": {
+            ...(config['bin_type'] === 'bins' && {"maxbins": config['max_bins']}),
+            ...(config['bin_type'] === 'steps' && {'step': config['step_size']}),
+            ...(config['bin_type'] === 'breakpoints' && {'binned': true }),
+          }
+        }),
+        "field": config['bin_type'] === 'breakpoints' 
+          ? (config['breakpoint_ordinal'] ? 'label' : "bin_start_x") 
+          : vegaSafeNameMes,
         "axis": {
           "title": config['x_axis_override'] === "" ? dataProperties[vegaSafeNameMes]['title'] : config['x_axis_override'],
           "titleFontSize": config['x_axis_title_font_size'],
           "labelFontSize": config['x_axis_label_font_size'],
-          "format": tooltipFormatter(dataProperties[vegaSafeNameMes]),
+          "labelAngle": config['x_axis_label_angle']*-1,
+          ...(!config['breakpoint_ordinal'] && {"format": format}),
           "grid": config['x_grids']
         }
       },
-      ...(config['bin_type'] === 'breakpoints' && {'x2': {"field": "bin_end"}}),
+      ...(config['bin_type'] === 'breakpoints' && config['breakpoint_ordinal'] === false && {'x2': {"field": "bin_end_x"}}),
       "y": {
         "type": QUANTITATIVE,
         ...(config['bin_type'] !== 'breakpoints' && {"aggregate": "count"}),
-        ...(config['bin_type'] === 'breakpoints' && {"field": "count"}),
+        ...(config['bin_type'] === 'breakpoints' && {"field": "count_x"}),
         "axis": {
           "title": config['y_axis_override'] === "" ? `Count of ${dataProperties[vegaSafeNameDim]['title']}` : config['y_axis_override'],
           "titleFontSize": config['y_axis_title_font_size'],
           "labelFontSize": config['y_axis_label_font_size'],
+          "labelAngle": config['y_axis_label_angle']*-1,
           "grid": config['y_grids']
         }
       },
@@ -109,8 +159,8 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
         "condition": {"selection": "highlight", "value": config['color_on_hover']},
         "value": config['color_col'],
       },
-      "tooltip": histTooltipHandler(dataProperties[vegaSafeNameMes], {
-        ...(config['bin_type'] === 'bins' && {"maxbins": config['max_bins']}),
+      "tooltip": simpleHistTooltipHandler(dataProperties[vegaSafeNameMes], {
+        ...(config['bin_type'] === 'bins' && {'maxbins': config['max_bins']}),
         ...(config['bin_type'] === 'steps' && {'step': config['step_size']}),
         ...(config['bin_type'] === 'breakpoints' && {'binned': true})
       })
@@ -118,12 +168,18 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
     
   }
 
-  embed("#my-vega", vegaChart, {actions: false}).then( ({spec, view}) => {
+  embed("#my-vega", vegaChart, {actions: false, renderer: "svg"}).then( ({spec, view}) => {
+    fixChartSizing();
+    if(details.print){
+      done();
+    }
     view.addEventListener('click', function (event, item) {
       console.log(item)
       const aggField = dataProperties[vegaSafeNameMes]['lookerName']
-      const bounds = Object.keys(item.datum).filter(ele => ele.includes(vegaSafeNameMes))
-      
+      const bounds = config['bin_type'] === 'breakpoints' ? 
+        ['bin_start_x', 'bin_end_x'] :
+        Object.keys(item.datum).filter(ele => ele.includes(vegaSafeNameMes))
+
       let links = item.datum.links
       let baseURL = myData[0].links
       let fields = []
@@ -138,10 +194,10 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
         let url = `${baseURL}?fields=${fields.join(',')}`
 
         // Apply appropriate filtering based on bounds
-        url += `&f[${aggField}]=[${item.datum[bounds[0]]}, ${item.datum[bounds[1]]}]`
+        url += `&f[${aggField}]=[${item.datum[bounds[0]]}, ${item.datum[bounds[1]]})`
         links = [
           {
-            label: `Show ${item.datum.__count} Records`, 
+            label: `Show ${config['bin_type'] === 'breakpoints' ? item.datum.count_x : item.datum.__count} Records`, 
             type: 'drill', 
             type_label: 'Drill into Records', 
             url: url
@@ -153,5 +209,5 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
         event: event
       })
     })
-  })
+  });
 }
