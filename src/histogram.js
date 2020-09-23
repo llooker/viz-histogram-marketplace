@@ -1,5 +1,5 @@
-import { binnedHist } from './binned_hist/binned_hist'
-import { simpleHist } from './simple_hist/simple_hist'
+import { binnedHist } from './binned_hist'
+import { simpleHist } from './simple_hist'
 import { baseOptions } from './common/options'
 import { handleErrors } from './common/vega_utils'
 

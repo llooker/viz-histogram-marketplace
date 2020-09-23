@@ -2,7 +2,7 @@ import { format } from 'd3-format'
 import percentile from 'percentile'
 
 
-export const formatType = (valueFormat) => {
+export function formatType(valueFormat) {
     if (!valueFormat) return undefined
     let formatString = ''
     switch (valueFormat.charAt(0)) {
@@ -30,7 +30,7 @@ export const formatType = (valueFormat) => {
     return formatString
 };
 
-export const handleErrors = (vis, res, options) => {
+export function handleErrors(vis, res, options) {
   const check = (group, noun, count, min, max) => {
     if (!vis.addError || !vis.clearErrors) return false
     if (count < min) {
@@ -60,7 +60,7 @@ export const handleErrors = (vis, res, options) => {
    && check('mes-req', 'Measure', measures.length, options.min_measures, options.max_measures))
 };
 
-export const prepareData = (data, queryResponse) => {
+export function prepareData(data, queryResponse) {
     var myData = [];
     var dataProperties = {};
     var dims = [];
@@ -162,14 +162,14 @@ export const prepareData = (data, queryResponse) => {
 
 };
 
-export const tooltipFormatter = (datum) => {
+export function tooltipFormatter(datum) {
     if((datum['dtype'] === "quantitative" && datum['valueFormat'] === "") || datum['valueFormat'] === undefined) {
       return ",d"
     }
   return datum['valueFormat']
 };
 
-export const simpleHistTooltipHandler = (datum, bins) => {
+export function simpleHistTooltipHandler(datum, bins) {
   return [
     {
       "title": datum['title'],
@@ -187,7 +187,7 @@ export const simpleHistTooltipHandler = (datum, bins) => {
   ]
 };
 
-export const binnedTooltipHandler = (datum, bins) => {
+export function binnedTooltipHandler(datum, bins) {
   return [
     {
       "title": datum['title'],
@@ -204,7 +204,7 @@ export const binnedTooltipHandler = (datum, bins) => {
   ]
 };
 
-export const makeBins = (myData, field, breakpointsArray, formatStyle, axis) => {
+export function makeBins(myData, field, breakpointsArray, formatStyle, axis) {
   let preBin = []
   let orderedArray = myData.map((e) => e[field]).sort((a,b) => a - b);
   let breakpoints = breakpointsArray.split(',').map(e => { 
@@ -235,7 +235,7 @@ export const makeBins = (myData, field, breakpointsArray, formatStyle, axis) => 
   return preBin;
 };
 
-export const winsorize = (myData, field, p) => {
+export function winsorize(myData, field, p) {
   p = p.split('_').map(e => eval(e));
   let thresholds = percentile(p, myData.map(e => e[field]));
 
@@ -250,7 +250,7 @@ export const winsorize = (myData, field, p) => {
   }); 
 };
 
-export const fixChartSizing = () => {
+export function fixChartSizing() {
   const container = document.getElementById('vis');
   const svg = container.querySelector('svg');
   svg.setAttribute('height', container.clientHeight);

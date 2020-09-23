@@ -1,5 +1,5 @@
 import embed from 'vega-embed'
-import { baseOptions } from '../common/options'
+import { baseOptions } from './common/options'
 import { 
   prepareData,
   simpleHistTooltipHandler,
@@ -7,7 +7,7 @@ import {
   makeBins,
   winsorize,
   fixChartSizing
-} from '../common/vega_utils'
+} from './common/vega_utils'
 import { QUANTITATIVE, ORDINAL } from 'vega-lite/build/src/type';
   
 export function simpleHist(data, element, config, queryResponse, details, done, that){
@@ -174,7 +174,6 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
       done();
     }
     view.addEventListener('click', function (event, item) {
-      console.log(item)
       const aggField = dataProperties[vegaSafeNameMes]['lookerName']
       const bounds = config['bin_type'] === 'breakpoints' ? 
         ['bin_start_x', 'bin_end_x'] :
