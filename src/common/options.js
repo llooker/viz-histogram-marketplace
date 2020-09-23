@@ -33,7 +33,7 @@ export const baseOptions = {
   //   default: false
   // },
   winsorization: {
-    label: "Winsorize Data",
+    label: "Limit Outliers (Winsorize)",
     section: "  Values",
     type: "boolean",
     order: 6,
@@ -74,7 +74,7 @@ export const baseOptions = {
     type: "boolean",
     display: "select",
     display_size: "half",
-    default: false
+    default: true
   },
   x_axis_title_font_size: {
     label: "X Axis Title Size",
@@ -123,7 +123,7 @@ export const baseOptions = {
     display: "select",
     display_size: "half",
     order: 13,
-    default: false
+    default: true
   },
   y_axis_title_font_size: {
     label: "Y Axis Title Size",
@@ -377,7 +377,17 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY){
       {"Top" : "top"},
       {"Bottom": "bottom"}
     ],
+    display_size: "half",
     default: "right"
+  }
+  optionsResponse['options']['legend_size'] = {
+    label: "Legend Font Size",
+    section: "Labels",
+    type: "number",
+    display: "text",
+    default: 16,
+    display_size: "half",
+    order: 7
   }
 
   return optionsResponse;

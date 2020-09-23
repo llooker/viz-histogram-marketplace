@@ -139,7 +139,11 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
           "labelFontSize": config['x_axis_label_font_size'],
           "labelAngle": config['x_axis_label_angle']*-1,
           ...(!config['breakpoint_ordinal'] && {"format": format}),
-          "grid": config['x_grids']
+          "grid": config['x_grids'],
+          "titleFontWeight": "normal",
+          "titleFont": "Google Sans",
+          "labelFont": "Google Sans",
+          "titlePadding": 15
         }
       },
       ...(config['bin_type'] === 'breakpoints' && config['breakpoint_ordinal'] === false && {'x2': {"field": "bin_end_x"}}),
@@ -152,7 +156,11 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
           "titleFontSize": config['y_axis_title_font_size'],
           "labelFontSize": config['y_axis_label_font_size'],
           "labelAngle": config['y_axis_label_angle']*-1,
-          "grid": config['y_grids']
+          "grid": config['y_grids'],
+          "titleFontWeight": "normal",
+          "titleFont": "Google Sans",
+          "labelFont": "Google Sans",
+          "titlePadding": 15
         }
       },
       "color": {
@@ -174,6 +182,9 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
       done();
     }
     view.addEventListener('click', function (event, item) {
+      if(item.datum === undefined){
+        return;
+      }
       const aggField = dataProperties[vegaSafeNameMes]['lookerName']
       const bounds = config['bin_type'] === 'breakpoints' ? 
         ['bin_start_x', 'bin_end_x'] :
@@ -194,6 +205,14 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
 
         // Apply appropriate filtering based on bounds
         url += `&f[${aggField}]=[${item.datum[bounds[0]]}, ${item.datum[bounds[1]]})`
+
+        //Inherit query filters
+        if(queryResponse.applied_filters !== undefined) { 
+          let filters = queryResponse.applied_filters
+          for(let filter in filters) {
+            url += `&f[${filters[filter].field.name}]=${filters[filter].value}`
+          }
+        }
         links = [
           {
             label: `Show ${config['bin_type'] === 'breakpoints' ? item.datum.count_x : item.datum.__count} Records`, 

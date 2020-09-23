@@ -132,7 +132,11 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
                   "titleFontSize" : config['x_axis_title_font_size'],
                   "format": tooltipFormatter(dataProperties[config['x']]),
                   "labelFontSize": config['x_axis_label_font_size'],
-                  "grid": config['x_grids']
+                  "grid": config['x_grids'],
+                  "titleFontWeight": "normal",
+                  "titleFont": "Google Sans",
+                  "labelFont": "Google Sans",
+                  "titlePadding": 15
                 }
             },
             ...(config['bin_type'] === 'breakpoints' && {'x2': {"field": "bin_end_x"}}),
@@ -149,7 +153,11 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
                   "titleFontSize": config['y_axis_title_font_size'],
                   "format": tooltipFormatter(dataProperties[config['y']]),
                   "labelFontSize": config['y_axis_label_font_size'],
-                  "grid": config['y_grids']
+                  "grid": config['y_grids'],
+                  "titleFontWeight": "normal",
+                  "titleFont": "Google Sans",
+                  "labelFont": "Google Sans",
+                  "titlePadding": 15
                 },
               },
               ...(config['bin_type'] === 'breakpoints' && {'y2': {"field": "bin_end_y"}}),
@@ -157,7 +165,13 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
               //"field": "total_count",
               "aggregate": "count",
               "type": "quantitative",
-              "legend": !config['heatmap_off'] ? false : { "orient": config['legend_orient'] }
+              "legend": !config['heatmap_off'] ? false : { 
+                "orient": config['legend_orient'],
+                "labelFontSize": config['legend_size'],
+                "titleFontSize": config['legend_size'],
+                "titleFont": "Google Sans",
+                "labelFont": "Google Sans"
+              }
             },
             "opacity": {
               "condition": {"selection": "highlight", "value": 1},
@@ -269,6 +283,10 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
           "type": "symbol",
           "orient": config['legend_orient'],
           "format": tooltipFormatter(dataProperties[config['size']]),
+          "labelFontSize": config['legend_size'],
+          "titleFontSize": config['legend_size'],
+          "titleFont": "Google Sans",
+          "labelFont": "Google Sans"
         },
       };
     }
@@ -304,6 +322,13 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
           }
           if(boundsY.length > 0){
             url += `&f[${aggFieldY}]=[${item.datum[boundsY[0]]}, ${item.datum[boundsY[1]]}]`
+          }
+          //Inherit filtering
+          if(queryResponse.applied_filters !== undefined) { 
+            let filters = queryResponse.applied_filters
+            for(let filter in filters) {
+              url += `&f[${filters[filter].field.name}]=${filters[filter].value}`
+            }
           }
           links = [{
             label: `Show ${item.datum.__count} Records`, 
