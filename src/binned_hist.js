@@ -134,8 +134,8 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
                   "labelFontSize": config['x_axis_label_font_size'],
                   "grid": config['x_grids'],
                   "titleFontWeight": "normal",
-                  "titleFont": "Google Sans",
-                  "labelFont": "Google Sans",
+                  "titleFont": config['font_type'],
+                  "labelFont": config['font_type'],
                   "titlePadding": 15
                 }
             },
@@ -155,8 +155,8 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
                   "labelFontSize": config['y_axis_label_font_size'],
                   "grid": config['y_grids'],
                   "titleFontWeight": "normal",
-                  "titleFont": "Google Sans",
-                  "labelFont": "Google Sans",
+                  "titleFont": config['font_type'],
+                  "labelFont": config['font_type'],
                   "titlePadding": 15
                 },
               },
@@ -169,8 +169,9 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
                 "orient": config['legend_orient'],
                 "labelFontSize": config['legend_size'],
                 "titleFontSize": config['legend_size'],
-                "titleFont": "Google Sans",
-                "labelFont": "Google Sans"
+                "titleFontWeight": "normal",
+                "titleFont": config['font_type'],
+                "labelFont": config['font_type'],
               }
             },
             "opacity": {
@@ -284,9 +285,10 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
           "orient": config['legend_orient'],
           "format": tooltipFormatter(dataProperties[config['size']]),
           "labelFontSize": config['legend_size'],
+          "titleFontWeight": "normal",
           "titleFontSize": config['legend_size'],
-          "titleFont": "Google Sans",
-          "labelFont": "Google Sans"
+          "titleFont": "Open Sans",
+          "labelFont": "Open Sans"
         },
       };
     }
@@ -318,10 +320,10 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
           let url = `${baseURL}?fields=${fields.join(',')}`
           // Apply appropriate filtering based on bounds
           if(boundsX.length > 0) {
-            url += `&f[${aggFieldX}]=[${item.datum[boundsX[0]]}, ${item.datum[boundsX[1]]}]`
+            url += `&f[${aggFieldX}]=[${item.datum[boundsX[0]]}, ${item.datum[boundsX[1]]})`
           }
           if(boundsY.length > 0){
-            url += `&f[${aggFieldY}]=[${item.datum[boundsY[0]]}, ${item.datum[boundsY[1]]}]`
+            url += `&f[${aggFieldY}]=[${item.datum[boundsY[0]]}, ${item.datum[boundsY[1]]})`
           }
           //Inherit filtering
           if(queryResponse.applied_filters !== undefined) { 

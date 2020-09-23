@@ -154,6 +154,22 @@ export const baseOptions = {
     max: 90,
     step: 1
   },
+  font_type: {
+    label: "Font Type",
+    order: 1000,
+    section: "Labels",
+    type: "string",
+    display: "select",
+    values: [
+      {"Google Sans": "Google Sans"},
+      {"Open Sans": "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"},
+      {"Tahoma": "Tahoma, Geneva, sans-serif"},
+      {"Comic Sans": "Comic Sans MS, cursive, sans-serif"}
+    ],
+    default: "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"
+  }
+
+
 }
 
 

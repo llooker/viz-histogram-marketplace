@@ -141,8 +141,8 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
           ...(!config['breakpoint_ordinal'] && {"format": format}),
           "grid": config['x_grids'],
           "titleFontWeight": "normal",
-          "titleFont": "Google Sans",
-          "labelFont": "Google Sans",
+          "titleFont": config['font_type'],
+          "labelFont": config['font_type'],
           "titlePadding": 15
         }
       },
@@ -158,8 +158,8 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
           "labelAngle": config['y_axis_label_angle']*-1,
           "grid": config['y_grids'],
           "titleFontWeight": "normal",
-          "titleFont": "Google Sans",
-          "labelFont": "Google Sans",
+          "titleFont": config['font_type'],
+          "labelFont": config['font_type'],
           "titlePadding": 15
         }
       },
