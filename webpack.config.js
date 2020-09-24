@@ -13,12 +13,6 @@ var webpackConfig = {
         extensions: ['.js'],
         modules: ['node_modules'],
     },
-    module: {
-        rules: [
-            { test: /\.(js)$/, exclude: /node_modules/, use: 'babel-loader' },
-            { test: /\.css$/, loader: ['to-string-loader', 'css-loader'] },
-        ],
-    },
 };
 
 module.exports = webpackConfig;

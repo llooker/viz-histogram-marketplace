@@ -1,4 +1,3 @@
-import embed from 'vega-embed'
 import { baseOptions } from './common/options'
 import { 
   prepareData,
@@ -8,9 +7,8 @@ import {
   winsorize,
   fixChartSizing
 } from './common/vega_utils'
-import { QUANTITATIVE, ORDINAL } from 'vega-lite/build/src/type';
   
-export function simpleHist(data, element, config, queryResponse, details, done, that){
+export function simpleHist(data, element, config, queryResponse, details, done, that, embed){
   that.clearErrors();
 
   let { dataProperties, myData } = prepareData(data, queryResponse);
@@ -121,7 +119,7 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
     },
     "encoding": {
       "x": {
-        "type": config['breakpoint_ordinal'] ? ORDINAL : QUANTITATIVE,
+        "type": config['breakpoint_ordinal'] ? "ordinal" : "quantitative",
         ...(config['breakpoint_ordinal'] && {"sort": ["order"]}),
         ...(!config['breakpoint_ordinal'] && { 
           "bin": {
@@ -143,12 +141,14 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
           "titleFontWeight": "normal",
           "titleFont": config['font_type'],
           "labelFont": config['font_type'],
+          "labelColor": "#696969",
+          "titleColor": "#696969",
           "titlePadding": 15
         }
       },
       ...(config['bin_type'] === 'breakpoints' && config['breakpoint_ordinal'] === false && {'x2': {"field": "bin_end_x"}}),
       "y": {
-        "type": QUANTITATIVE,
+        "type": "quantitative",
         ...(config['bin_type'] !== 'breakpoints' && {"aggregate": "count"}),
         ...(config['bin_type'] === 'breakpoints' && {"field": "count_x"}),
         "axis": {
@@ -160,6 +160,8 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
           "titleFontWeight": "normal",
           "titleFont": config['font_type'],
           "labelFont": config['font_type'],
+          "labelColor": "#696969",
+          "titleColor": "#696969",
           "titlePadding": 15
         }
       },
@@ -178,9 +180,7 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
 
   embed("#my-vega", vegaChart, {actions: false, renderer: "svg"}).then( ({spec, view}) => {
     fixChartSizing();
-    if(details.print){
-      done();
-    }
+    if(details.print){ done(); }
     view.addEventListener('click', function (event, item) {
       if(item.datum === undefined){
         return;

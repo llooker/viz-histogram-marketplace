@@ -173,6 +173,7 @@ export function simpleHistTooltipHandler(datum, bins) {
   return [
     {
       "title": datum['title'],
+      "font": "Comic Sans",
       "bin": bins,
       "field": bins.binned ? "label" : datum['lookerName'].replace('.','_'),
       "type": bins.binned ? "ordinal": "quantitative",
@@ -255,4 +256,13 @@ export function fixChartSizing() {
   const svg = container.querySelector('svg');
   svg.setAttribute('height', container.clientHeight);
   svg.setAttribute('width', container.clientWidth);
+};
+
+export async function loadStylesheet(link) {
+  const linkElement = document.createElement('link');
+
+  linkElement.setAttribute('rel', 'stylesheet');
+  linkElement.setAttribute('href', link);
+
+  document.getElementsByTagName('head')[0].appendChild(linkElement);
 };

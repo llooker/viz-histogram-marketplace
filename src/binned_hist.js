@@ -1,4 +1,3 @@
-import embed from 'vega-embed'
 import { 
   prepareData,
   tooltipFormatter,
@@ -8,7 +7,7 @@ import {
 } from './common/vega_utils'
 import { baseOptions, createOptions } from './common/options'
 
-export function binnedHist(data, element, config, queryResponse, details, done, that) {
+export function binnedHist(data, element, config, queryResponse, details, done, that, embed) {
   that.clearErrors();
 
   let { dataProperties, myData } = prepareData(data, queryResponse);
@@ -83,7 +82,11 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
           ...(config['bin_type'] !== 'breakpoints' && {'aggregate': 'count'}),
           ...(config['bin_type'] === 'breakpoints' && {'field': 'count_x'}),
           "type": "quantitative",
-          "title": ""
+          "title": "",
+          "axis": {
+            "labelColor": "#696969",
+            "titleColor": "#696969"
+          }
         },
         "tooltip": binnedTooltipHandler(dataProperties[config['x']], {
           ...(config.bin_type === 'bins' && {'maxbins': config['max_bins']}),
@@ -136,6 +139,8 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
                   "titleFontWeight": "normal",
                   "titleFont": config['font_type'],
                   "labelFont": config['font_type'],
+                  "labelColor": "#696969",
+                  "titleColor": "#696969",
                   "titlePadding": 15
                 }
             },
@@ -157,6 +162,8 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
                   "titleFontWeight": "normal",
                   "titleFont": config['font_type'],
                   "labelFont": config['font_type'],
+                  "labelColor": "#696969",
+                  "titleColor": "#696969",
                   "titlePadding": 15
                 },
               },
@@ -172,6 +179,8 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
                 "titleFontWeight": "normal",
                 "titleFont": config['font_type'],
                 "labelFont": config['font_type'],
+                "labelColor": "#696969",
+                "titleColor": "#696969"
               }
             },
             "opacity": {
@@ -226,7 +235,11 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
             ...(config['bin_type'] !== 'breakpoints' && {"aggregate": "count"}),
             ...(config['bin_type'] === 'breakpoints' && {"field": "count_y"}),
             "type": "quantitative",
-            "title": ""
+            "title": "",
+            "axis": {
+              "labelColor": "#696969",
+              "titleColor": "#696969"
+            }
           },
           "tooltip": binnedTooltipHandler(dataProperties[config['y']], {
             ...(config.bin_type === 'bins' && {'maxbins': config['max_bins']}),
@@ -287,8 +300,10 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
           "labelFontSize": config['legend_size'],
           "titleFontWeight": "normal",
           "titleFontSize": config['legend_size'],
-          "titleFont": "Open Sans",
-          "labelFont": "Open Sans"
+          "titleFont": config['font_type'],
+          "labelFont": config['font_type'],
+          "labelColor": "#696969",
+          "titleColor": "#696969"
         },
       };
     }
