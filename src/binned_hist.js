@@ -310,7 +310,7 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
   }
 
   embed("#my-vega", vegaChart, {actions: false, renderer: "svg"}).then(({spec, view}) => {
-    fixChartSizing();
+    fixChartSizing('binned');
     if(details.print){ done(); }
     view.addEventListener('click', function (event, item) {
       var links = item.datum.links

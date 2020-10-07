@@ -179,7 +179,7 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
   }
 
   embed("#my-vega", vegaChart, {actions: false, renderer: "svg"}).then( ({spec, view}) => {
-    fixChartSizing();
+    fixChartSizing('simple');
     if(details.print){ done(); }
     view.addEventListener('click', function (event, item) {
       if(item.datum === undefined){

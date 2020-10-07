@@ -162,7 +162,7 @@ export const baseOptions = {
     type: "string",
     display: "select",
     values: [
-      {"Google Sans": "Google Sans"},
+      {"Google Sans": "Google Sans, 'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"},
       {"Open Sans": "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"},
       {"Tahoma": "Tahoma, Geneva, sans-serif"},
     ],

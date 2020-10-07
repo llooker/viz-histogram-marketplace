@@ -251,11 +251,11 @@ export function winsorize(myData, field, p) {
   }); 
 };
 
-export function fixChartSizing() {
+export function fixChartSizing(type) {
   const container = document.getElementById('vis');
   const svg = container.querySelector('svg');
-  svg.setAttribute('height', container.clientHeight);
   svg.setAttribute('width', container.clientWidth);
+  svg.setAttribute('height', container.clientHeight); 
 };
 
 export async function loadStylesheet(link) {
