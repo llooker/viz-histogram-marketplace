@@ -14,20 +14,20 @@ The **Scatter Histogram** plots two measures as a scatter plot. Histograms for e
 ![Scatter Hist](docs/scatter-hist-example.png)
 
 ## Binning Type
-The "Binning Type" configuration under "Values" determines how the visualization will bucket the data. 
+The **Binning Type** configuration under "Values" determines how the visualization will bucket the data. 
 ![Bin Type](docs/bin-types.png)
 
 
-- Max Bins  
+- **Max Bins**  
     - Use the range slider to set the approximate maximum number of bins (Min = 1, Max = 25). Note that this is an upper bound for the number of bins and that the visualization may not always change when the slider is moved. The binning logic is being optimized by [Vega-Lite](https://vega.github.io/vega-lite/) so not every possible bin will used. You can learn more about how Vega-Lite handles the `max-bin` parameter by [visiting the documentation](https://vega.github.io/vega-lite/docs/bin.html).
     - The default value is "10" bins
 
-- Steps
+- **Steps**
     - Enter a specific value to bucket by. For instance, a value of "1000" would create the bins: [min-999, 1000-1999, 2000-2999, ...]
     - The default value is Floor(Max value/10)
 
-- Breakpoints
-    - Takes a list of comma separated values to determine the upper threshold for bins e.g. "12, 18, 25, 35, 45, 55, 65, max" would create the bins: [12-17, 18-24, 25-34...]
+- **Breakpoints**
+    - Takes a list of comma separated values to create bins upper threshold e.g. "12, 18, 25, 35, 45, 55, 65, max" would create the bins:[12-17, 18-24, 25-34...]
     - The keywords `min` and `max` can be used in the list to reference the minimum and maximum values of the result set. 
     - The default value is a list created by partitioning the result set into 5 bins: [min, max/5, max/4, ... max]
     - This type allows for "Ordinal" binning. This option may be preferred if step sizes between bins are unequal or large. For example:
@@ -46,11 +46,11 @@ The "Limit Outliers ([Winsorization](https://en.wikipedia.org/wiki/Winsorizing))
 
 ![Winsorization Option](docs/winsorize-selector.png)
 
-For example, below on the left shows that States with Median Incomes < $25,000 and those with > $85,000 are slightly skewing the histogram. On the right, "Limit Outliers (Winsorization)" is applied on the 5%-95% percentiles to limit the effect of those outliers in order to highlight the general distribution of the data.
+For example, below on the left shows that States with Median Incomes < $25,000 and those with > $85,000 are skewing the histogram. On the right, "Limit Outliers (Winsorization)" is applied to the 5%-95% percentiles, limiting the effect of those outliers.
 
 ![Winsorization Example](docs/winsorization-example.png)
 
-**NOTE:** This feature will exclude the transformed outliers from drill results. 
+**NOTE: This feature will exclude the transformed outliers from drill results.**
 
 ## What if I find an error? Suggestions for improvements?
 Great! Marketplace content -- including visualizations -- were designed for continuous improvement through the help of the entire Looker community and we'd love your input. To report an error or improvement recommendation, please reach out to Looker support via email to support@looker.com or via chat to submit a request. Please be as detailed as possible in your explanation and we'll address it as quick as we can.
