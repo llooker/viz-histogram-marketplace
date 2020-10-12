@@ -1,6 +1,6 @@
 # Histogram for Looker
 
-Histogram visualization for quickly identifying frequency distributions of aggregated data. Useful for quickly binning measures without [requiring a derived table](https://help.looker.com/hc/en-us/articles/360023900353-Bucketing-in-Looker). 
+Histogram visualization for quickly identifying frequency distributions of aggregated data. Useful for binning measures without the need for [a derived table](https://help.looker.com/hc/en-us/articles/360023900353-Bucketing-in-Looker). 
 
 ## Chart Types
 The Histogram visualization provides two chart styles to choose from. A "Simple Histogram" and a "Scatter Histogram". 
