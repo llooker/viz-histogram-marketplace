@@ -46,7 +46,6 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
   //TOP HIST
   var vegaChart = {
     "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
-    "renderer": "svg",
     "data": {
       "values": config['bin_type'] === 'breakpoints' ? preBin : myData
     },

@@ -168,7 +168,6 @@ export const baseOptions = {
     ],
     default: "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"
   }
-
 }
 
 
@@ -271,7 +270,7 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY){
       display: "range",
       step: 1,
       min: 1,
-      max: 100,
+      max: 25,
       default: 10
     }
   } else if(config['bin_type'] === 'breakpoints') {

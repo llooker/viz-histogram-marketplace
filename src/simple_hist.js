@@ -40,7 +40,7 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
       display: "range",
       step: 1,
       min: 1,
-      max: 200,
+      max: 50,
       default: 10
     }
 
@@ -100,6 +100,7 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
 
   const vegaChart = {
     "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
+    "config": {"view": {"stroke": "transparent"}},
     "data": {
       "values": config['bin_type'] === 'breakpoints' ? preBin : myData
     },
