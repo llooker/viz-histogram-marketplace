@@ -2,7 +2,7 @@
   "label": "Histogram Visualization",
   "category_label": "Plug-ins",
   "branding": {
-    "image_uri": "",
+    "image_uri": "https://marketplace-api.looker.com/visualization-screenshots/viz-histogram-icon.png",
     "tagline": ""
   },
     "constants": {
