@@ -3,7 +3,7 @@
   "category_label": "Plug-ins",
   "branding": {
     "image_uri": "https://marketplace-api.looker.com/visualization-screenshots/viz-histogram-icon.png",
-    "tagline": ""
+    "tagline": "Use the Histogram Visualization to quickly identify frequency distributions of aggregate data."
   },
     "constants": {
       "VIS_LABEL": {
