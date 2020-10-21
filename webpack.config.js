@@ -21,6 +21,9 @@ var webpackConfig = {
       }
     ]
   },
+  optimization: {
+    minimize: false
+  },
   resolve: {
     extensions: ['.js'],
     modules: ['node_modules'],

@@ -5,7 +5,9 @@
   "license": "MIT",
   "dependencies": {
     "d3-format": "^2.0.0",
+    "d3-selection": "^2.0.0",
     "percentile": "^1.4.0",
+    "ssf": "^0.11.2",
     "vega-embed": "^6.9.0",
     "vega-lite": "^4.16.2"
   },

@@ -157,16 +157,24 @@ export const baseOptions = {
   },
   font_type: {
     label: "Font Type",
-    order: 1000,
+    order: 100,
     section: "Labels",
     type: "string",
     display: "select",
     values: [
       {"Google Sans": "Google Sans, 'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"},
       {"Open Sans": "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"},
-      {"Tahoma": "Tahoma, Geneva, sans-serif"},
     ],
     default: "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"
+  },
+  x_axis_value_format: {
+    label:"X Axis Value Format",
+    order: 200,
+    section: "  Values",
+    type: "string",
+    display: "text",
+    default: "",
+    placeholder: "Spreadsheet Style Value Format"
   }
 }
 
@@ -402,6 +410,24 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY){
     default: 16,
     display_size: "half",
     order: 7
+  }
+  optionsResponse['options']['y_axis_value_format'] = {
+    label:"Y Axis Value Format",
+    order: 201,
+    section: "  Values",
+    type: "string",
+    display: "text",
+    default: "",
+    placeholder: "Y Axis Spreadsheet style value Format"
+  }
+  optionsResponse['options']['points_legend_value_format'] = {
+    label:"Point Legend Value Format",
+    order: 202,
+    section: "  Values",
+    type: "string",
+    display: "text",
+    default: "",
+    placeholder: "Spreadsheet Style Value Format"
   }
 
   return optionsResponse;

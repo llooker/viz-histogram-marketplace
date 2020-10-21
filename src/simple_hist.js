@@ -1,3 +1,4 @@
+import { vega } from 'vega-embed';
 import { baseOptions } from './common/options'
 import { 
   prepareData,
@@ -5,10 +6,11 @@ import {
   tooltipFormatter,
   makeBins,
   winsorize,
-  fixChartSizing
+  fixChartSizing,
+  setFormatting,
 } from './common/vega_utils'
   
-export function simpleHist(data, element, config, queryResponse, details, done, that, embed){
+export function simpleHist(data, element, config, queryResponse, details, done, that, embed, vega){
   that.clearErrors();
 
   let { dataProperties, myData } = prepareData(data, queryResponse);
@@ -27,8 +29,6 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
   const vegaSafeNameMes = queryResponse.fields.measure_like[0].name.replace('.', '_');
   const vegaSafeNameDim = queryResponse.fields.dimensions[0].name.replace('.', '_');
   const max = Math.max(...myData.map(e => e[vegaSafeNameMes]));
-  const min = Math.min(...myData.map(e => e[vegaSafeNameMes]));
-  const format = tooltipFormatter(dataProperties[vegaSafeNameMes]);
   
   
   if(config['bin_type'] === 'bins') {
@@ -93,14 +93,18 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
     myData = winsorize(myData, vegaSafeNameMes, config['percentile']);
   }
 
+  const defaultValFormat = dataProperties[vegaSafeNameMes]['valueFormat']
+  const valFormatOverride = config['x_axis_value_format']
+  let valFormat = valFormatOverride !== "" ? valFormatOverride : defaultValFormat
+  if(valFormat === null || valFormat === undefined) { valFormat = "#,###"}
+
   let preBin = []
   if(config['bin_type'] === 'breakpoints'){
-    preBin = makeBins(myData, vegaSafeNameMes, config['breakpoint_array'], format, 'x');
+    preBin = makeBins(myData, vegaSafeNameMes, config['breakpoint_array'], valFormat, 'x');
   }
-
   const vegaChart = {
     "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
-    "config": {"view": {"stroke": "transparent"}},
+    "config": { "view": { "stroke": "transparent" } },
     "data": {
       "values": config['bin_type'] === 'breakpoints' ? preBin : myData
     },
@@ -137,7 +141,7 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
           "titleFontSize": config['x_axis_title_font_size'],
           "labelFontSize": config['x_axis_label_font_size'],
           "labelAngle": config['x_axis_label_angle']*-1,
-          ...(!config['breakpoint_ordinal'] && {"format": format}),
+          "format": "d",
           "grid": config['x_grids'],
           "titleFontWeight": "normal",
           "titleFont": config['font_type'],
@@ -180,8 +184,15 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
   }
 
   embed("#my-vega", vegaChart, {actions: false, renderer: "svg"}).then( ({spec, view}) => {
-    fixChartSizing('simple');
+    fixChartSizing();
+    setFormatting('simple', valFormat)
     if(details.print){ done(); }
+
+    if(config['bin_type'] !== 'breakpoints') {
+      view.addEventListener('mousemove', () => {
+        tooltipFormatter('simple', valFormat);
+      })
+    }
     view.addEventListener('click', function (event, item) {
       if(item.datum === undefined){
         return;

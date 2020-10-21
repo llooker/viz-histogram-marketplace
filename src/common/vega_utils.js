@@ -1,34 +1,7 @@
-import { format } from 'd3-format'
+import * as d3 from './d3-loader'
 import percentile from 'percentile'
+import SSF from 'ssf'
 
-
-export function formatType(valueFormat) {
-    if (!valueFormat) return undefined
-    let formatString = ''
-    switch (valueFormat.charAt(0)) {
-      case '$':
-        formatString += '$'; break
-      case '£':
-        formatString += '£'; break
-      case '€':
-        formatString += '€'; break
-    }
-    if (valueFormat.indexOf(',') > -1) {
-      formatString += ','
-    }
-    const splitValueFormat = valueFormat.split('.')
-    formatString += '.'
-    formatString += splitValueFormat.length > 1 ? splitValueFormat[1].length : 0
-  
-    switch (valueFormat.slice(-1)) {
-      case '%':
-        formatString += '%'; break
-      case '0':
-        formatString += 'f'; break
-    }
-    
-    return formatString
-};
 
 export function handleErrors(vis, res, options) {
   const check = (group, noun, count, min, max) => {
@@ -76,10 +49,8 @@ export function prepareData(data, queryResponse) {
           var shortName = key.replace(".","_");
           dataDict[shortName] = obj[key]['value'];
           if (typeof obj[key]['links'] != "undefined") {
-  
             //create array of all links for a row of data
             for(var l=0; l<obj[key]['links'].length; l++){
-  
               //grab link label and add field name for clarity in menu
               var currentLabel = obj[key]['links'][l]['label'];
               currentLabel = currentLabel + " (" + key.substring(key.indexOf(".")+1) + ")";
@@ -120,7 +91,6 @@ export function prepareData(data, queryResponse) {
       for (var field in allFields) {
         var lookerName = allFields[field];
         dataProperties[allFields[field]] = {};
-        
         //get friendly names for measures
         queryResponse.fields.measure_like.forEach(function(measure){
           if (lookerName == measure['name'].replace(".","_")) {
@@ -132,14 +102,12 @@ export function prepareData(data, queryResponse) {
             } else {
               dataProperties[allFields[field]]['title'] = measure['label'];
             }
-            //dataProperties[allFields[field]]['valueFormat'] = dataFormatDict[String(measure['value_format'])];
-            dataProperties[allFields[field]]['valueFormat'] = formatType(measure['value_format'])
+            dataProperties[allFields[field]]['valueFormat'] = measure['value_format']
             if (measure['type'] == "yesno") {
               dataProperties[allFields[field]]['dtype'] = "nominal";
             } else {
               dataProperties[allFields[field]]['dtype'] = "quantitative";
             }
-            
           } 
         });
         //get friendly names for dimensions
@@ -152,7 +120,7 @@ export function prepareData(data, queryResponse) {
             } else {
               dataProperties[allFields[field]]['title'] = dimension['label'];
             }       
-            dataProperties[allFields[field]]['valueFormat'] = dataFormatDict[String(dimension['value_format'])];
+            dataProperties[allFields[field]]['valueFormat'] = dimension['value_format'];
             dataProperties[allFields[field]]['dtype'] = "nominal";
           } 
         });
@@ -162,22 +130,13 @@ export function prepareData(data, queryResponse) {
 
 };
 
-export function tooltipFormatter(datum) {
-    if((datum['dtype'] === "quantitative" && datum['valueFormat'] === "") || datum['valueFormat'] === undefined) {
-      return ",d"
-    }
-  return datum['valueFormat']
-};
-
 export function simpleHistTooltipHandler(datum, bins) {
   return [
     {
       "title": datum['title'],
-      "font": "Comic Sans",
       "bin": bins,
       "field": bins.binned ? "label" : datum['lookerName'].replace('.','_'),
       "type": bins.binned ? "ordinal": "quantitative",
-      ...(!bins.binned && {"format": tooltipFormatter(datum)})
     },
     {
       "title": "Count of Records",
@@ -194,8 +153,7 @@ export function binnedTooltipHandler(datum, bins) {
       "title": datum['title'],
       "bin": bins,
       "field": datum['lookerName'].replace('.', '_'),
-      "type": "quantitative",
-      "format": tooltipFormatter(datum)
+      "type": "quantitative"
     },
     {
       "title": "Count of Records",
@@ -205,7 +163,7 @@ export function binnedTooltipHandler(datum, bins) {
   ]
 };
 
-export function makeBins(myData, field, breakpointsArray, formatStyle, axis) {
+export function makeBins(myData, field, breakpointsArray, valFormat, axis) {
   let preBin = []
   let orderedArray = myData.map((e) => e[field]).sort((a,b) => a - b);
   let breakpoints = breakpointsArray.split(',').map(e => { 
@@ -229,7 +187,7 @@ export function makeBins(myData, field, breakpointsArray, formatStyle, axis) {
     preBin[i][`bin_start_${axis}`] = breakpoints[i]
     preBin[i][`bin_end_${axis}`] = breakpoints[i+1]
     preBin[i][`count_${axis}`] = count
-    preBin[i]['label'] = `${format(formatStyle)(preBin[i][`bin_start_${axis}`])} - ${format(formatStyle)(preBin[i][`bin_end_${axis}`])}`
+    preBin[i]['label'] = `${SSF.format(valFormat, preBin[i][`bin_start_${axis}`])} - ${SSF.format(valFormat, preBin[i][`bin_end_${axis}`])}`
     preBin[i]['order'] = i + 1
     
   }
@@ -251,18 +209,79 @@ export function winsorize(myData, field, p) {
   }); 
 };
 
-export function fixChartSizing(type) {
+export function fixChartSizing() {
   const container = document.getElementById('vis');
   const svg = container.querySelector('svg');
   svg.setAttribute('width', container.clientWidth);
   svg.setAttribute('height', container.clientHeight); 
 };
 
-export async function loadStylesheet(link) {
-  const linkElement = document.createElement('link');
-
-  linkElement.setAttribute('rel', 'stylesheet');
-  linkElement.setAttribute('href', link);
-
-  document.getElementsByTagName('head')[0].appendChild(linkElement);
+export function setFormatting(chartType, xAxisFormat, yAxisFormat = null) { 
+  if(chartType === 'simple'){
+    d3.select('g.mark-text.role-axis-label')
+    .selectAll('text').each(function(d,i){
+      d3.select(this).text(SSF.format(xAxisFormat, d.datum.value));
+    });
+  } else {
+    let labels = d3.selectAll('g.mark-text.role-axis-label');
+    let xAxis = labels._groups[0][1];
+    let yAxis = labels._groups[0][2];
+    d3.select(xAxis).selectAll('text').each(function(d, i){
+      d3.select(this).text(SSF.format(xAxisFormat, d.datum.value))
+    });
+    d3.select(yAxis).selectAll('text').each(function(d, i){
+      d3.select(this).text(SSF.format(yAxisFormat, d.datum.value))
+    });
+  }
 };
+
+export function tooltipFormatter(chartType, xAxisFormat, yAxisFormat = null) {
+  let checkNumbers = (formattedText) => {
+    return (Number(formattedText[0]) !== NaN && Number(formattedText[2]) !== NaN)
+  }
+  if(chartType === 'simple'){
+    let tooltip = d3.select('td.value');
+    let visible = !!tooltip._groups[0][0];
+    if(visible) {
+      let currentText = tooltip.text()
+      let formattedText = currentText.split(" ")
+      if(checkNumbers(formattedText)){ 
+        formattedText[0] = SSF.format(xAxisFormat, Number(formattedText[0]))
+        formattedText[2] = SSF.format(xAxisFormat, Number(formattedText[2]))
+        tooltip.text(formattedText.join(" "))
+      }
+    }
+  } else {
+    let tooltip = d3.selectAll('td.value');
+    let visible = !!tooltip._groups[0][0];
+    if(visible) {
+      let xTooltip = tooltip._groups[0][0]
+      let yTooltip = tooltip._groups[0][1]
+      let xFormated = d3.select(xTooltip).text().split(" ")
+      let yFormated = d3.select(yTooltip).text().split(" ")
+      
+      if(checkNumbers(xFormated)) {
+        xFormated[0] = SSF.format(xAxisFormat, Number(xFormated[0]))
+        if(xFormated.length > 1) {
+          xFormated[2] = SSF.format(xAxisFormat, Number(xFormated[2]))
+        }
+        d3.select(xTooltip).text(xFormated.join(" "))
+      }
+      if(checkNumbers(yFormated)) {
+        yFormated[0] = SSF.format(yAxisFormat, Number(yFormated[0]))
+        if(yFormated.length > 1) {
+          yFormated[2] = SSF.format(yAxisFormat, Number(yFormated[2]))
+        }
+        d3.select(yTooltip).text(yFormated.join(" "))
+      }
+    }
+  }
+};
+
+export function formatPointLegend(valFormat){
+  let legends = d3.selectAll("g.mark-group.role-legend-entry")
+  let pointLegend = legends._groups[0].length > 1 ? legends._groups[0][1] : legends._groups[0][0]
+  d3.select(pointLegend).selectAll('text').each(function(d, i){
+    d3.select(this).text(SSF.format(valFormat, d.datum.value))
+  });
+}

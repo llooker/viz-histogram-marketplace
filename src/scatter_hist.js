@@ -3,11 +3,14 @@ import {
   tooltipFormatter,
   binnedTooltipHandler,
   winsorize,
-  makeBins, fixChartSizing
+  fixChartSizing,
+  setFormatting,
+  formatPointLegend
 } from './common/vega_utils'
 import { baseOptions, createOptions } from './common/options'
+import { compare } from 'vega';
 
-export function binnedHist(data, element, config, queryResponse, details, done, that, embed) {
+export function scatterHist(data, element, config, queryResponse, details, done, that, embed) {
   that.clearErrors();
 
   let { dataProperties, myData } = prepareData(data, queryResponse);
@@ -18,20 +21,36 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
   const dynamicOptions = createOptions(queryResponse, baseOptions, config, maxX, maxY)['options'];
   that.trigger('registerOptions', dynamicOptions);
 
+  const defaultValFormatX = dataProperties[config['x']]['valueFormat']
+  const defaultValFormatY = dataProperties[config['y']]['valueFormat']
+  const valFormatOverrideX = config['x_axis_value_format']
+  const valFormatOverrideY = config['y_axis_value_format']
+  
+  let valFormatX = valFormatOverrideX !== "" ? valFormatOverrideX : defaultValFormatX
+  if(valFormatX === null || valFormatX === undefined) { valFormatX = "#,###"}
+
+  let valFormatY = valFormatOverrideY !== "" ? valFormatOverrideY : defaultValFormatY
+  if(valFormatY === null || valFormatY === undefined) { valFormatY = "#,###"}
+
+  let valFormatPoints
+  if (config['size']) {
+    const defaultValFormatPoints = dataProperties[config['size']]['valueFormat']
+    const valFormatOverridePoints = config['points_legend_value_format']
+    valFormatPoints = valFormatOverridePoints !== "" ? valFormatOverridePoints : defaultValFormatPoints
+    if(valFormatPoints === null || valFormatPoints === undefined) { valFormatPoints = "#,###"}
+  }
+
   if(config['winsorization']){
     myData = winsorize(myData, config['x'], config['percentile']);
     myData = winsorize(myData, config['y'], config['percentile']);
   }
-
-  const formatX = tooltipFormatter(dataProperties[config['x']])
-  const formatY = tooltipFormatter(dataProperties[config['y']])
    
-  let preBin = []
-  if(config['bin_type'] === 'breakpoints'){
-    preBin = makeBins(myData, config['x'], config['breakpointsX'], formatX, 'x')
-    preBin = preBin.concat(makeBins(myData, config['y'], config['breakpointsY'], formatY, 'y'))
-  }
-
+  // Breakpoints not currently supported for scatted histogram
+  // let preBin = []
+  // if(config['bin_type'] === 'breakpoints'){
+  //   preBin = makeBins(myData, config['x'], config['breakpointsX'], formatX, 'x')
+  //   preBin = preBin.concat(makeBins(myData, config['y'], config['breakpointsY'], formatY, 'y'))
+  // }
 
   const tooltipFields = [];
   for (let datum in dataProperties) {
@@ -132,15 +151,16 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
               "axis": { 
                   "title": config['x_axis_override'] === "" ? dataProperties[config['x']]['title'] : config['x_axis_override'], 
                   "titleFontSize" : config['x_axis_title_font_size'],
-                  "format": tooltipFormatter(dataProperties[config['x']]),
+                  "format": "d",
                   "labelFontSize": config['x_axis_label_font_size'],
                   "grid": config['x_grids'],
                   "titleFontWeight": "normal",
                   "titleFont": config['font_type'],
                   "labelFont": config['font_type'],
                   "labelColor": "#696969",
+                  "labelAngle": config['x_axis_label_angle']*-1,
                   "titleColor": "#696969",
-                  "titlePadding": 15
+                  "titlePadding": 40
                 }
             },
             ...(config['bin_type'] === 'breakpoints' && {'x2': {"field": "bin_end_x"}}),
@@ -155,15 +175,16 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
               "axis": {
                   "title": config['y_axis_override'] === "" ? dataProperties[config['y']]['title'] : config['y_axis_override'],
                   "titleFontSize": config['y_axis_title_font_size'],
-                  "format": tooltipFormatter(dataProperties[config['y']]),
+                  "format": "d",
                   "labelFontSize": config['y_axis_label_font_size'],
+                  "labelAngle": config['y_axis_label_angle']*-1,
                   "grid": config['y_grids'],
                   "titleFontWeight": "normal",
                   "titleFont": config['font_type'],
                   "labelFont": config['font_type'],
                   "labelColor": "#696969",
                   "titleColor": "#696969",
-                  "titlePadding": 15
+                  "titlePadding": 40
                 },
               },
               ...(config['bin_type'] === 'breakpoints' && {'y2': {"field": "bin_end_y"}}),
@@ -295,7 +316,7 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
         "legend": { 
           "type": "symbol",
           "orient": config['legend_orient'],
-          "format": tooltipFormatter(dataProperties[config['size']]),
+          "format": "d",
           "labelFontSize": config['legend_size'],
           "titleFontWeight": "normal",
           "titleFontSize": config['legend_size'],
@@ -309,8 +330,14 @@ export function binnedHist(data, element, config, queryResponse, details, done, 
   }
 
   embed("#my-vega", vegaChart, {actions: false, renderer: "svg"}).then(({spec, view}) => {
-    fixChartSizing('binned');
+    fixChartSizing();
+    setFormatting('scatter', valFormatX, valFormatY);
+    if(config['size']) { formatPointLegend(valFormatPoints); }
     if(details.print){ done(); }
+
+    view.addEventListener('mousemove', () => {
+      tooltipFormatter('binned', valFormatX, valFormatY);
+    })
     view.addEventListener('click', function (event, item) {
       var links = item.datum.links
       if (Object.keys(item.datum)[0].startsWith('bin_')) {

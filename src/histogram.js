@@ -1,9 +1,10 @@
 import embed from 'vega-embed'
-import './common/font-loader.css'
-import { binnedHist } from './binned_hist'
+import { scatterHist } from './scatter_hist'
 import { simpleHist } from './simple_hist'
 import { baseOptions } from './common/options'
 import { handleErrors } from './common/vega_utils'
+import './common/font-loader.css'
+
 
 
 looker.plugins.visualizations.add({
@@ -21,7 +22,7 @@ looker.plugins.visualizations.add({
         min_measures: 2, max_measures: undefined
       })) return
       
-      binnedHist(data, element, config, queryResponse, details, doneRendering, this, embed);
+      scatterHist(data, element, config, queryResponse, details, doneRendering, this, embed);
     
     } else {
       if (!handleErrors(this, queryResponse, {
