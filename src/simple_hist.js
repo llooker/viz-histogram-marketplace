@@ -96,7 +96,7 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
   const defaultValFormat = dataProperties[vegaSafeNameMes]['valueFormat']
   const valFormatOverride = config['x_axis_value_format']
   let valFormat = valFormatOverride !== "" ? valFormatOverride : defaultValFormat
-  if(valFormat === null || valFormat === undefined) { valFormat = "#,###"}
+  if(valFormat === null || valFormat === undefined) { valFormat = "#,##0"}
 
   let preBin = []
   if(config['bin_type'] === 'breakpoints'){
@@ -188,11 +188,10 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
     setFormatting('simple', valFormat)
     if(details.print){ done(); }
 
-    if(config['bin_type'] !== 'breakpoints') {
-      view.addEventListener('mousemove', () => {
-        tooltipFormatter('simple', valFormat);
-      })
-    }
+    view.addEventListener('mousemove', () => {
+      tooltipFormatter('simple', config, valFormat);
+    })
+    
     view.addEventListener('click', function (event, item) {
       if(item.datum === undefined){
         return;

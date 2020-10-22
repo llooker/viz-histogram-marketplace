@@ -27,17 +27,17 @@ export function scatterHist(data, element, config, queryResponse, details, done,
   const valFormatOverrideY = config['y_axis_value_format']
   
   let valFormatX = valFormatOverrideX !== "" ? valFormatOverrideX : defaultValFormatX
-  if(valFormatX === null || valFormatX === undefined) { valFormatX = "#,###"}
+  if(valFormatX === null || valFormatX === undefined) { valFormatX = "#,##0"}
 
   let valFormatY = valFormatOverrideY !== "" ? valFormatOverrideY : defaultValFormatY
-  if(valFormatY === null || valFormatY === undefined) { valFormatY = "#,###"}
+  if(valFormatY === null || valFormatY === undefined) { valFormatY = "#,##0"}
 
   let valFormatPoints
   if (config['size']) {
     const defaultValFormatPoints = dataProperties[config['size']]['valueFormat']
     const valFormatOverridePoints = config['points_legend_value_format']
     valFormatPoints = valFormatOverridePoints !== "" ? valFormatOverridePoints : defaultValFormatPoints
-    if(valFormatPoints === null || valFormatPoints === undefined) { valFormatPoints = "#,###"}
+    if(valFormatPoints === null || valFormatPoints === undefined) { valFormatPoints = "#,##0"}
   }
 
   if(config['winsorization']){
@@ -328,6 +328,7 @@ export function scatterHist(data, element, config, queryResponse, details, done,
       };
     }
   }
+  console.log(config)
 
   embed("#my-vega", vegaChart, {actions: false, renderer: "svg"}).then(({spec, view}) => {
     fixChartSizing();
@@ -335,8 +336,10 @@ export function scatterHist(data, element, config, queryResponse, details, done,
     if(config['size']) { formatPointLegend(valFormatPoints); }
     if(details.print){ done(); }
 
+    
+
     view.addEventListener('mousemove', () => {
-      tooltipFormatter('binned', valFormatX, valFormatY);
+      tooltipFormatter('binned', config, valFormatX, valFormatY);
     })
     view.addEventListener('click', function (event, item) {
       var links = item.datum.links

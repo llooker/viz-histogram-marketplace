@@ -36,7 +36,7 @@ export const baseOptions = {
     label: "Limit Outliers (Winsorize)",
     section: "  Values",
     type: "boolean",
-    order: 6,
+    order: 7,
     default: false
   },
   //COLOR
@@ -162,10 +162,10 @@ export const baseOptions = {
     type: "string",
     display: "select",
     values: [
-      {"Google Sans": "Google Sans, 'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"},
+      {"Roboto": "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif"},
       {"Open Sans": "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"},
     ],
-    default: "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"
+    default: "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif"
   },
   x_axis_value_format: {
     label:"X Axis Value Format",

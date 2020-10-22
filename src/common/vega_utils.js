@@ -235,10 +235,21 @@ export function setFormatting(chartType, xAxisFormat, yAxisFormat = null) {
   }
 };
 
-export function tooltipFormatter(chartType, xAxisFormat, yAxisFormat = null) {
+export function tooltipFormatter(chartType, config, xAxisFormat, yAxisFormat = null) {
+  if(config === undefined) { return; }
   let checkNumbers = (formattedText) => {
     return (Number(formattedText[0]) !== NaN && Number(formattedText[2]) !== NaN)
   }
+  let fontType = config['font_type']
+  d3.selectAll('#vg-tooltip-element')
+    .style('background-color', 'rgba(0, 0, 0, 0.75)')
+    .style('border-color', 'rgba(0, 0, 0, 0.75)')
+    .style('border-radius', '5px')
+    .selectAll('td')
+    .style('text-align', 'left')
+    .style('font-family', fontType)
+    .style('color', '#FFFFFF')
+  if(config['bin_type'] === 'breakpoints') { return; }
   if(chartType === 'simple'){
     let tooltip = d3.select('td.value');
     let visible = !!tooltip._groups[0][0];
@@ -284,4 +295,4 @@ export function formatPointLegend(valFormat){
   d3.select(pointLegend).selectAll('text').each(function(d, i){
     d3.select(this).text(SSF.format(valFormat, d.datum.value))
   });
-}
+};
