@@ -130,10 +130,10 @@ export function prepareData(data, queryResponse) {
 
 };
 
-export function simpleHistTooltipHandler(datum, bins) {
+export function simpleHistTooltipHandler(datum, label, bins) {
   return [
     {
-      "title": datum['title'],
+      "title": label !== "" ? label : datum['title'],
       "bin": bins,
       "field": bins.binned ? "label" : datum['lookerName'].replace('.','_'),
       "type": bins.binned ? "ordinal": "quantitative",
@@ -147,10 +147,10 @@ export function simpleHistTooltipHandler(datum, bins) {
   ]
 };
 
-export function binnedTooltipHandler(datum, bins) {
+export function binnedTooltipHandler(datum, labelOverride, bins) {
   return [
     {
-      "title": datum['title'],
+      "title": labelOverride !== "" ? labelOverride : datum['title'],
       "bin": bins,
       "field": datum['lookerName'].replace('.', '_'),
       "type": "quantitative"
@@ -235,21 +235,30 @@ export function setFormatting(chartType, xAxisFormat, yAxisFormat = null) {
   }
 };
 
-export function tooltipFormatter(chartType, config, xAxisFormat, yAxisFormat = null) {
-  if(config === undefined) { return; }
+export function tooltipFormatter(chartType, config, item, xAxisFormat, yAxisFormat = null, pointFormat = null) {
+  if(config === undefined || item === undefined) { return; }
+  
+  // Helper to check if it hasn't already been formatted (sometimes this happens on rerender)
   let checkNumbers = (formattedText) => {
     return (Number(formattedText[0]) !== NaN && Number(formattedText[2]) !== NaN)
   }
+
+  // Styling for tooltip div
   let fontType = config['font_type']
   d3.selectAll('#vg-tooltip-element')
     .style('background-color', 'rgba(0, 0, 0, 0.75)')
     .style('border-color', 'rgba(0, 0, 0, 0.75)')
     .style('border-radius', '5px')
+    .style('width', 'auto')
     .selectAll('td')
     .style('text-align', 'left')
     .style('font-family', fontType)
-    .style('color', '#FFFFFF')
+    .style('color', '#FFFFFF');
+
+  // Breakpoint tool tips formatted when making bins
   if(config['bin_type'] === 'breakpoints') { return; }
+
+  // Tooltip formatting for simple histogram
   if(chartType === 'simple'){
     let tooltip = d3.select('td.value');
     let visible = !!tooltip._groups[0][0];
@@ -262,28 +271,50 @@ export function tooltipFormatter(chartType, config, xAxisFormat, yAxisFormat = n
         tooltip.text(formattedText.join(" "))
       }
     }
+
+  // Applies tooltip formatting for scatter hist. Some complexity as there are essentially 4 different tooltips:
+  // 1) Heatmap on bin
+  // 2) Heatmap on point
+  // 3) Histogram on X
+  // 4) Histogram on Y
+  // item.bounds is a vega refence to the <g> we're hovering over. 
+  // pointTooltip existing -> #2
+  // y2 === 60 -> #3
+  // x1 === 0 ->  #4
   } else {
     let tooltip = d3.selectAll('td.value');
     let visible = !!tooltip._groups[0][0];
     if(visible) {
       let xTooltip = tooltip._groups[0][0]
       let yTooltip = tooltip._groups[0][1]
+      let pointTooltip = config['size'] ? tooltip._groups[0][2] : null
+      if(item.bounds.x1 === 0){
+        let swap = xTooltip
+        xTooltip = yTooltip
+        yTooltip = swap
+      };
       let xFormated = d3.select(xTooltip).text().split(" ")
       let yFormated = d3.select(yTooltip).text().split(" ")
       
       if(checkNumbers(xFormated)) {
-        xFormated[0] = SSF.format(xAxisFormat, Number(xFormated[0]))
-        if(xFormated.length > 1) {
-          xFormated[2] = SSF.format(xAxisFormat, Number(xFormated[2]))
+        if(item.bounds.x1 !== 0) {
+          xFormated[0] = SSF.format(xAxisFormat, Number(xFormated[0]))
+          if(xFormated.length > 1) {
+            xFormated[2] = SSF.format(xAxisFormat, Number(xFormated[2]))
+          }
+          d3.select(xTooltip).text(xFormated.join(" "))
         }
-        d3.select(xTooltip).text(xFormated.join(" "))
       }
-      if(checkNumbers(yFormated)) {
+      if(checkNumbers(yFormated) && item.bounds.y2 !== 60) {
         yFormated[0] = SSF.format(yAxisFormat, Number(yFormated[0]))
         if(yFormated.length > 1) {
           yFormated[2] = SSF.format(yAxisFormat, Number(yFormated[2]))
         }
         d3.select(yTooltip).text(yFormated.join(" "))
+      }
+      if(pointTooltip !== null) {
+        let text = d3.select(pointTooltip).text()
+        d3.select(pointTooltip).text(SSF.format(pointFormat, Number(text)))
       }
     }
   }

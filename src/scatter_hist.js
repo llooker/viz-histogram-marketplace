@@ -54,13 +54,33 @@ export function scatterHist(data, element, config, queryResponse, details, done,
 
   const tooltipFields = [];
   for (let datum in dataProperties) {
-    let tip = {};
-    tip['field'] = datum;
-    tip['type'] = dataProperties[datum]['dtype'];
-    tip['format'] = tooltipFormatter(dataProperties[datum])
-    tip['title'] = dataProperties[datum]['title'];
-    tooltipFields.push(tip);
+    if(dataProperties[datum]['dtype'] === 'nominal' 
+      || datum === config['x'] 
+      || datum === config['y']
+      || datum === config['size']){
+      let tip = {};
+      tip['field'] = datum;
+      tip['type'] = dataProperties[datum]['dtype'];
+      tip['title'] = ((datum) => {
+        switch(datum) {
+          case config['x']: return (config['x_axis_override'] !== "" ? config['x_axis_override'] : dataProperties[datum]['title'])
+          case config['y']: return (config['y_axis_override'] !== "" ? config['y_axis_override'] : dataProperties[datum]['title'])
+          // case config['size']: return (
+          //   config['points_legend_value_format'] !== "" ? config['points_legend_value_format'] : dataProperties[datum]['title']
+          // )
+          default: return dataProperties[datum]['title']
+        }
+      })(datum);
+      tooltipFields.push(tip);
+    }
   }
+
+  // Tooltip formatting expects a certain order { x, y, size } so we ensure ordering here
+  let order = [config['x'], config['y']]
+  if(config['size']) {order.push(config['size'])}
+  tooltipFields.sort((a, b) => order.indexOf(a['field']) - order.indexOf(b['field']))
+  // Move first element (dimension) to last index
+  tooltipFields.push(tooltipFields.shift())
 
   //TOP HIST
   var vegaChart = {
@@ -106,7 +126,7 @@ export function scatterHist(data, element, config, queryResponse, details, done,
             "titleColor": "#696969"
           }
         },
-        "tooltip": binnedTooltipHandler(dataProperties[config['x']], {
+        "tooltip": binnedTooltipHandler(dataProperties[config['x']], config['x_axis_override'], {
           ...(config.bin_type === 'bins' && {'maxbins': config['max_bins']}),
           ...(config.bin_type === 'steps' && {'step': config['num_step_x']}),
           ...(config.bin_type === 'breakpoints' && {'binned' : true})
@@ -157,10 +177,12 @@ export function scatterHist(data, element, config, queryResponse, details, done,
                   "titleFontWeight": "normal",
                   "titleFont": config['font_type'],
                   "labelFont": config['font_type'],
+                  "labelSeparation": config['x_label_separation'],
+                  "labelOverlap": true,
                   "labelColor": "#696969",
                   "labelAngle": config['x_axis_label_angle']*-1,
                   "titleColor": "#696969",
-                  "titlePadding": 40
+                  "titlePadding": config['x_axis_title_padding']
                 }
             },
             ...(config['bin_type'] === 'breakpoints' && {'x2': {"field": "bin_end_x"}}),
@@ -182,9 +204,12 @@ export function scatterHist(data, element, config, queryResponse, details, done,
                   "titleFontWeight": "normal",
                   "titleFont": config['font_type'],
                   "labelFont": config['font_type'],
+                  "labelSeparation": config['y_label_separation'],
+                  "labelOverlap": true,
+                  "labelSeparation": 10,
                   "labelColor": "#696969",
                   "titleColor": "#696969",
-                  "titlePadding": 40
+                  "titlePadding": config['y_axis_title_padding']
                 },
               },
               ...(config['bin_type'] === 'breakpoints' && {'y2': {"field": "bin_end_y"}}),
@@ -209,13 +234,13 @@ export function scatterHist(data, element, config, queryResponse, details, done,
             },
             ...(config['heatmap_off'] && { "tooltip": (() => {
               let arr = binnedTooltipHandler(
-                dataProperties[config['x']], {
+                dataProperties[config['x']], config['x_axis_override'], {
                   ...(config.bin_type === 'bins' && {'maxbins': config['max_bins']}),
                   ...(config.bin_type === 'steps' && {'step': config['num_step_x']}),
                   ...(config.bin_type === 'breakpoints' && {'binned' : true})
                 }
                 ).concat(
-                  binnedTooltipHandler(dataProperties[config['y']],{
+                  binnedTooltipHandler(dataProperties[config['y']], config['y_axis_override'], {
                 ...(config.bin_type === 'bins' && {'maxbins': config['max_bins']}),
                 ...(config.bin_type === 'steps' && {'step': config['num_step_x']}),
                 ...(config.bin_type === 'breakpoints' && {'binned' : true})
@@ -261,7 +286,7 @@ export function scatterHist(data, element, config, queryResponse, details, done,
               "titleColor": "#696969"
             }
           },
-          "tooltip": binnedTooltipHandler(dataProperties[config['y']], {
+          "tooltip": binnedTooltipHandler(dataProperties[config['y']], config['y_axis_override'], {
             ...(config.bin_type === 'bins' && {'maxbins': config['max_bins']}),
             ...(config.bin_type === 'steps' && {'step': config['num_step_y']}),
             ...(config.bin_type === 'breakpoints' && {'binned': true})
@@ -328,7 +353,6 @@ export function scatterHist(data, element, config, queryResponse, details, done,
       };
     }
   }
-  console.log(config)
 
   embed("#my-vega", vegaChart, {actions: false, renderer: "svg"}).then(({spec, view}) => {
     fixChartSizing();
@@ -336,10 +360,8 @@ export function scatterHist(data, element, config, queryResponse, details, done,
     if(config['size']) { formatPointLegend(valFormatPoints); }
     if(details.print){ done(); }
 
-    
-
-    view.addEventListener('mousemove', () => {
-      tooltipFormatter('binned', config, valFormatX, valFormatY);
+    view.addEventListener('mousemove', (event, item) => {
+      tooltipFormatter('binned', config, item, valFormatX, valFormatY, valFormatPoints);
     })
     view.addEventListener('click', function (event, item) {
       var links = item.datum.links

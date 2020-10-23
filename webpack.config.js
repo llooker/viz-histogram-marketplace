@@ -24,7 +24,7 @@ var webpackConfig = {
   resolve: {
     extensions: ['.js'],
     modules: ['node_modules'],
-  },
+  }
 };
 
 module.exports = webpackConfig;

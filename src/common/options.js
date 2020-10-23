@@ -106,7 +106,28 @@ export const baseOptions = {
     max: 90,
     step: 1
   },
-
+  x_axis_title_padding: {
+    label: "X Axis Title Padding",
+    section: "Labels",
+    type: "number",
+    display: "range",
+    default: 20,
+    order: 12,
+    min: 6,
+    max: 100,
+    step: 2
+  },
+  x_label_separation: {
+    label: "X Axis Label Separation",
+    section: "Labels",
+    type: "number",
+    display: "range",
+    default: 10,
+    order: 13,
+    min: 1,
+    max: 1000,
+    step: 1
+  },
 
   //Y-AXIS  Style
   y_axis_override: {
@@ -115,7 +136,7 @@ export const baseOptions = {
     type: "string",
     display: "text",
     default: "",
-    order: 12
+    order: 14
   },
   y_grids: {
     label: "Y Axis Gridlines",
@@ -123,7 +144,7 @@ export const baseOptions = {
     type: "boolean",
     display: "select",
     display_size: "half",
-    order: 13,
+    order: 15,
     default: true
   },
   y_axis_title_font_size: {
@@ -133,7 +154,7 @@ export const baseOptions = {
     display: "text",
     default: 24,
     display_size: "half",
-    order: 14
+    order: 16
   },
   y_axis_label_font_size: {
     label: "Y Axis Label Size",
@@ -142,7 +163,7 @@ export const baseOptions = {
     display: "text",
     default: 14,
     display_size: "half",
-    order: 15
+    order: 17
   },
   y_axis_label_angle: {
     label: "Y Axis Label Angle",
@@ -150,14 +171,36 @@ export const baseOptions = {
     type: "number",
     display: "range",
     default: 0,
-    order: 16,
+    order: 18,
     min: 0,
     max: 90,
     step: 1
   },
+  y_axis_title_padding: {
+    label: "Y Axis Title Padding",
+    section: "Labels",
+    type: "number",
+    display: "range",
+    default: 20,
+    order: 19,
+    min: 6,
+    max: 100,
+    step: 2
+  },
+  y_label_separation: {
+    label: "Y Axis Label Separation",
+    section: "Labels",
+    type: "number",
+    display: "range",
+    default: 10,
+    order: 20,
+    min: 1,
+    max: 1000,
+    step: 1
+  },
   font_type: {
     label: "Font Type",
-    order: 100,
+    order: 1,
     section: "Labels",
     type: "string",
     display: "select",
@@ -418,10 +461,10 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY){
     type: "string",
     display: "text",
     default: "",
-    placeholder: "Y Axis Spreadsheet style value Format"
+    placeholder: "Spreadsheet Style Value Format"
   }
   optionsResponse['options']['points_legend_value_format'] = {
-    label:"Point Legend Value Format",
+    label:"Point Value Format",
     order: 202,
     section: "  Values",
     type: "string",

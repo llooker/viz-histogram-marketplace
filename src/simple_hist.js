@@ -8,6 +8,7 @@ import {
   winsorize,
   fixChartSizing,
   setFormatting,
+  flashBins
 } from './common/vega_utils'
   
 export function simpleHist(data, element, config, queryResponse, details, done, that, embed, vega){
@@ -146,9 +147,11 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
           "titleFontWeight": "normal",
           "titleFont": config['font_type'],
           "labelFont": config['font_type'],
+          "labelSeparation": config['x_label_separation'],
+          "labelOverlap": true,
           "labelColor": "#696969",
           "titleColor": "#696969",
-          "titlePadding": 15
+          "titlePadding": config['x_axis_title_padding']
         }
       },
       ...(config['bin_type'] === 'breakpoints' && config['breakpoint_ordinal'] === false && {'x2': {"field": "bin_end_x"}}),
@@ -165,16 +168,18 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
           "titleFontWeight": "normal",
           "titleFont": config['font_type'],
           "labelFont": config['font_type'],
+          "labelSeparation": config['y_label_separation'],
+          "labelOverlap": true,
           "labelColor": "#696969",
           "titleColor": "#696969",
-          "titlePadding": 15
+          "titlePadding": config['y_axis_title_padding']
         }
       },
       "color": {
         "condition": {"selection": "highlight", "value": config['color_on_hover']},
         "value": config['color_col'],
       },
-      "tooltip": simpleHistTooltipHandler(dataProperties[vegaSafeNameMes], {
+      "tooltip": simpleHistTooltipHandler(dataProperties[vegaSafeNameMes], config['x_axis_override'], {
         ...(config['bin_type'] === 'bins' && {'maxbins': config['max_bins']}),
         ...(config['bin_type'] === 'steps' && {'step': config['step_size']}),
         ...(config['bin_type'] === 'breakpoints' && {'binned': true})
@@ -188,8 +193,8 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
     setFormatting('simple', valFormat)
     if(details.print){ done(); }
 
-    view.addEventListener('mousemove', () => {
-      tooltipFormatter('simple', config, valFormat);
+    view.addEventListener('mousemove', (event, item) => {
+      tooltipFormatter('simple', config, item, valFormat);
     })
     
     view.addEventListener('click', function (event, item) {
