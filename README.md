@@ -6,16 +6,21 @@ Histogram visualization for quickly identifying frequency distributions of aggre
 The Histogram visualization provides two chart styles to choose from. A "Simple Histogram" and a "Scatter Histogram". 
 
 The **Simple Histogram** plots the frequency distribution of a single measure. The first unhidden measure in the result set will be used.
-![Simple Hist](docs/simple-hist-example.png)
+
+
+<img src="docs/simple-hist-example.png" width="800px">
  
 
 
 The **Scatter Histogram** plots two measures as a scatter plot. Histograms for each measure are displayed opposite of their respective axes. The frequency of points within each X and Y bounded bin are displayed as a toggleable heatmap. Additionally, the Scatter Histogram allows for sizing points by a third measure. 
-![Scatter Hist](docs/scatter-hist-example.png)
+
+<img src="docs/scatter-hist-example.png" width="800px">
+
 
 ## Binning Type
 The **Binning Type** configuration under "Values" determines how the visualization will bucket the data. 
-![Bin Type](docs/bin-types.png)
+
+<img src="docs/bin-types.png" width="400px">
 
 
 - **Max Bins**  
@@ -31,7 +36,8 @@ The **Binning Type** configuration under "Values" determines how the visualizati
     - The keywords `min` and `max` can be used in the list to reference the minimum and maximum values of the result set. 
     - The default value is a list created by partitioning the result set into 5 bins: [min, max/5, max/4, ... max]
     - This type allows for "Ordinal" binning. This option may be preferred if step sizes between bins are unequal or large. For example:
-        ![Ordinal Bin](docs/unequal-vs-ordinal.png)
+    <img src="docs/unequal-vs-ordinal.png" width="900px">
+    
     - **NOTE:** This bin type is currently only available with the "Simple Histogram" chart type.
 
 ## Drilling
@@ -41,14 +47,17 @@ In the "Simple Histogram" and histograms and heatmap for "Scatter Histogram", th
 
 Drilling on points in the "Scatter Histogram" scatter plot, however, will provide row specific drills/links. 
 
-## Limit Outliers (Winsorization)
-The "Limit Outliers ([Winsorization](https://en.wikipedia.org/wiki/Winsorizing))" toggle under "Values" in the configuration panel allows you to limit the effect of extreme outliers on the visual distribution of the result set. Essentially, outlier values are swapped for the value at their corresponding percentiles (1%-99% and 5%-95%). Stated differently, values below the 1st/5th percentile would _become_ the value at the 1st/5th percentile. Likewise, values above the 95th/99th percentile would _become_ the value at the 95th/99th percentile. 
+## Limit Outliers (Winsorize)
+The "Limit Outliers ([Winsorize](https://en.wikipedia.org/wiki/Winsorizing))" toggle under "Values" in the configuration panel allows you to limit the effect of extreme outliers on the visual distribution of the result set. Essentially, outlier values are swapped for the value at their corresponding percentiles (1%-99% and 5%-95%). Stated differently, values below the 1st/5th percentile would _become_ the value at the 1st/5th percentile. Likewise, values above the 95th/99th percentile would _become_ the value at the 95th/99th percentile. 
 
-![Winsorization Option](docs/winsorize-selector.png)
+<img src="docs/winsorize-selector.png" width="500px">
+
 
 For example, below on the left shows that States with Median Incomes < $25,000 and those with > $85,000 are skewing the histogram. On the right, "Limit Outliers (Winsorization)" is applied to the 5%-95% percentiles, limiting the effect of those outliers.
 
-![Winsorization Example](docs/winsorization-example.png)
+
+<img src="docs/winsorization-example.png" width="800px">
+
 
 **NOTE: This feature will exclude the transformed outliers from drill results.**
 
