@@ -9,7 +9,7 @@ import {
   formatPointLegend
 } from './common/vega_utils'
 
-
+const FONT_TYPE = "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"
 export function scatterHist(data, element, config, queryResponse, details, done, that, embed) {
   that.clearErrors();
 
@@ -177,8 +177,8 @@ export function scatterHist(data, element, config, queryResponse, details, done,
                   "labelFontSize": config['x_axis_label_font_size'],
                   "grid": config['x_grids'],
                   "titleFontWeight": "normal",
-                  "titleFont": config['font_type'],
-                  "labelFont": config['font_type'],
+                  "titleFont": FONT_TYPE, //config['font_type'],
+                  "labelFont": FONT_TYPE, //config['font_type'],
                   "labelSeparation": config['x_label_separation'],
                   "labelOverlap": true,
                   "labelColor": "#696969",
@@ -204,8 +204,8 @@ export function scatterHist(data, element, config, queryResponse, details, done,
                   "labelAngle": config['y_axis_label_angle']*-1,
                   "grid": config['y_grids'],
                   "titleFontWeight": "normal",
-                  "titleFont": config['font_type'],
-                  "labelFont": config['font_type'],
+                  "titleFont": FONT_TYPE, //config['font_type'],
+                  "labelFont": FONT_TYPE, //config['font_type'],
                   "labelSeparation": config['y_label_separation'],
                   "labelOverlap": true,
                   "labelSeparation": 10,
@@ -223,8 +223,8 @@ export function scatterHist(data, element, config, queryResponse, details, done,
                 "labelFontSize": config['legend_size'],
                 "titleFontSize": config['legend_size'],
                 "titleFontWeight": "normal",
-                "titleFont": config['font_type'],
-                "labelFont": config['font_type'],
+                "titleFont": FONT_TYPE, //config['font_type'],
+                "labelFont": FONT_TYPE, //config['font_type'],
                 "labelColor": "#696969",
                 "titleColor": "#696969"
               }
@@ -348,8 +348,8 @@ export function scatterHist(data, element, config, queryResponse, details, done,
           "labelFontSize": config['legend_size'],
           "titleFontWeight": "normal",
           "titleFontSize": config['legend_size'],
-          "titleFont": config['font_type'],
-          "labelFont": config['font_type'],
+          "titleFont": FONT_TYPE, //config['font_type'],
+          "labelFont": FONT_TYPE, //config['font_type'],
           "labelColor": "#696969",
           "titleColor": "#696969"
         },

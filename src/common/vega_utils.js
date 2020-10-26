@@ -244,7 +244,7 @@ export function tooltipFormatter(chartType, config, item, xAxisFormat, yAxisForm
   }
 
   // Styling for tooltip div
-  let fontType = config['font_type']
+  let fontType = "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'" //config['font_type']
   d3.selectAll('#vg-tooltip-element')
     .style('background-color', 'rgba(0, 0, 0, 0.75)')
     .style('border-color', 'rgba(0, 0, 0, 0.75)')

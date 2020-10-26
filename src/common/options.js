@@ -111,7 +111,7 @@ export const baseOptions = {
     section: "Labels",
     type: "number",
     display: "range",
-    default: 20,
+    default: 24,
     order: 12,
     min: 6,
     max: 100,
@@ -198,18 +198,18 @@ export const baseOptions = {
     max: 1000,
     step: 1
   },
-  font_type: {
-    label: "Font Type",
-    order: 1,
-    section: "Labels",
-    type: "string",
-    display: "select",
-    values: [
-      {"Roboto": "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif"},
-      {"Open Sans": "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"},
-    ],
-    default: "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif"
-  },
+  // font_type: {
+  //   label: "Font Type",
+  //   order: 1,
+  //   section: "Labels",
+  //   type: "string",
+  //   display: "select",
+  //   values: [
+  //     {"Roboto": "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif"},
+  //     {"Open Sans": "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"},
+  //   ],
+  //   default: "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif"
+  // },
   x_axis_value_format: {
     label:"X Axis Value Format",
     order: 200,

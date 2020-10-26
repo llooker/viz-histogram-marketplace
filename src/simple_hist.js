@@ -8,6 +8,8 @@ import {
   fixChartSizing,
   setFormatting
 } from './common/vega_utils'
+
+const FONT_TYPE = "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"
   
 export function simpleHist(data, element, config, queryResponse, details, done, that, embed){
   that.clearErrors();
@@ -139,8 +141,8 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
           "format": "d",
           "grid": config['x_grids'],
           "titleFontWeight": "normal",
-          "titleFont": config['font_type'],
-          "labelFont": config['font_type'],
+          "titleFont":  FONT_TYPE, //config['font_type'],
+          "labelFont": FONT_TYPE, //config['font_type'],
           "labelSeparation": config['x_label_separation'],
           "labelOverlap": true,
           "labelColor": "#696969",
@@ -160,8 +162,8 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
           "labelAngle": config['y_axis_label_angle']*-1,
           "grid": config['y_grids'],
           "titleFontWeight": "normal",
-          "titleFont": config['font_type'],
-          "labelFont": config['font_type'],
+          "titleFont": FONT_TYPE, //config['font_type'],
+          "labelFont": FONT_TYPE, //config['font_type'],
           "labelSeparation": config['y_label_separation'],
           "labelOverlap": true,
           "labelColor": "#696969",
