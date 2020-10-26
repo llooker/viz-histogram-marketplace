@@ -1,3 +1,4 @@
+import { baseOptions, createOptions } from './common/options'
 import { 
   prepareData,
   tooltipFormatter,
@@ -7,8 +8,7 @@ import {
   setFormatting,
   formatPointLegend
 } from './common/vega_utils'
-import { baseOptions, createOptions } from './common/options'
-import { compare } from 'vega';
+
 
 export function scatterHist(data, element, config, queryResponse, details, done, that, embed) {
   that.clearErrors();
@@ -16,21 +16,21 @@ export function scatterHist(data, element, config, queryResponse, details, done,
   let { dataProperties, myData } = prepareData(data, queryResponse);
   const width = element.clientWidth;
   const height = element.clientHeight;
-  const maxX = Math.max(...myData.map(e => e[config['x']]))
-  const maxY = Math.max(...myData.map(e => e[config['y']]))
+  const maxX = Math.max(...myData.map(e => e[config['x']]));
+  const maxY = Math.max(...myData.map(e => e[config['y']]));
   const dynamicOptions = createOptions(queryResponse, baseOptions, config, maxX, maxY)['options'];
   that.trigger('registerOptions', dynamicOptions);
 
-  const defaultValFormatX = dataProperties[config['x']]['valueFormat']
-  const defaultValFormatY = dataProperties[config['y']]['valueFormat']
-  const valFormatOverrideX = config['x_axis_value_format']
-  const valFormatOverrideY = config['y_axis_value_format']
+  const defaultValFormatX = dataProperties[config['x']]['valueFormat'];
+  const defaultValFormatY = dataProperties[config['y']]['valueFormat'];
+  const valFormatOverrideX = config['x_axis_value_format'];
+  const valFormatOverrideY = config['y_axis_value_format'];
   
   let valFormatX = valFormatOverrideX !== "" ? valFormatOverrideX : defaultValFormatX
-  if(valFormatX === null || valFormatX === undefined) { valFormatX = "#,##0"}
+  if(valFormatX === null || valFormatX === undefined) { valFormatX = "#,##0"};
 
   let valFormatY = valFormatOverrideY !== "" ? valFormatOverrideY : defaultValFormatY
-  if(valFormatY === null || valFormatY === undefined) { valFormatY = "#,##0"}
+  if(valFormatY === null || valFormatY === undefined) { valFormatY = "#,##0"};
 
   let valFormatPoints
   if (config['size']) {
@@ -52,6 +52,7 @@ export function scatterHist(data, element, config, queryResponse, details, done,
   //   preBin = preBin.concat(makeBins(myData, config['y'], config['breakpointsY'], formatY, 'y'))
   // }
 
+  // These tooltip fields are used for point labels 
   const tooltipFields = [];
   for (let datum in dataProperties) {
     if(dataProperties[datum]['dtype'] === 'nominal' 
@@ -79,10 +80,11 @@ export function scatterHist(data, element, config, queryResponse, details, done,
   let order = [config['x'], config['y']]
   if(config['size']) {order.push(config['size'])}
   tooltipFields.sort((a, b) => order.indexOf(a['field']) - order.indexOf(b['field']))
+  
   // Move first element (dimension) to last index
   tooltipFields.push(tooltipFields.shift())
 
-  //TOP HIST
+  //X HISTOGRAM
   var vegaChart = {
     "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
     "data": {
@@ -214,7 +216,6 @@ export function scatterHist(data, element, config, queryResponse, details, done,
               },
               ...(config['bin_type'] === 'breakpoints' && {'y2': {"field": "bin_end_y"}}),
             "color": {
-              //"field": "total_count",
               "aggregate": "count",
               "type": "quantitative",
               "legend": !config['heatmap_off'] ? false : { 
@@ -250,7 +251,9 @@ export function scatterHist(data, element, config, queryResponse, details, done,
             })()})
           },           
         }]
-      }, {
+      }, 
+      // Y HISTOGRAM
+      {
         "mark": {
           "type":"bar",
           "cursor": "pointer"
@@ -307,7 +310,7 @@ export function scatterHist(data, element, config, queryResponse, details, done,
     }
   }
 
-    //adds scatterplot
+  //SCATTERPLOT
   if (config['layer_points']) {
     vegaChart.vconcat[1].hconcat[0].layer[1] = {
           "mark": {
@@ -332,7 +335,7 @@ export function scatterHist(data, element, config, queryResponse, details, done,
           }            
         };
 
-          
+    //SIZE POINTS
     if (config['size'] != "" && typeof config['size'] != "undefined") {
       vegaChart.vconcat[1].hconcat[0].layer[1].encoding.size = {
         "field": config['size'], 
@@ -363,6 +366,8 @@ export function scatterHist(data, element, config, queryResponse, details, done,
     view.addEventListener('mousemove', (event, item) => {
       tooltipFormatter('binned', config, item, valFormatX, valFormatY, valFormatPoints);
     })
+
+    // DRILL SUPPORT
     view.addEventListener('click', function (event, item) {
       var links = item.datum.links
       if (Object.keys(item.datum)[0].startsWith('bin_')) {

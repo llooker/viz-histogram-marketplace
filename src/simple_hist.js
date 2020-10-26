@@ -1,4 +1,3 @@
-import { vega } from 'vega-embed';
 import { baseOptions } from './common/options'
 import { 
   prepareData,
@@ -7,15 +6,18 @@ import {
   makeBins,
   winsorize,
   fixChartSizing,
-  setFormatting,
-  flashBins
+  setFormatting
 } from './common/vega_utils'
   
-export function simpleHist(data, element, config, queryResponse, details, done, that, embed, vega){
+export function simpleHist(data, element, config, queryResponse, details, done, that, embed){
   that.clearErrors();
 
   let { dataProperties, myData } = prepareData(data, queryResponse);
+  const vegaSafeNameMes = queryResponse.fields.measure_like[0].name.replace('.', '_');
+  const vegaSafeNameDim = queryResponse.fields.dimensions[0].name.replace('.', '_');
+  const max = Math.max(...myData.map(e => e[vegaSafeNameMes]));
   
+  //Need to reassign some options when toggling from scatter to simple hist
   const options = Object.assign({}, baseOptions)
   if(options['bin_type']['values'].length < 3){
     options['bin_type']['values'][options['bin_type']['values'].length] = {
@@ -24,14 +26,7 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
         value: 'breakpoints'
       }
     }
-  }
-  
-
-  const vegaSafeNameMes = queryResponse.fields.measure_like[0].name.replace('.', '_');
-  const vegaSafeNameDim = queryResponse.fields.dimensions[0].name.replace('.', '_');
-  const max = Math.max(...myData.map(e => e[vegaSafeNameMes]));
-  
-  
+  }  
   if(config['bin_type'] === 'bins') {
     options['max_bins'] = {
       label: "Max number of Bins",
@@ -44,7 +39,6 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
       max: 50,
       default: 10
     }
-
   } else if(config['bin_type'] === 'steps') {
     options['step_size'] = {
       label: "Step Size",
@@ -54,7 +48,6 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
       display: "text",
       default: Math.floor(max/10)  
     }
-
   } else {
     options['breakpoint_array'] = {
       label: "Breakpoints",
@@ -72,7 +65,6 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
       default: false
     }
   }
-
   if(config['winsorization']) {
     options['percentile'] = {
       label: "Percentiles",
@@ -96,6 +88,7 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
 
   const defaultValFormat = dataProperties[vegaSafeNameMes]['valueFormat']
   const valFormatOverride = config['x_axis_value_format']
+
   let valFormat = valFormatOverride !== "" ? valFormatOverride : defaultValFormat
   if(valFormat === null || valFormat === undefined) { valFormat = "#,##0"}
 
@@ -103,6 +96,7 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
   if(config['bin_type'] === 'breakpoints'){
     preBin = makeBins(myData, vegaSafeNameMes, config['breakpoint_array'], valFormat, 'x');
   }
+
   const vegaChart = {
     "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
     "config": { "view": { "stroke": "transparent" } },
@@ -197,6 +191,7 @@ export function simpleHist(data, element, config, queryResponse, details, done, 
       tooltipFormatter('simple', config, item, valFormat);
     })
     
+    //DRILL SUPPORT
     view.addEventListener('click', function (event, item) {
       if(item.datum === undefined){
         return;

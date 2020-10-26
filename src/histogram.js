@@ -14,7 +14,13 @@ looker.plugins.visualizations.add({
     container.setAttribute("id","my-vega");
   },
 
-  updateAsync: function(data, element, config, queryResponse, details, doneRendering) {
+  updateAsync: function(data, element, config, queryResponse, details, done) {
+    if(data.length === 0){ 
+      this.addError({title: 'No Results'}); 
+      done(); 
+      return;
+    }
+
     if(config.bin_style === 'binned_hist'){
       if (!handleErrors(this, queryResponse, {
         min_pivots: 0, max_pivots: 0,
@@ -22,7 +28,7 @@ looker.plugins.visualizations.add({
         min_measures: 2, max_measures: undefined
       })) return
       
-      scatterHist(data, element, config, queryResponse, details, doneRendering, this, embed);
+      scatterHist(data, element, config, queryResponse, details, done, this, embed);
     
     } else {
       if (!handleErrors(this, queryResponse, {
@@ -31,7 +37,7 @@ looker.plugins.visualizations.add({
         min_measures: 1, max_measures: undefined
       })) return
     
-      simpleHist(data, element, config, queryResponse, details, doneRendering, this, embed);
+      simpleHist(data, element, config, queryResponse, details, done, this, embed);
     }
   }
 

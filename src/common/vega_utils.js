@@ -273,14 +273,9 @@ export function tooltipFormatter(chartType, config, item, xAxisFormat, yAxisForm
     }
 
   // Applies tooltip formatting for scatter hist. Some complexity as there are essentially 4 different tooltips:
-  // 1) Heatmap on bin
-  // 2) Heatmap on point
-  // 3) Histogram on X
-  // 4) Histogram on Y
+  // 1)Heatmap on bin, 2)Heatmap on point, 3)Histogram on X, 4)Histogram on Y
   // item.bounds is a vega refence to the <g> we're hovering over. 
-  // pointTooltip existing -> #2
-  // y2 === 60 -> #3
-  // x1 === 0 ->  #4
+  // pointTooltip -> #2, y2 === 60 -> #3, x1 === 0 ->  #4
   } else {
     let tooltip = d3.selectAll('td.value');
     let visible = !!tooltip._groups[0][0];
@@ -288,6 +283,7 @@ export function tooltipFormatter(chartType, config, item, xAxisFormat, yAxisForm
       let xTooltip = tooltip._groups[0][0]
       let yTooltip = tooltip._groups[0][1]
       let pointTooltip = config['size'] ? tooltip._groups[0][2] : null
+      // if the tooltip is on the y-axis hsitogram swap the references
       if(item.bounds.x1 === 0){
         let swap = xTooltip
         xTooltip = yTooltip
