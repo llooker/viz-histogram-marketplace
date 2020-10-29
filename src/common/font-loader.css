@@ -1,8 +1,8 @@
 @font-face {
-    font-family: 'Open Sans';
-    src: url('./fonts/open-sans-v18-latin-regular.woff2') format('woff2');
+  font-family: "Open Sans";
+  src: url("./fonts/open-sans-v18-latin-regular.woff2") format("woff2");
 }
 @font-face {
-    font-family: 'Roboto';
-    src: url('./fonts/roboto-v20-latin-regular.woff2') format('woff2')
+  font-family: "Roboto";
+  src: url("./fonts/roboto-v20-latin-regular.woff2") format("woff2");
 }

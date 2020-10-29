@@ -7,11 +7,26 @@ export const baseOptions = {
     order: 2,
     display: "radio",
     values: [
-      {'Max Bins' : {description: 'Set a maximum number of bins', value: 'bins' }},
-      {'Steps': {description: 'Set an exact step size to use between bins', value: 'steps'}},
-      {'Breakpoints': {description: 'An array of allowable step sizes to choose from.', value: 'breakpoints'}}
+      {
+        "Max Bins": {
+          description: "Set a maximum number of bins",
+          value: "bins",
+        },
+      },
+      {
+        Steps: {
+          description: "Set an exact step size to use between bins",
+          value: "steps",
+        },
+      },
+      {
+        Breakpoints: {
+          description: "An array of allowable step sizes to choose from.",
+          value: "breakpoints",
+        },
+      },
     ],
-    default: 'bins'
+    default: "bins",
   },
   bin_style: {
     label: "Chart Type",
@@ -19,11 +34,11 @@ export const baseOptions = {
     type: "string",
     order: 1,
     display: "select",
-    default: 'simple_hist',
+    default: "simple_hist",
     values: [
-      {'Simple Histogram' : 'simple_hist'},
-      {'Scatter Histogram' : 'binned_hist'}
-    ]
+      { "Simple Histogram": "simple_hist" },
+      { "Scatter Histogram": "binned_hist" },
+    ],
   },
   // show_percent: {
   //   label: "Show as Percent",
@@ -37,7 +52,7 @@ export const baseOptions = {
     section: "  Values",
     type: "boolean",
     order: 7,
-    default: false
+    default: false,
   },
   //COLOR
   color_col: {
@@ -48,7 +63,7 @@ export const baseOptions = {
     display_size: "half",
     default: "#4285F4",
     //default: "#7A55E3",
-    order: 2
+    order: 2,
   },
   color_on_hover: {
     type: "string",
@@ -56,8 +71,8 @@ export const baseOptions = {
     label: "Color On Hover",
     display: "color",
     display_size: "half",
-    default: "#5F6368",
-    order: 2
+    default: "#499bff",
+    order: 2,
   },
 
   //X-AXIS  Style
@@ -67,7 +82,7 @@ export const baseOptions = {
     type: "string",
     display: "text",
     default: "",
-    order: 7
+    order: 7,
   },
   x_grids: {
     label: "X Axis Gridlines",
@@ -75,25 +90,25 @@ export const baseOptions = {
     type: "boolean",
     display: "select",
     display_size: "half",
-    default: true
+    default: true,
   },
   x_axis_title_font_size: {
     label: "X Axis Title Size",
     section: "Labels",
     type: "number",
     display: "text",
-    default: 24,
+    default: 16,
     display_size: "half",
-    order: 9
+    order: 9,
   },
   x_axis_label_font_size: {
     label: "X Axis Label Size",
     section: "Labels",
     type: "number",
     display: "text",
-    default: 14,
+    default: 12,
     display_size: "half",
-    order: 10
+    order: 10,
   },
   x_axis_label_angle: {
     label: "X Axis Label Angle",
@@ -104,30 +119,32 @@ export const baseOptions = {
     order: 11,
     min: 0,
     max: 90,
-    step: 1
-  },
-  x_axis_title_padding: {
-    label: "X Axis Title Padding",
-    section: "Labels",
-    type: "number",
-    display: "range",
-    default: 24,
-    order: 12,
-    min: 6,
-    max: 100,
-    step: 2
+    step: 1,
+    display_size: "half",
   },
   x_label_separation: {
-    label: "X Axis Label Separation",
+    label: "X Axis Label Density",
     section: "Labels",
     type: "number",
     display: "range",
-    default: 10,
-    order: 13,
+    default: 100,
+    order: 12,
     min: 1,
-    max: 1000,
-    step: 1
+    max: 100,
+    step: 1,
+    display_size: "half",
   },
+  // x_axis_title_padding: {
+  //   label: "X Axis Title Padding",
+  //   section: "Labels",
+  //   type: "number",
+  //   display: "range",
+  //   default: 24,
+  //   order: 13,
+  //   min: 6,
+  //   max: 100,
+  //   step: 2
+  // },
 
   //Y-AXIS  Style
   y_axis_override: {
@@ -136,7 +153,7 @@ export const baseOptions = {
     type: "string",
     display: "text",
     default: "",
-    order: 14
+    order: 14,
   },
   y_grids: {
     label: "Y Axis Gridlines",
@@ -145,25 +162,25 @@ export const baseOptions = {
     display: "select",
     display_size: "half",
     order: 15,
-    default: true
+    default: true,
   },
   y_axis_title_font_size: {
     label: "Y Axis Title Size",
     section: "Labels",
     type: "number",
     display: "text",
-    default: 24,
+    default: 16,
     display_size: "half",
-    order: 16
+    order: 16,
   },
   y_axis_label_font_size: {
     label: "Y Axis Label Size",
     section: "Labels",
     type: "number",
     display: "text",
-    default: 14,
+    default: 12,
     display_size: "half",
-    order: 17
+    order: 17,
   },
   y_axis_label_angle: {
     label: "Y Axis Label Angle",
@@ -174,30 +191,33 @@ export const baseOptions = {
     order: 18,
     min: 0,
     max: 90,
-    step: 1
-  },
-  y_axis_title_padding: {
-    label: "Y Axis Title Padding",
-    section: "Labels",
-    type: "number",
-    display: "range",
-    default: 20,
-    order: 19,
-    min: 6,
-    max: 100,
-    step: 2
+    step: 1,
+    display_size: "half",
   },
   y_label_separation: {
-    label: "Y Axis Label Separation",
+    label: "Y Axis Label Density",
     section: "Labels",
     type: "number",
     display: "range",
-    default: 10,
-    order: 20,
+    default: 100,
+    order: 19,
     min: 1,
-    max: 1000,
-    step: 1
+    max: 100,
+    step: 1,
+    display_size: "half",
   },
+  // y_axis_title_padding: {
+  //   label: "Y Axis Title Padding",
+  //   section: "Labels",
+  //   type: "number",
+  //   display: "range",
+  //   default: 20,
+  //   order: 20,
+  //   min: 6,
+  //   max: 100,
+  //   step: 2
+  // },
+
   // font_type: {
   //   label: "Font Type",
   //   order: 1,
@@ -211,27 +231,26 @@ export const baseOptions = {
   //   default: "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif"
   // },
   x_axis_value_format: {
-    label:"X Axis Value Format",
+    label: "X Axis Value Format",
     order: 200,
     section: "  Values",
     type: "string",
     display: "text",
     default: "",
-    placeholder: "Spreadsheet Style Value Format"
-  }
-}
+    placeholder: "Spreadsheet Style Value Format",
+  },
+};
 
-
-export function createOptions(queryResponse, baseOptions, config, maxX, maxY){
+export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
   var optionsResponse = {};
-  optionsResponse['options'] = Object.assign({}, baseOptions);
-  optionsResponse['measures'] = [];
-  optionsResponse['dimensions'] = [];
-  optionsResponse['masterList'] = [];
+  optionsResponse["options"] = Object.assign({}, baseOptions);
+  optionsResponse["measures"] = [];
+  optionsResponse["dimensions"] = [];
+  optionsResponse["masterList"] = [];
 
   //Remove breakpoint option
-  if(optionsResponse['options']['bin_type']['values'].length > 2){
-    optionsResponse['options']['bin_type']['values'].pop();
+  if (optionsResponse["options"]["bin_type"]["values"].length > 2) {
+    optionsResponse["options"]["bin_type"]["values"].pop();
   }
 
   var dimCounter = 1;
@@ -241,39 +260,39 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY){
   var defaultMes;
   var defaultMes2;
 
-  queryResponse.fields.dimension_like.forEach(function(field){
+  queryResponse.fields.dimension_like.forEach(function (field) {
     if (!field.is_numeric && field.type !== "tier") {
-      return
-    } 
+      return;
+    }
     var dimLib = {};
-    var fieldName = (field.name).replace(".","_");
+    var fieldName = field.name.replace(".", "_");
     if (typeof field.label_short != "undefined") {
       dimLib[field.label_short] = fieldName; //store friendly label & field name
     } else {
       dimLib[field.label] = fieldName; //capture label, mainly for table calcs
     }
     if (dimCounter == 1) {
-    defaultDim = fieldName; //grab first dimension to use as default X value
+      defaultDim = fieldName; //grab first dimension to use as default X value
     } else if (dimCounter == 2) {
-    defaultDim2 = fieldName;
+      defaultDim2 = fieldName;
     }
-    optionsResponse['masterList'].push(dimLib); //add to master list of all fields
-    optionsResponse['dimensions'].push(dimLib);
+    optionsResponse["masterList"].push(dimLib); //add to master list of all fields
+    optionsResponse["dimensions"].push(dimLib);
     dimCounter += 1;
   });
 
-  queryResponse.fields.measure_like.forEach(function(field){
+  queryResponse.fields.measure_like.forEach(function (field) {
     var mesLib = {};
-    var fieldName = (field.name).replace(".","_");
+    var fieldName = field.name.replace(".", "_");
     if (typeof field.label_short != "undefined") {
       mesLib[field.label_short] = fieldName;
-      optionsResponse['measures'].push(mesLib);
+      optionsResponse["measures"].push(mesLib);
     } else {
       mesLib[field.label] = fieldName;
       if (field.type == "yesno") {
-        optionsResponse['dimensions'].push(mesLib);
+        optionsResponse["dimensions"].push(mesLib);
       } else {
-        optionsResponse['measures'].push(mesLib);
+        optionsResponse["measures"].push(mesLib);
       }
     }
     if (mesCounter == 1) {
@@ -281,8 +300,8 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY){
     } else if (mesCounter == 2) {
       defaultMes2 = fieldName;
     }
-    optionsResponse['masterList'].push(mesLib);
-    
+    optionsResponse["masterList"].push(mesLib);
+
     mesCounter += 1;
   });
 
@@ -293,27 +312,27 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY){
   if (typeof defaultMes2 == "undefined") {
     defaultMes2 = defaultDim2;
   }
-  if(config['bin_type'] === 'steps') {
-    optionsResponse['options']['num_step_x'] = {
+  if (config["bin_type"] === "steps") {
+    optionsResponse["options"]["num_step_x"] = {
       label: "Step Size (X)",
       section: "  Values",
       type: "number",
       order: 5,
       display: "text",
-      default: Math.floor(maxX/10),  
-      display_size: "half"
-    }
-    optionsResponse['options']['num_step_y'] = {
+      default: Math.floor(maxX / 10),
+      display_size: "half",
+    };
+    optionsResponse["options"]["num_step_y"] = {
       label: "Step Size (Y)",
       section: "  Values",
       type: "number",
       order: 6,
       display: "text",
-      default: Math.floor(maxY/10),  
-      display_size: "half"
-    }
-  } else if(config['bin_type'] === 'bins'){
-    optionsResponse['options']['max_bins'] = {
+      default: Math.floor(maxY / 10),
+      display_size: "half",
+    };
+  } else if (config["bin_type"] === "bins") {
+    optionsResponse["options"]["max_bins"] = {
       label: "Max number of Bins",
       section: "  Values",
       type: "number",
@@ -322,93 +341,103 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY){
       step: 1,
       min: 1,
       max: 25,
-      default: 10
-    }
-  } else if(config['bin_type'] === 'breakpoints') {
-    optionsResponse['options']['breakpointsX'] = {
+      default: 10,
+    };
+  } else if (config["bin_type"] === "breakpoints") {
+    optionsResponse["options"]["breakpointsX"] = {
       label: "Breakpoints (X)",
       section: "  Values",
       type: "string",
       placeholder: "Comma seperated breakpoints (100, 200, 300)",
-      order: 4
-    }
-    optionsResponse['options']['breakpointsY'] = {
+      order: 4,
+    };
+    optionsResponse["options"]["breakpointsY"] = {
       label: "Breakpoints (Y)",
       section: "  Values",
       type: "string",
       placeholder: "Comma seperated breakpoints (100, 200, 300)",
-      order: 5
-    }
+      order: 5,
+    };
   }
-  if(config['winsorization']) {
-    optionsResponse['options']['percentile'] = {
+  if (config["winsorization"]) {
+    optionsResponse["options"]["percentile"] = {
       label: "Percentiles",
       section: "  Values",
       type: "string",
       order: 7,
       display: "select",
       display_size: "half",
-      default: '1_99',
-      values: [
-        {'1% - 99%' : '1_99'},
-        {'5% - 95%' : '5_95'}
-      ]
-    }
+      default: "1_99",
+      values: [{ "1% - 99%": "1_99" }, { "5% - 95%": "5_95" }],
+    };
   }
 
-  optionsResponse['options']['x'] = {
+  optionsResponse["options"]["x"] = {
     label: "X Axis",
     section: "  Values",
     type: "string",
     display: "select",
     order: 1,
-    values: optionsResponse['masterList'],
-    default: defaultMes
-  }
-  optionsResponse['options']['y'] = {
+    values: optionsResponse["masterList"],
+    default: defaultMes,
+  };
+  optionsResponse["options"]["y"] = {
     label: "Y Axis",
     section: "  Values",
     type: "string",
     display: "select",
     order: 1,
-    values: optionsResponse['masterList'],
-    default: defaultMes2
-  }
-  optionsResponse['options']['heatmap_off'] = {
+    values: optionsResponse["masterList"],
+    default: defaultMes2,
+  };
+  optionsResponse["options"]["heatmap_off"] = {
     label: "Show Heatmap",
     section: "  Values",
     type: "boolean",
     order: 7,
     display: "select",
-    default: true
-  }
-  optionsResponse['options']['layer_points'] = {
+    default: true,
+  };
+  optionsResponse["options"]["layer_points"] = {
     label: "Show Points",
     section: "  Values",
     type: "boolean",
     order: 8,
     display: "select",
-    default: true
-  }
-  var size_arr = optionsResponse['masterList'].concat([{'None': ""}]);
-  optionsResponse['options']['size'] = {
+    default: true,
+  };
+  var size_arr = optionsResponse["masterList"].concat([{ None: "" }]);
+  optionsResponse["options"]["size"] = {
     label: "Size Points By",
     section: "  Values",
     type: "string",
     order: 9,
     display: "select",
     values: size_arr,
-    default: ""
-  }
-  optionsResponse['options']['color_scheme'] = {
+    default: "",
+  };
+  optionsResponse["options"]["color_scheme"] = {
     label: "Heatmap Color Scheme",
     section: " Style",
     type: "array",
     display: "colors",
     order: 1,
-    default: ["#dbf1b4", "#bde5b5", "#94d5b9", "#69c5be", "#45b4c2", "#2c9ec0", "#2182b8", "#2163aa", "#23479c"]
-  }
-  optionsResponse['options']['heatmap_opacity'] = {
+    default: [
+      "#7FCDAE",
+      "#7ED09C",
+      "#7DD389",
+      "#85D67C",
+      "#9AD97B",
+      "#B1DB7A",
+      "#CADF79",
+      "#E2DF78",
+      "#E5C877",
+      "#E7AF75",
+      "#EB9474",
+      "#EE7772",
+    ],
+  };
+  optionsResponse["options"]["heatmap_opacity"] = {
     label: "Heatmap Opacity",
     section: " Style",
     type: "number",
@@ -417,9 +446,9 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY){
     max: 1.0,
     step: 0.05,
     default: 0.8,
-    order: 2
-  }
-  optionsResponse['options']['point_opacity'] = {
+    order: 2,
+  };
+  optionsResponse["options"]["point_opacity"] = {
     label: "Point Opacity",
     section: " Style",
     type: "number",
@@ -428,50 +457,50 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY){
     max: 1.0,
     step: 0.05,
     default: 0.8,
-    order: 6
-  }
-  optionsResponse['options']['legend_orient'] = {
+    order: 6,
+  };
+  optionsResponse["options"]["legend_orient"] = {
     label: "Legend Position",
     section: "Labels",
     type: "string",
     display: "select",
     order: 6,
     values: [
-      {"Left" : "left"},
-      {"Right": "right"},
-      {"Top" : "top"},
-      {"Bottom": "bottom"}
+      { Left: "left" },
+      { Right: "right" },
+      { Top: "top" },
+      { Bottom: "bottom" },
     ],
     display_size: "half",
-    default: "right"
-  }
-  optionsResponse['options']['legend_size'] = {
+    default: "right",
+  };
+  optionsResponse["options"]["legend_size"] = {
     label: "Legend Font Size",
     section: "Labels",
     type: "number",
     display: "text",
     default: 16,
     display_size: "half",
-    order: 7
-  }
-  optionsResponse['options']['y_axis_value_format'] = {
-    label:"Y Axis Value Format",
+    order: 7,
+  };
+  optionsResponse["options"]["y_axis_value_format"] = {
+    label: "Y Axis Value Format",
     order: 201,
     section: "  Values",
     type: "string",
     display: "text",
     default: "",
-    placeholder: "Spreadsheet Style Value Format"
-  }
-  optionsResponse['options']['points_legend_value_format'] = {
-    label:"Point Value Format",
+    placeholder: "Spreadsheet Style Value Format",
+  };
+  optionsResponse["options"]["points_legend_value_format"] = {
+    label: "Point Value Format",
     order: 202,
     section: "  Values",
     type: "string",
     display: "text",
     default: "",
-    placeholder: "Spreadsheet Style Value Format"
-  }
+    placeholder: "Spreadsheet Style Value Format",
+  };
 
   return optionsResponse;
 }
