@@ -294,7 +294,7 @@ export function tooltipFormatter(
   let checkNumbers = (formattedText) => {
     return Number(formattedText[0]) !== NaN && Number(formattedText[2]) !== NaN;
   };
-  // Somewhere along the way (Vega-Lite or Looker) "-" become en-dashes.
+  // Somewhere along the way (Vega-Lite or Looker) "-" becomes en-dashes.
   // We need negative numbers to have true hyphens to be converted to Number()
   let checkNeg = (text) => {
     return text.replace(/\u2013|\u2014|\u2212/g, "-");
@@ -302,7 +302,7 @@ export function tooltipFormatter(
 
   // Styling for tooltip div
   let fontType =
-    "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'"; //config['font_type']
+  "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif"; //config['font_type']
   d3.selectAll("#vg-tooltip-element")
     .style("background-color", "rgba(0, 0, 0, 0.75)")
     .style("border-color", "rgba(0, 0, 0, 0.75)")
@@ -326,8 +326,8 @@ export function tooltipFormatter(
       let currentText = tooltip.text();
       let formattedText = currentText.split(" ");
       if (checkNumbers(formattedText)) {
-        formattedText[0] = SSF.format(xAxisFormat, Number(formattedText[0]));
-        formattedText[2] = SSF.format(xAxisFormat, Number(formattedText[2]));
+        formattedText[0] = SSF.format(xAxisFormat, Number(checkNeg(formattedText[0])));
+        formattedText[2] = SSF.format(xAxisFormat, Number(checkNeg(formattedText[2])));
         tooltip.text(formattedText.join(" "));
       }
     }

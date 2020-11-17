@@ -10,7 +10,7 @@ import {
 } from "./common/vega_utils";
 
 const FONT_TYPE =
-  "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'";
+    "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif";
 
 export function simpleHist(
   data,
@@ -153,7 +153,10 @@ export function simpleHist(
               maxbins: config["max_bins"],
             }),
             ...(config["bin_type"] === "steps" && {
-              step: config["step_size"],
+              step:
+                config["step_size"] <= Math.floor(max / 200)
+                  ? Math.floor(max / 200)
+                  : config["step_size"],
             }),
             ...(config["bin_type"] === "breakpoints" && { binned: true }),
           },

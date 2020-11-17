@@ -15,7 +15,8 @@ export const baseOptions = {
       },
       {
         Steps: {
-          description: "Set an exact step size to use between bins",
+          description:
+            "Set an exact step size to use between bins. Step sizes that would create more than 50 bins are ignored.",
           value: "steps",
         },
       },
@@ -61,7 +62,7 @@ export const baseOptions = {
     label: "Color",
     display: "color",
     display_size: "half",
-    default: "#4285F4",
+    default: "#1A73E8",
     //default: "#7A55E3",
     order: 2,
   },
@@ -71,7 +72,7 @@ export const baseOptions = {
     label: "Color On Hover",
     display: "color",
     display_size: "half",
-    default: "#499bff",
+    default: "#338bff",
     order: 2,
   },
 

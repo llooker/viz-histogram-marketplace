@@ -10,7 +10,7 @@ import {
 } from "./common/vega_utils";
 
 const FONT_TYPE =
-  "'Open Sans','Noto Sans JP','Noto Sans CJK KR','Noto Sans Arabic UI','Noto Sans Devanagari UI','Noto Sans Hebrew','Noto Sans Thai UI',Helvetica,Arial,sans-serif,'Noto Sans'";
+    "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif";
 export function scatterHist(
   data,
   element,
@@ -155,7 +155,10 @@ export function scatterHist(
                 maxbins: config["max_bins"],
               }),
               ...(config.bin_type === "steps" && {
-                step: config["num_step_x"],
+                step:
+                  config["num_step_x"] <= Math.floor(maxX / 200)
+                    ? Math.floor(maxX / 200)
+                    : config["num_step_x"],
               }),
               ...(config.bin_type === "breakpoints" && { binned: true }),
             },
@@ -185,7 +188,10 @@ export function scatterHist(
                 maxbins: config["max_bins"],
               }),
               ...(config.bin_type === "steps" && {
-                step: config["num_step_x"],
+                step:
+                  config["num_step_x"] <= Math.floor(maxX / 200)
+                    ? Math.floor(maxX / 200)
+                    : config["num_step_x"],
               }),
               ...(config.bin_type === "breakpoints" && { binned: true }),
             }
@@ -230,7 +236,10 @@ export function scatterHist(
                         maxbins: config["max_bins"],
                       }),
                       ...(config.bin_type === "steps" && {
-                        step: config["num_step_x"],
+                        step:
+                          config["num_step_x"] <= Math.floor(maxX / 200)
+                            ? Math.floor(maxX / 200)
+                            : config["num_step_x"],
                       }),
                       ...(config.bin_type === "breakpoints" && {
                         binned: true,
@@ -270,7 +279,10 @@ export function scatterHist(
                         maxbins: config["max_bins"],
                       }),
                       ...(config.bin_type === "steps" && {
-                        step: config["num_step_y"],
+                        step:
+                          config["num_step_y"] <= Math.floor(maxY / 200)
+                            ? Math.floor(maxY / 200)
+                            : config["num_step_y"],
                       }),
                       ...(config.bin_type === "breakpoints" && {
                         binned: true,
@@ -334,7 +346,10 @@ export function scatterHist(
                             maxbins: config["max_bins"],
                           }),
                           ...(config.bin_type === "steps" && {
-                            step: config["num_step_x"],
+                            step:
+                              config["num_step_x"] <= Math.floor(maxX / 200)
+                                ? Math.floor(maxX / 200)
+                                : config["num_step_x"],
                           }),
                           ...(config.bin_type === "breakpoints" && {
                             binned: true,
@@ -349,7 +364,10 @@ export function scatterHist(
                               maxbins: config["max_bins"],
                             }),
                             ...(config.bin_type === "steps" && {
-                              step: config["num_step_y"],
+                              step:
+                                config["num_step_y"] <= Math.floor(maxY / 200)
+                                  ? Math.floor(maxY / 200)
+                                  : config["num_step_y"],
                             }),
                             ...(config.bin_type === "breakpoints" && {
                               binned: true,
@@ -387,7 +405,10 @@ export function scatterHist(
                     maxbins: config["max_bins"],
                   }),
                   ...(config.bin_type === "steps" && {
-                    step: config["num_step_y"],
+                    step:
+                      config["num_step_y"] <= Math.floor(maxY / 200)
+                        ? Math.floor(maxY / 200)
+                        : config["num_step_y"],
                   }),
                   ...(config.bin_type === "breakpoints" && { binned: true }),
                 },
@@ -423,7 +444,10 @@ export function scatterHist(
                     maxbins: config["max_bins"],
                   }),
                   ...(config.bin_type === "steps" && {
-                    step: config["num_step_y"],
+                    step:
+                      config["num_step_y"] <= Math.floor(maxY / 200)
+                        ? Math.floor(maxY / 200)
+                        : config["num_step_y"],
                   }),
                   ...(config.bin_type === "breakpoints" && { binned: true }),
                 }
