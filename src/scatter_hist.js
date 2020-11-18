@@ -165,7 +165,12 @@ export function scatterHist(
             field:
               config.bin_type === "breakpoints" ? "bin_start_x" : config["x"],
             type: "quantitative",
-            axis: null,
+            axis: {
+              grid: config["x_grids"],
+              title: null,
+              labels: false,
+              ticks: false
+            },
           },
           ...(config["bin_type"] === "breakpoints" && {
             x2: { field: "bin_end_x" },
@@ -178,6 +183,7 @@ export function scatterHist(
             axis: {
               labelColor: "#696969",
               titleColor: "#696969",
+              grid: config["y_grids"],
             },
           },
           tooltip: binnedTooltipHandler(
@@ -417,7 +423,12 @@ export function scatterHist(
                     ? "bin_start_y"
                     : config["y"],
                 type: "quantitative",
-                axis: null,
+                axis: {
+                  grid: config["y_grids"],
+                  title: null,
+                  labels: false,
+                  ticks: false
+                },
               },
               ...(config["bin_type"] === "breakpoints" && {
                 y2: { field: "bin_end_y" },
@@ -434,6 +445,8 @@ export function scatterHist(
                 axis: {
                   labelColor: "#696969",
                   titleColor: "#696969",
+                  grid: config["x_grids"],
+                  title: null,
                 },
               },
               tooltip: binnedTooltipHandler(

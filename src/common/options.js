@@ -407,6 +407,7 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
     display: "select",
     default: true,
   };
+  var defaultVal = optionsResponse["masterList"].length > 2 ? optionsResponse["masterList"][2] : ""
   var size_arr = optionsResponse["masterList"].concat([{ None: "" }]);
   optionsResponse["options"]["size"] = {
     label: "Size Points By",
@@ -415,7 +416,7 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
     order: 9,
     display: "select",
     values: size_arr,
-    default: "",
+    default: defaultVal[Object.keys(defaultVal)[0]],
   };
   optionsResponse["options"]["color_scheme"] = {
     label: "Heatmap Color Scheme",
