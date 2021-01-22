@@ -7,6 +7,8 @@ import {
   fixChartSizing,
   setFormatting,
   formatPointLegend,
+  getPercentile,
+  extendRefLine
 } from "./common/vega_utils";
 
 const FONT_TYPE =
@@ -27,7 +29,10 @@ export function scatterHist(
   const width = element.clientWidth;
   const height = element.clientHeight;
   const maxX = Math.max(...myData.map((e) => e[config["x"]]));
+  const minX = Math.min(...myData.map(e => e[config["x"]]));
   const maxY = Math.max(...myData.map((e) => e[config["y"]]));
+  const minY = Math.min(...myData.map((e) => e[config["y"]]));
+  const mainDimension = queryResponse.fields.dimension_like[0].name.replace(".", "_")
   const dynamicOptions = createOptions(
     queryResponse,
     baseOptions,
@@ -73,12 +78,18 @@ export function scatterHist(
     myData = winsorize(myData, config["y"], config["percentile"]);
   }
 
-  // Breakpoints not currently supported for scatted histogram
-  // let preBin = []
+  let preBin = []
+  //Breakpoints not currently supported for scatted histogram
   // if(config['bin_type'] === 'breakpoints'){
   //   preBin = makeBins(myData, config['x'], config['breakpointsX'], formatX, 'x')
   //   preBin = preBin.concat(makeBins(myData, config['y'], config['breakpointsY'], formatY, 'y'))
   // }
+  // if(true) {
+  //   let x = makeMedianBins(myData, 'x', config['x'], valFormatX)
+  //   let y = makeMedianBins(myData, 'y', config['y'], valFormatY)
+  //   preBin = x.concat(y).concat(myData)
+  // }
+
 
   // These tooltip fields are used for point labels
   const tooltipFields = [];
@@ -122,8 +133,10 @@ export function scatterHist(
     (a, b) => order.indexOf(a["field"]) - order.indexOf(b["field"])
   );
 
-  // Move first element (dimension) to last index
-  tooltipFields.push(tooltipFields.shift());
+  // Move dimensions to back of array
+  for (let i = 0; i < queryResponse.fields.dimension_like.length; i++){
+    tooltipFields.push(tooltipFields.shift())
+  }
 
   //X HISTOGRAM
   var vegaChart = {
@@ -486,9 +499,46 @@ export function scatterHist(
     },
   };
 
+  if (config["reference_line_x"]) {
+    const percentileX = getPercentile(config['x'], myData)
+    vegaChart.vconcat[1].hconcat[0].layer.push({
+      data: [{}],
+      mark: {
+        type: "rule",
+      },
+      encoding: {
+        x:  { datum: percentileX,},
+        y:  { datum: minY },
+        x2: { datum: percentileX },
+        y2: { datum: maxY },
+        color: { value: "red" },
+        size: { value: 5 }
+      }
+    })
+  }
+
+  if (config["reference_line_y"]) {
+    const percentileY = getPercentile(config['y'], myData)
+    vegaChart.vconcat[1].hconcat[0].layer.push({
+      data: [{}],
+      mark: {
+        type: "rule",
+      },
+      encoding: {
+        x:  { datum: minX,},
+        y:  { datum: medianY },
+        x2: { datum: medianX },
+        y2: { datum: maxY },
+        color: { value: "red" },
+        size: { value: 5 }
+      }
+    })
+  }
+
+
   //SCATTERPLOT
   if (config["layer_points"]) {
-    vegaChart.vconcat[1].hconcat[0].layer[1] = {
+    vegaChart.vconcat[1].hconcat[0].layer.push({
       mark: {
         cursor: "pointer",
         type: "circle",
@@ -509,7 +559,30 @@ export function scatterHist(
           type: "quantitative",
         },
       },
-    };
+    });
+
+    if (config["point_labels"]) {
+      vegaChart.vconcat[1].hconcat[0].layer.push({
+        mark: {
+          type: "text",
+          align: "left",
+          angle: config['point_labels_angle'],
+          dx: config['point_labels_x_offset'],
+          dy: config['point_labels_y_offset']
+        },
+        encoding: {
+          x: {
+            field: config["x"],
+            type: "quantitative",
+          },
+          y: {
+            field: config["y"],
+            type: "quantitative",
+          },
+          text: {field: mainDimension}
+        }
+      });
+    }
 
     //SIZE POINTS
     if (config["size"] != "" && typeof config["size"] != "undefined") {
@@ -533,12 +606,19 @@ export function scatterHist(
     }
   }
 
+
   embed("#my-vega", vegaChart, { actions: false, renderer: "svg" }).then(
     ({ spec, view }) => {
       fixChartSizing();
       setFormatting("scatter", valFormatX, valFormatY);
       if (config["size"] && config["layer_points"]) {
         formatPointLegend(valFormatPoints);
+      }
+      if (config['reference_line_x']) {
+        extendRefLine('x');
+      }
+      if (config['reference_line_y']) {
+        extendRefLine('y')
       }
       if (details.print) {
         done();
@@ -551,7 +631,8 @@ export function scatterHist(
           item,
           valFormatX,
           valFormatY,
-          valFormatPoints
+          valFormatPoints,
+          dataProperties
         );
       });
 

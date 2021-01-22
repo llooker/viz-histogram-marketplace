@@ -15,7 +15,7 @@ looker.plugins.visualizations.add({
   updateAsync: function (data, element, config, queryResponse, details, done) {
     if (data.length === 0) {
       this.addError({ title: "No Results" });
-      done();
+      // done();
       return;
     }
 

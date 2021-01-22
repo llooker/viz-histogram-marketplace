@@ -29,8 +29,7 @@ export function handleErrors(vis, res, options) {
     return true;
   };
 
-  const { pivots, dimensions, measure_like: measures } = res.fields;
-
+  const { pivots, dimension_like: dimensions, measure_like: measures } = res.fields;
   return (
     check(
       "pivot-req",
@@ -177,13 +176,15 @@ export function binnedTooltipHandler(datum, labelOverride, bins) {
     {
       title: labelOverride !== "" ? labelOverride : datum["title"],
       bin: bins,
-      field: datum["lookerName"].replace(".", "_"),
-      type: "quantitative",
+      field: bins.binned ? "label" : datum["lookerName"].replace(".", "_"),
+      type: bins.binned ? "ordinal" : "quantitative",
     },
     {
       title: "Count of Records",
       aggregate: "count",
       type: "quantitative",
+      ...(!bins.binned && { aggregate: "count" }),
+      ...(bins.binned && { field: "count_x" }),
     },
   ];
 }
@@ -223,6 +224,19 @@ export function makeBins(myData, field, breakpointsArray, valFormat, axis) {
   }
   return preBin;
 }
+
+export function getPercentile(field, myData) {
+  return percentile(50, myData.map(e => e[field]))
+}
+
+export function extendRefLine(axis) {
+  let gElem = d3.select(".mark-rect.role-mark.concat_1_concat_0_layer_0_marks").node()
+  let boundingBox = gElem.getBBox()
+  let refLine = d3.select(gElem.nextSibling).selectChild("line")
+  refLine.attr("y2", -1 * boundingBox.height)
+  
+}
+
 
 export function winsorize(myData, field, p) {
   p = p.split("_").map((e) => eval(e));
@@ -291,12 +305,12 @@ export function tooltipFormatter(
   }
 
   // Helper to check if it hasn't already been formatted (sometimes this happens on rerender)
-  let checkNumbers = (formattedText) => {
+  const checkNumbers = (formattedText) => {
     return Number(formattedText[0]) !== NaN && Number(formattedText[2]) !== NaN;
   };
   // Somewhere along the way (Vega-Lite or Looker) "-" becomes en-dashes.
   // We need negative numbers to have true hyphens to be converted to Number()
-  let checkNeg = (text) => {
+  const checkNeg = (text) => {
     return text.replace(/\u2013|\u2014|\u2212/g, "-");
   };
 

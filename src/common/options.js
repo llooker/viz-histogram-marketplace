@@ -77,6 +77,13 @@ export const baseOptions = {
   },
 
   //X-AXIS  Style
+  x_axis_label_divider: {
+    label: "X Axis -------------------------------------------------------",
+    section: "Labels",
+    type: "string",
+    display: "divider",
+    order: 6
+  },
   x_axis_override: {
     label: "X Axis Title Override",
     section: "Labels",
@@ -148,6 +155,13 @@ export const baseOptions = {
   // },
 
   //Y-AXIS  Style
+  y_axis_label_divider: {
+    label: "Y Axis -------------------------------------------------------",
+    section: "Labels",
+    type: "string",
+    display: "divider",
+    order: 13
+  },
   y_axis_override: {
     label: "Y Axis Title Override",
     section: "Labels",
@@ -207,6 +221,8 @@ export const baseOptions = {
     step: 1,
     display_size: "half",
   },
+
+
   // y_axis_title_padding: {
   //   label: "Y Axis Title Padding",
   //   section: "Labels",
@@ -240,6 +256,7 @@ export const baseOptions = {
     default: "",
     placeholder: "Spreadsheet Style Value Format",
   },
+
 };
 
 export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
@@ -252,6 +269,7 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
   //Remove breakpoint option
   if (optionsResponse["options"]["bin_type"]["values"].length > 2) {
     optionsResponse["options"]["bin_type"]["values"].pop();
+    
   }
 
   var dimCounter = 1;
@@ -483,7 +501,7 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
     display: "text",
     default: 16,
     display_size: "half",
-    order: 7,
+    order: 5,
   };
   optionsResponse["options"]["y_axis_value_format"] = {
     label: "Y Axis Value Format",
@@ -502,7 +520,76 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
     display: "text",
     default: "",
     placeholder: "Spreadsheet Style Value Format",
-  };
-
+  }
+  optionsResponse["options"]["point_labels_divider"] = {
+    label: "Point Labels ---------------------------------------------",
+    section: "Labels",
+    type: "string",
+    display: "divider",
+    order: 1000,
+    default: false
+  }
+  optionsResponse["options"]["point_labels"] = {
+    label: "Scatterplot Point Labels",
+    section: "Labels",
+    type: "boolean",
+    order: 1001,
+    default: false
+  }
+  optionsResponse["options"]["point_labels_x_offset"] = {
+    label: "Point Label X Offset",
+    section: "Labels",
+    type: "number",
+    display: "range",
+    display_size: "half",
+    default: 0,
+    order: 1002,
+    min: -50,
+    max: 50,
+    step: 1
+  }
+  optionsResponse["options"]["point_labels_y_offset"] = {
+    label: "Point Label Y Offset",
+    section: "Labels",
+    type: "number",
+    display: "range",
+    display_size: "half",
+    order: 1003,
+    default: 0,
+    min: -50,
+    max: 50,
+    step: 1
+  }
+  optionsResponse["options"]["point_labels_angle"] = {
+    label: "Point Label Angle",
+    section: "Labels",
+    type: "number",
+    display: "range",
+    display_size: "half",
+    order: 1004,
+    default: 0,
+    min: -90,
+    max: 90,
+    step: 1
+  }
+  optionsResponse["options"]["reference_line_divider"] = {
+    label: "Reference Lines ----------------------------------------",
+    order: 1004,
+    section: "Labels",
+    type: "string",
+    display: "divder"
+  }
+  optionsResponse["options"]["reference_line_x"] = {
+    label: "X Axis",
+    order: 1005,
+    section: "Labels",
+    type: "boolean",
+  }
+  optionsResponse["options"]["reference_line_y"] = {
+    label: "Y Axis",
+    order: 1006,
+    section: "Labels",
+    type: "boolean",
+  }
   return optionsResponse;
 }
