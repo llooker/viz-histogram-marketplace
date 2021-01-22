@@ -1,4 +1,4 @@
-import { baseOptions } from "./common/options";
+import { baseOptions, createOptionsSimple } from "./common/options";
 import {
   prepareData,
   simpleHistTooltipHandler,
@@ -35,69 +35,73 @@ export function simpleHist(
   );
   const max = Math.max(...myData.map((e) => e[vegaSafeNameMes]));
 
-  //Need to reassign some options when toggling from scatter to simple hist
-  const options = Object.assign({}, baseOptions);
-  if (options["bin_type"]["values"].length < 3) {
-    options["bin_type"]["values"][options["bin_type"]["values"].length] = {
-      Breakpoints: {
-        description: "An array of allowable step sizes to choose from.",
-        value: "breakpoints",
-      },
-    };
-  }
-  if (config["bin_type"] === "bins") {
-    options["max_bins"] = {
-      label: "Max number of Bins",
-      section: "  Values",
-      type: "number",
-      order: 4,
-      display: "range",
-      step: 1,
-      min: 1,
-      max: 50,
-      default: 10,
-    };
-  } else if (config["bin_type"] === "steps") {
-    options["step_size"] = {
-      label: "Step Size",
-      section: "  Values",
-      type: "number",
-      order: 4,
-      display: "text",
-      default: Math.floor(max / 10),
-    };
-  } else {
-    options["breakpoint_array"] = {
-      label: "Breakpoints",
-      section: "  Values",
-      order: 4,
-      type: "string",
-      default: `min, ${Math.floor(max / 5)}, ${Math.floor(
-        max / 4
-      )}, ${Math.floor(max / 3)}, ${Math.floor(max / 2)}, max`,
-    };
-    options["breakpoint_ordinal"] = {
-      label: "Use Equal Sized Columns (Ordinal Bins)",
-      order: 4,
-      section: "  Values",
-      type: "boolean",
-      display: "select",
-      default: false,
-    };
-  }
-  if (config["winsorization"]) {
-    options["percentile"] = {
-      label: "Percentiles",
-      section: "  Values",
-      type: "string",
-      order: 7,
-      display: "select",
-      display_size: "half",
-      default: "1_99",
-      values: [{ "1% - 99%": "1_99" }, { "5% - 95%": "5_95" }],
-    };
-  }
-  that.trigger("registerOptions", options);
+  // As of 21.0.10 Dashboard-Next does not support removing options 
+  // from the viz config (only additive). Attempting to do so causes 
+  // an infinite rerender. Removing dynamic options for now
+  // ----------------------------------------------------------------
+  // if (options["bin_type"]["values"].length < 3) {
+  //   options["bin_type"]["values"][options["bin_type"]["values"].length] = {
+  //     Breakpoints: {
+  //       description: "An array of allowable step sizes to choose from.",
+  //       value: "breakpoints",
+  //     },
+  //   };
+  //  }
+  // if (config["bin_type"] === "bins") {
+  //   options["max_bins"] = {
+  //     label: "Max number of Bins",
+  //     section: "  Values",
+  //     type: "number",
+  //     order: 4,
+  //     display: "range",
+  //     step: 1,
+  //     min: 1,
+  //     max: 50,
+  //     default: 10,
+  //   };
+  // } else if (config["bin_type"] === "steps") {
+  //   options["step_size"] = {
+  //     label: "Step Size",
+  //     section: "  Values",
+  //     type: "number",
+  //     order: 4,
+  //     display: "text",
+  //     default: Math.floor(max / 10),
+  //   };
+  // } else {
+    // options["breakpoint_array"] = {
+    //   label: "Breakpoints",
+    //   section: "  Values",
+    //   order: 4,
+    //   type: "string",
+    //   default: `min, ${Math.floor(max / 5)}, ${Math.floor(
+    //     max / 4
+    //   )}, ${Math.floor(max / 3)}, ${Math.floor(max / 2)}, max`,
+    // };
+    // options["breakpoint_ordinal"] = {
+    //   label: "Use Equal Sized Columns (Ordinal Bins)",
+    //   order: 4,
+    //   section: "  Values",
+    //   type: "boolean",
+    //   display: "select",
+    //   default: false,
+    // };
+    //}
+  // if (config["winsorization"]) {
+  //   options["percentile"] = {
+  //     label: "Percentiles",
+  //     section: "  Values",
+  //     type: "string",
+  //     order: 7,
+  //     display: "select",
+  //     display_size: "half",
+  //     default: "1_99",
+  //     values: [{ "1% - 99%": "1_99" }, { "5% - 95%": "5_95" }],
+  //   };
+  // }
+  
+  let newOpts = createOptionsSimple(max)
+  that.trigger("registerOptions", Object.assign(baseOptions, newOpts));
 
   if (config["winsorization"]) {
     myData = winsorize(myData, vegaSafeNameMes, config["percentile"]);
