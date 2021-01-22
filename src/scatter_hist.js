@@ -1,3 +1,4 @@
+import { isEqual } from "vega-lite";
 import { baseOptions, createOptions } from "./common/options";
 import {
   prepareData,
@@ -40,7 +41,11 @@ export function scatterHist(
     maxX,
     maxY
   )["options"];
-  that.trigger("registerOptions", dynamicOptions);
+  that.trigger("registerOptions", Object.assign(baseOptions, dynamicOptions));
+  
+  if (config["bin_type"] === "breakpoints") {
+    that.addError({ title: "Breakpoints Currently not supported for Scatter Histogram" });
+  }
 
   const defaultValFormatX = dataProperties[config["x"]]["valueFormat"];
   const defaultValFormatY = dataProperties[config["y"]]["valueFormat"];
@@ -142,7 +147,7 @@ export function scatterHist(
   var vegaChart = {
     $schema: "https://vega.github.io/schema/vega-lite/v4.json",
     data: {
-      values: config["bin_type"] === "breakpoints" ? preBin : myData,
+      values: myData,
     },
     spacing: 15,
     bounds: "flush",
@@ -499,43 +504,6 @@ export function scatterHist(
     },
   };
 
-  if (config["reference_line_x"]) {
-    const percentileX = getPercentile(config['x'], myData)
-    vegaChart.vconcat[1].hconcat[0].layer.push({
-      data: [{}],
-      mark: {
-        type: "rule",
-      },
-      encoding: {
-        x:  { datum: percentileX,},
-        y:  { datum: minY },
-        x2: { datum: percentileX },
-        y2: { datum: maxY },
-        color: { value: "red" },
-        size: { value: 5 }
-      }
-    })
-  }
-
-  if (config["reference_line_y"]) {
-    const percentileY = getPercentile(config['y'], myData)
-    vegaChart.vconcat[1].hconcat[0].layer.push({
-      data: [{}],
-      mark: {
-        type: "rule",
-      },
-      encoding: {
-        x:  { datum: minX,},
-        y:  { datum: medianY },
-        x2: { datum: medianX },
-        y2: { datum: maxY },
-        color: { value: "red" },
-        size: { value: 5 }
-      }
-    })
-  }
-
-
   //SCATTERPLOT
   if (config["layer_points"]) {
     vegaChart.vconcat[1].hconcat[0].layer.push({
@@ -604,6 +572,42 @@ export function scatterHist(
         },
       };
     }
+  }
+
+  if (config["reference_line_x"]) {
+    const percentileX = getPercentile(config['x'], myData)
+    vegaChart.vconcat[1].hconcat[0].layer.push({
+      data: [{}],
+      mark: {
+        type: "rule",
+      },
+      encoding: {
+        x:  { datum: percentileX,},
+        y:  { datum: minY },
+        x2: { datum: percentileX },
+        y2: { datum: maxY },
+        color: { value: "red" },
+        size: { value: 5 }
+      }
+    })
+  }
+
+  if (config["reference_line_y"]) {
+    const percentileY = getPercentile(config['y'], myData)
+    vegaChart.vconcat[1].hconcat[0].layer.push({
+      data: [{}],
+      mark: {
+        type: "rule",
+      },
+      encoding: {
+        x:  { datum: minX,},
+        y:  { datum: medianY },
+        x2: { datum: medianX },
+        y2: { datum: maxY },
+        color: { value: "red" },
+        size: { value: 5 }
+      }
+    })
   }
 
 

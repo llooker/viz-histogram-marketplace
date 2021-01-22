@@ -41,13 +41,25 @@ export const baseOptions = {
       { "Scatter Histogram": "binned_hist" },
     ],
   },
-  // show_percent: {
-  //   label: "Show as Percent",
-  //   section: "  Values",
-  //   type: "boolean",
-  //   order: 5,
-  //   default: false
-  // },
+  breakpoint_ordinal: {
+    label: "Equal Sized Columns (for Breakpoints)",
+    order: 2,
+    section: "  Values",
+    type: "boolean",
+    display: "select",
+    default: false,
+  },
+  max_bins: {
+    label: "Max number of Bins",
+    section: "  Values",
+    type: "number",
+    order: 3,
+    display: "range",
+    step: 1,
+    min: 1,
+    max: 50,
+    default: 10,
+  },
   winsorization: {
     label: "Limit Outliers (Winsorize)",
     section: "  Values",
@@ -55,6 +67,25 @@ export const baseOptions = {
     order: 7,
     default: false,
   },
+  percentile: {
+    label: "Percentiles",
+    section: "  Values",
+    type: "string",
+    order: 8,
+    display: "select",
+    display_size: "half",
+    default: "1_99",
+    values: [{ "1% - 99%": "1_99" }, { "5% - 95%": "5_95" }],
+  },
+
+  // show_percent: {
+  //   label: "Show as Percent",
+  //   section: "  Values",
+  //   type: "boolean",
+  //   order: 5,
+  //   default: false
+  // },
+
   //COLOR
   color_col: {
     type: "string",
@@ -253,11 +284,35 @@ export const baseOptions = {
     section: "  Values",
     type: "string",
     display: "text",
+    
     default: "",
     placeholder: "Spreadsheet Style Value Format",
   },
 
 };
+
+export function createOptionsSimple(max) {
+  let newOpts = {
+    step_size: {
+      label: "Step Size (Simple Histogram)",
+      section: "  Values",
+      type: "number",
+      order: 4,
+      display: "text",
+      default: Math.floor(max / 10),
+    },
+    breakpoint_array: {
+      label: "Breakpoints (Simple Histogram)",
+      section: "  Values",
+      order: 5,
+      type: "string",
+      default: `min, ${Math.floor(max / 5)}, ${Math.floor(
+        max / 4
+      )}, ${Math.floor(max / 3)}, ${Math.floor(max / 2)}, max`,
+    },
+  }
+  return newOpts
+}
 
 export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
   var optionsResponse = {};
@@ -267,10 +322,9 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
   optionsResponse["masterList"] = [];
 
   //Remove breakpoint option
-  if (optionsResponse["options"]["bin_type"]["values"].length > 2) {
-    optionsResponse["options"]["bin_type"]["values"].pop();
-    
-  }
+  // if (optionsResponse["options"]["bin_type"]["values"].length > 2) {
+  //   optionsResponse["options"]["bin_type"]["values"].pop();
+  // }
 
   var dimCounter = 1;
   var mesCounter = 1;
@@ -362,22 +416,23 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
       max: 25,
       default: 10,
     };
-  } else if (config["bin_type"] === "breakpoints") {
-    optionsResponse["options"]["breakpointsX"] = {
-      label: "Breakpoints (X)",
-      section: "  Values",
-      type: "string",
-      placeholder: "Comma seperated breakpoints (100, 200, 300)",
-      order: 4,
-    };
-    optionsResponse["options"]["breakpointsY"] = {
-      label: "Breakpoints (Y)",
-      section: "  Values",
-      type: "string",
-      placeholder: "Comma seperated breakpoints (100, 200, 300)",
-      order: 5,
-    };
-  }
+  } 
+  // else if (config["bin_type"] === "breakpoints") {
+  //   optionsResponse["options"]["breakpointsX"] = {
+  //     label: "Breakpoints (X)",
+  //     section: "  Values",
+  //     type: "string",
+  //     placeholder: "Comma seperated breakpoints (100, 200, 300)",
+  //     order: 4,
+  //   };
+  //   optionsResponse["options"]["breakpointsY"] = {
+  //     label: "Breakpoints (Y)",
+  //     section: "  Values",
+  //     type: "string",
+  //     placeholder: "Comma seperated breakpoints (100, 200, 300)",
+  //     order: 5,
+  //   };
+  // }
   if (config["winsorization"]) {
     optionsResponse["options"]["percentile"] = {
       label: "Percentiles",
@@ -410,28 +465,28 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
     default: defaultMes2,
   };
   optionsResponse["options"]["heatmap_off"] = {
-    label: "Show Heatmap",
+    label: "Show Heatmap (Binned Histogram)",
     section: "  Values",
     type: "boolean",
-    order: 7,
+    order: 10,
     display: "select",
     default: true,
   };
   optionsResponse["options"]["layer_points"] = {
-    label: "Show Points",
+    label: "Show Points (Binned Histogram)",
     section: "  Values",
     type: "boolean",
-    order: 8,
+    order: 11,
     display: "select",
     default: true,
   };
   var defaultVal = optionsResponse["masterList"].length > 2 ? optionsResponse["masterList"][2] : ""
   var size_arr = optionsResponse["masterList"].concat([{ None: "" }]);
   optionsResponse["options"]["size"] = {
-    label: "Size Points By",
+    label: "Size Points By (Binned Histogram)",
     section: "  Values",
     type: "string",
-    order: 9,
+    order: 12,
     display: "select",
     values: size_arr,
     default: defaultVal[Object.keys(defaultVal)[0]],
