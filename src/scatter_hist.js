@@ -1,3 +1,4 @@
+import { isEqual } from "vega-lite";
 import { baseOptions, createOptions } from "./common/options";
 import {
   prepareData,
@@ -35,7 +36,11 @@ export function scatterHist(
     maxX,
     maxY
   )["options"];
-  that.trigger("registerOptions", dynamicOptions);
+  that.trigger("registerOptions", Object.assign(baseOptions, dynamicOptions));
+  
+  if (config["bin_type"] === "breakpoints") {
+    that.addError({ title: "Breakpoints Currently not supported for Scatter Histogram" });
+  }
 
   const defaultValFormatX = dataProperties[config["x"]]["valueFormat"];
   const defaultValFormatY = dataProperties[config["y"]]["valueFormat"];
@@ -129,7 +134,7 @@ export function scatterHist(
   var vegaChart = {
     $schema: "https://vega.github.io/schema/vega-lite/v4.json",
     data: {
-      values: config["bin_type"] === "breakpoints" ? preBin : myData,
+      values: myData,
     },
     spacing: 15,
     bounds: "flush",
