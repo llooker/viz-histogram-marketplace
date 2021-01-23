@@ -25,7 +25,6 @@ export function scatterHist(
   embed
 ) {
   that.clearErrors();
-
   let { dataProperties, myData } = prepareData(data, queryResponse);
   const width = element.clientWidth;
   const height = element.clientHeight;
@@ -33,9 +32,8 @@ export function scatterHist(
   const minX = Math.min(...myData.map((e) => e[config["x"]]));
   const maxY = Math.max(...myData.map((e) => e[config["y"]]));
   const minY = Math.min(...myData.map((e) => e[config["y"]]));
-  const mainDimension = queryResponse.fields.dimension_like[0].name.replace(
-    ".",
-    "_"
+  const mainDimensions = queryResponse.fields.dimension_like.map((dim) =>
+    dim.name.replace(".", "_")
   );
   const dynamicOptions = createOptions(
     queryResponse,
@@ -551,7 +549,7 @@ export function scatterHist(
             field: config["y"],
             type: "quantitative",
           },
-          text: { field: mainDimension },
+          text: { field: mainDimensions[0] },
         },
       });
     }
@@ -655,66 +653,77 @@ export function scatterHist(
 
       // DRILL SUPPORT
       view.addEventListener("click", function (event, item) {
-        var links = item.datum.links;
-        if (Object.keys(item.datum)[0].startsWith("bin_")) {
-          let fields = [];
-          for (let field of queryResponse.fields.dimension_like.concat(
-            queryResponse.fields.measure_like
-          )) {
-            fields.push(field.name);
+        if (details.crossfilterEnabled && Object.keys(item.datum).length > 1) {
+          let row = {};
+          for (let dim of mainDimensions) {
+            row[dataProperties[dim]["lookerName"]] = { value: item.datum[dim] };
           }
-
-          // Pull original Looker references from dataProperties
-          const aggFieldX = dataProperties[config["x"]]["lookerName"];
-          const aggFieldY = dataProperties[config["y"]]["lookerName"];
-          const boundsX = Object.keys(item.datum).filter((ele) =>
-            ele.includes(config["x"])
-          );
-          const boundsY = Object.keys(item.datum).filter((ele) =>
-            ele.includes(config["y"])
-          );
-
-          // Base URL points to all fields in queryResponse
-          let baseURL = myData[0].links;
-          if (baseURL.length < 1) {
-            links = [];
-          } else {
-            baseURL = baseURL
-              .filter((ele) => ele.url.includes("/explore/"))[0]
-              .url.split("?")[0];
-            let url = `${baseURL}?fields=${fields.join(",")}`;
-            // Apply appropriate filtering based on bounds
-            if (boundsX.length > 0) {
-              url += `&f[${aggFieldX}]=[${item.datum[boundsX[0]]}, ${
-                item.datum[boundsX[1]]
-              })`;
+          LookerCharts.Utils.toggleCrossfilter({
+            row: row,
+            event: event,
+          });
+        } else {
+          var links = item.datum.links;
+          if (Object.keys(item.datum)[0].startsWith("bin_")) {
+            let fields = [];
+            for (let field of queryResponse.fields.dimension_like.concat(
+              queryResponse.fields.measure_like
+            )) {
+              fields.push(field.name);
             }
-            if (boundsY.length > 0) {
-              url += `&f[${aggFieldY}]=[${item.datum[boundsY[0]]}, ${
-                item.datum[boundsY[1]]
-              })`;
-            }
-            //Inherit filtering
-            if (queryResponse.applied_filters !== undefined) {
-              let filters = queryResponse.applied_filters;
-              for (let filter in filters) {
-                url += `&f[${filters[filter].field.name}]=${filters[filter].value}`;
+
+            // Pull original Looker references from dataProperties
+            const aggFieldX = dataProperties[config["x"]]["lookerName"];
+            const aggFieldY = dataProperties[config["y"]]["lookerName"];
+            const boundsX = Object.keys(item.datum).filter((ele) =>
+              ele.includes(config["x"])
+            );
+            const boundsY = Object.keys(item.datum).filter((ele) =>
+              ele.includes(config["y"])
+            );
+
+            // Base URL points to all fields in queryResponse
+            let baseURL = myData[0].links;
+            if (baseURL.length < 1) {
+              links = [];
+            } else {
+              baseURL = baseURL
+                .filter((ele) => ele.url.includes("/explore/"))[0]
+                .url.split("?")[0];
+              let url = `${baseURL}?fields=${fields.join(",")}`;
+              // Apply appropriate filtering based on bounds
+              if (boundsX.length > 0) {
+                url += `&f[${aggFieldX}]=[${item.datum[boundsX[0]]}, ${
+                  item.datum[boundsX[1]]
+                })`;
               }
+              if (boundsY.length > 0) {
+                url += `&f[${aggFieldY}]=[${item.datum[boundsY[0]]}, ${
+                  item.datum[boundsY[1]]
+                })`;
+              }
+              //Inherit filtering
+              if (queryResponse.applied_filters !== undefined) {
+                let filters = queryResponse.applied_filters;
+                for (let filter in filters) {
+                  url += `&f[${filters[filter].field.name}]=${filters[filter].value}`;
+                }
+              }
+              links = [
+                {
+                  label: `Show ${item.datum.__count} Records`,
+                  type: "drill",
+                  type_label: "Drill into Records",
+                  url: url,
+                },
+              ];
             }
-            links = [
-              {
-                label: `Show ${item.datum.__count} Records`,
-                type: "drill",
-                type_label: "Drill into Records",
-                url: url,
-              },
-            ];
           }
+          LookerCharts.Utils.openDrillMenu({
+            links: links,
+            event: event,
+          });
         }
-        LookerCharts.Utils.openDrillMenu({
-          links: links,
-          event: event,
-        });
       });
     }
   );

@@ -105,15 +105,6 @@ export function prepareData(data, queryResponse) {
 
   allFields = meas.concat(dims);
 
-  var dataFormatDict = {
-    "$#,##0": "$,.0f",
-    "$#,##0.00": "$,.2f",
-    "#,##0.00%": ",.2%",
-    "#,##0.0%": ",.1%",
-    "#,##0%": ",.0%",
-    null: "",
-  };
-
   //determine number format
   for (var field in allFields) {
     var lookerName = allFields[field];
