@@ -9,11 +9,11 @@ import {
   setFormatting,
   formatPointLegend,
   getPercentile,
-  extendRefLine
+  positionRefLine,
 } from "./common/vega_utils";
 
 const FONT_TYPE =
-    "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif";
+  "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif";
 export function scatterHist(
   data,
   element,
@@ -30,10 +30,13 @@ export function scatterHist(
   const width = element.clientWidth;
   const height = element.clientHeight;
   const maxX = Math.max(...myData.map((e) => e[config["x"]]));
-  const minX = Math.min(...myData.map(e => e[config["x"]]));
+  const minX = Math.min(...myData.map((e) => e[config["x"]]));
   const maxY = Math.max(...myData.map((e) => e[config["y"]]));
   const minY = Math.min(...myData.map((e) => e[config["y"]]));
-  const mainDimension = queryResponse.fields.dimension_like[0].name.replace(".", "_")
+  const mainDimension = queryResponse.fields.dimension_like[0].name.replace(
+    ".",
+    "_"
+  );
   const dynamicOptions = createOptions(
     queryResponse,
     baseOptions,
@@ -42,9 +45,11 @@ export function scatterHist(
     maxY
   )["options"];
   that.trigger("registerOptions", Object.assign(baseOptions, dynamicOptions));
-  
+
   if (config["bin_type"] === "breakpoints") {
-    that.addError({ title: "Breakpoints Currently not supported for Scatter Histogram" });
+    that.addError({
+      title: "Breakpoints Currently not supported for Scatter Histogram",
+    });
   }
 
   const defaultValFormatX = dataProperties[config["x"]]["valueFormat"];
@@ -83,7 +88,7 @@ export function scatterHist(
     myData = winsorize(myData, config["y"], config["percentile"]);
   }
 
-  let preBin = []
+  let preBin = [];
   //Breakpoints not currently supported for scatted histogram
   // if(config['bin_type'] === 'breakpoints'){
   //   preBin = makeBins(myData, config['x'], config['breakpointsX'], formatX, 'x')
@@ -94,7 +99,6 @@ export function scatterHist(
   //   let y = makeMedianBins(myData, 'y', config['y'], valFormatY)
   //   preBin = x.concat(y).concat(myData)
   // }
-
 
   // These tooltip fields are used for point labels
   const tooltipFields = [];
@@ -139,8 +143,8 @@ export function scatterHist(
   );
 
   // Move dimensions to back of array
-  for (let i = 0; i < queryResponse.fields.dimension_like.length; i++){
-    tooltipFields.push(tooltipFields.shift())
+  for (let i = 0; i < queryResponse.fields.dimension_like.length; i++) {
+    tooltipFields.push(tooltipFields.shift());
   }
 
   //X HISTOGRAM
@@ -187,7 +191,7 @@ export function scatterHist(
               grid: config["x_grids"],
               title: null,
               labels: false,
-              ticks: false
+              ticks: false,
             },
           },
           ...(config["bin_type"] === "breakpoints" && {
@@ -445,7 +449,7 @@ export function scatterHist(
                   grid: config["y_grids"],
                   title: null,
                   labels: false,
-                  ticks: false
+                  ticks: false,
                 },
               },
               ...(config["bin_type"] === "breakpoints" && {
@@ -534,9 +538,9 @@ export function scatterHist(
         mark: {
           type: "text",
           align: "left",
-          angle: config['point_labels_angle'],
-          dx: config['point_labels_x_offset'],
-          dy: config['point_labels_y_offset']
+          angle: config["point_labels_angle"],
+          dx: config["point_labels_x_offset"],
+          dy: config["point_labels_y_offset"],
         },
         encoding: {
           x: {
@@ -547,8 +551,8 @@ export function scatterHist(
             field: config["y"],
             type: "quantitative",
           },
-          text: {field: mainDimension}
-        }
+          text: { field: mainDimension },
+        },
       });
     }
 
@@ -575,41 +579,50 @@ export function scatterHist(
   }
 
   if (config["reference_line_x"]) {
-    const percentileX = getPercentile(config['x'], myData)
+    const percentileX = getPercentile(
+      config["reference_line_x_p"],
+      config["x"],
+      myData
+    );
     vegaChart.vconcat[1].hconcat[0].layer.push({
-      data: [{}],
+      name: "refLineX",
       mark: {
         type: "rule",
       },
       encoding: {
-        x:  { datum: percentileX,},
-        y:  { datum: minY },
+        x: { datum: percentileX },
+        y: { datum: minY },
         x2: { datum: percentileX },
         y2: { datum: maxY },
         color: { value: "red" },
-        size: { value: 5 }
-      }
-    })
+        size: { value: config["reference_line_x_width"] },
+        strokeDash: { value: [4, 4] },
+      },
+    });
   }
 
   if (config["reference_line_y"]) {
-    const percentileY = getPercentile(config['y'], myData)
+    const percentileY = getPercentile(
+      config["reference_line_y_p"],
+      config["y"],
+      myData
+    );
     vegaChart.vconcat[1].hconcat[0].layer.push({
-      data: [{}],
+      name: "refLineY",
       mark: {
         type: "rule",
       },
       encoding: {
-        x:  { datum: minX,},
-        y:  { datum: medianY },
-        x2: { datum: medianX },
-        y2: { datum: maxY },
+        x: { datum: minX },
+        y: { datum: percentileY },
+        x2: { datum: maxX },
+        y2: { datum: percentileY },
         color: { value: "red" },
-        size: { value: 5 }
-      }
-    })
+        size: { value: config["reference_line_y_width"] },
+        strokeDash: { value: [4, 4] },
+      },
+    });
   }
-
 
   embed("#my-vega", vegaChart, { actions: false, renderer: "svg" }).then(
     ({ spec, view }) => {
@@ -618,11 +631,11 @@ export function scatterHist(
       if (config["size"] && config["layer_points"]) {
         formatPointLegend(valFormatPoints);
       }
-      if (config['reference_line_x']) {
-        extendRefLine('x');
+      if (config["reference_line_x"]) {
+        positionRefLine("x");
       }
-      if (config['reference_line_y']) {
-        extendRefLine('y')
+      if (config["reference_line_y"]) {
+        positionRefLine("y");
       }
       if (details.print) {
         done();

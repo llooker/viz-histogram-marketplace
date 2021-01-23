@@ -29,7 +29,11 @@ export function handleErrors(vis, res, options) {
     return true;
   };
 
-  const { pivots, dimension_like: dimensions, measure_like: measures } = res.fields;
+  const {
+    pivots,
+    dimension_like: dimensions,
+    measure_like: measures,
+  } = res.fields;
   return (
     check(
       "pivot-req",
@@ -225,18 +229,35 @@ export function makeBins(myData, field, breakpointsArray, valFormat, axis) {
   return preBin;
 }
 
-export function getPercentile(field, myData) {
-  return percentile(50, myData.map(e => e[field]))
+export function getPercentile(p, field, myData) {
+  return percentile(
+    p,
+    myData.map((e) => e[field])
+  );
 }
 
-export function extendRefLine(axis) {
-  let gElem = d3.select(".mark-rect.role-mark.concat_1_concat_0_layer_0_marks").node()
-  let boundingBox = gElem.getBBox()
-  let refLine = d3.select(gElem.nextSibling).selectChild("line")
-  refLine.attr("y2", -1 * boundingBox.height)
-  
+export function positionRefLine(axis) {
+  const parseTransform = (s) => s.split("(")[1].split(")")[0].split(",");
+  let boundingbox = d3
+    .select(".mark-rect.role-mark.concat_1_concat_0_layer_0_marks")
+    .node()
+    .getBBox();
+  let line = d3
+    .select(`.${axis === "x" ? "refLineX" : "refLineY"}_marks`)
+    .selectChildren();
+  let translate = parseTransform(line.attr("transform"));
+  if (axis === "x") {
+    translate[1] = boundingbox.height;
+    line
+      .attr("y2", -1 * boundingbox.height)
+      .attr("transform", `translate(${translate[0]},${translate[1]})`);
+  } else {
+    translate[0] = 0;
+    line
+      .attr("x2", boundingbox.width)
+      .attr("transform", `translate(${translate[0]},${translate[1]})`);
+  }
 }
-
 
 export function winsorize(myData, field, p) {
   p = p.split("_").map((e) => eval(e));
@@ -316,7 +337,7 @@ export function tooltipFormatter(
 
   // Styling for tooltip div
   let fontType =
-  "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif"; //config['font_type']
+    "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif"; //config['font_type']
   d3.selectAll("#vg-tooltip-element")
     .style("background-color", "rgba(0, 0, 0, 0.75)")
     .style("border-color", "rgba(0, 0, 0, 0.75)")
@@ -340,8 +361,14 @@ export function tooltipFormatter(
       let currentText = tooltip.text();
       let formattedText = currentText.split(" ");
       if (checkNumbers(formattedText)) {
-        formattedText[0] = SSF.format(xAxisFormat, Number(checkNeg(formattedText[0])));
-        formattedText[2] = SSF.format(xAxisFormat, Number(checkNeg(formattedText[2])));
+        formattedText[0] = SSF.format(
+          xAxisFormat,
+          Number(checkNeg(formattedText[0]))
+        );
+        formattedText[2] = SSF.format(
+          xAxisFormat,
+          Number(checkNeg(formattedText[2]))
+        );
         tooltip.text(formattedText.join(" "));
       }
     }

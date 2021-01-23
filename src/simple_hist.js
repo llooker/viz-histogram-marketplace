@@ -10,7 +10,7 @@ import {
 } from "./common/vega_utils";
 
 const FONT_TYPE =
-    "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif";
+  "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif";
 
 export function simpleHist(
   data,
@@ -35,8 +35,8 @@ export function simpleHist(
   );
   const max = Math.max(...myData.map((e) => e[vegaSafeNameMes]));
 
-  // As of 21.0.10 Dashboard-Next does not support removing options 
-  // from the viz config (only additive). Attempting to do so causes 
+  // As of 21.0.10 Dashboard-Next does not support removing options
+  // from the viz config (only additive). Attempting to do so causes
   // an infinite rerender. Removing dynamic options for now
   // ----------------------------------------------------------------
   // if (options["bin_type"]["values"].length < 3) {
@@ -69,24 +69,24 @@ export function simpleHist(
   //     default: Math.floor(max / 10),
   //   };
   // } else {
-    // options["breakpoint_array"] = {
-    //   label: "Breakpoints",
-    //   section: "  Values",
-    //   order: 4,
-    //   type: "string",
-    //   default: `min, ${Math.floor(max / 5)}, ${Math.floor(
-    //     max / 4
-    //   )}, ${Math.floor(max / 3)}, ${Math.floor(max / 2)}, max`,
-    // };
-    // options["breakpoint_ordinal"] = {
-    //   label: "Use Equal Sized Columns (Ordinal Bins)",
-    //   order: 4,
-    //   section: "  Values",
-    //   type: "boolean",
-    //   display: "select",
-    //   default: false,
-    // };
-    //}
+  // options["breakpoint_array"] = {
+  //   label: "Breakpoints",
+  //   section: "  Values",
+  //   order: 4,
+  //   type: "string",
+  //   default: `min, ${Math.floor(max / 5)}, ${Math.floor(
+  //     max / 4
+  //   )}, ${Math.floor(max / 3)}, ${Math.floor(max / 2)}, max`,
+  // };
+  // options["breakpoint_ordinal"] = {
+  //   label: "Use Equal Sized Columns (Ordinal Bins)",
+  //   order: 4,
+  //   section: "  Values",
+  //   type: "boolean",
+  //   display: "select",
+  //   default: false,
+  // };
+  //}
   // if (config["winsorization"]) {
   //   options["percentile"] = {
   //     label: "Percentiles",
@@ -99,8 +99,8 @@ export function simpleHist(
   //     values: [{ "1% - 99%": "1_99" }, { "5% - 95%": "5_95" }],
   //   };
   // }
-  
-  let newOpts = createOptionsSimple(max)
+
+  let newOpts = createOptionsSimple(max);
   that.trigger("registerOptions", Object.assign(baseOptions, newOpts));
 
   if (config["winsorization"]) {

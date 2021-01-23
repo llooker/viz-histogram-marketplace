@@ -113,7 +113,7 @@ export const baseOptions = {
     section: "Labels",
     type: "string",
     display: "divider",
-    order: 6
+    order: 6,
   },
   x_axis_override: {
     label: "X Axis Title Override",
@@ -191,7 +191,7 @@ export const baseOptions = {
     section: "Labels",
     type: "string",
     display: "divider",
-    order: 13
+    order: 13,
   },
   y_axis_override: {
     label: "Y Axis Title Override",
@@ -253,7 +253,6 @@ export const baseOptions = {
     display_size: "half",
   },
 
-
   // y_axis_title_padding: {
   //   label: "Y Axis Title Padding",
   //   section: "Labels",
@@ -284,11 +283,10 @@ export const baseOptions = {
     section: "  Values",
     type: "string",
     display: "text",
-    
+
     default: "",
     placeholder: "Spreadsheet Style Value Format",
   },
-
 };
 
 export function createOptionsSimple(max) {
@@ -310,8 +308,8 @@ export function createOptionsSimple(max) {
         max / 4
       )}, ${Math.floor(max / 3)}, ${Math.floor(max / 2)}, max`,
     },
-  }
-  return newOpts
+  };
+  return newOpts;
 }
 
 export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
@@ -416,7 +414,7 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
       max: 25,
       default: 10,
     };
-  } 
+  }
   // else if (config["bin_type"] === "breakpoints") {
   //   optionsResponse["options"]["breakpointsX"] = {
   //     label: "Breakpoints (X)",
@@ -480,7 +478,10 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
     display: "select",
     default: true,
   };
-  var defaultVal = optionsResponse["masterList"].length > 2 ? optionsResponse["masterList"][2] : ""
+  var defaultVal =
+    optionsResponse["masterList"].length > 2
+      ? optionsResponse["masterList"][2]
+      : "";
   var size_arr = optionsResponse["masterList"].concat([{ None: "" }]);
   optionsResponse["options"]["size"] = {
     label: "Size Points By (Binned Histogram)",
@@ -575,22 +576,22 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
     display: "text",
     default: "",
     placeholder: "Spreadsheet Style Value Format",
-  }
+  };
   optionsResponse["options"]["point_labels_divider"] = {
     label: "Point Labels ---------------------------------------------",
     section: "Labels",
     type: "string",
     display: "divider",
     order: 1000,
-    default: false
-  }
+    default: false,
+  };
   optionsResponse["options"]["point_labels"] = {
     label: "Scatterplot Point Labels",
     section: "Labels",
     type: "boolean",
     order: 1001,
-    default: false
-  }
+    default: false,
+  };
   optionsResponse["options"]["point_labels_x_offset"] = {
     label: "Point Label X Offset",
     section: "Labels",
@@ -601,8 +602,8 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
     order: 1002,
     min: -50,
     max: 50,
-    step: 1
-  }
+    step: 1,
+  };
   optionsResponse["options"]["point_labels_y_offset"] = {
     label: "Point Label Y Offset",
     section: "Labels",
@@ -613,8 +614,8 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
     default: 0,
     min: -50,
     max: 50,
-    step: 1
-  }
+    step: 1,
+  };
   optionsResponse["options"]["point_labels_angle"] = {
     label: "Point Label Angle",
     section: "Labels",
@@ -625,26 +626,63 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
     default: 0,
     min: -90,
     max: 90,
-    step: 1
-  }
+    step: 1,
+  };
   optionsResponse["options"]["reference_line_divider"] = {
     label: "Reference Lines ----------------------------------------",
     order: 1004,
     section: "Labels",
     type: "string",
-    display: "divder"
-  }
+    display: "divder",
+  };
   optionsResponse["options"]["reference_line_x"] = {
     label: "X Axis",
     order: 1005,
     section: "Labels",
     type: "boolean",
-  }
+    display_size: "half",
+  };
   optionsResponse["options"]["reference_line_y"] = {
     label: "Y Axis",
     order: 1006,
     section: "Labels",
     type: "boolean",
-  }
+    display_size: "half",
+  };
+  optionsResponse["options"]["reference_line_x_p"] = {
+    label: "X Axis Percentile",
+    placeholder: "Value from 0 to 100",
+    order: 1007,
+    section: "Labels",
+    type: "number",
+    display_size: "half",
+    default: 50,
+  };
+  optionsResponse["options"]["reference_line_y_p"] = {
+    label: "Y Axis Percentile",
+    placeholder: "Value from 0 to 100",
+    order: 1008,
+    section: "Labels",
+    type: "number",
+    display_size: "half",
+    default: 50,
+  };
+  optionsResponse["options"]["reference_line_x_width"] = {
+    label: "X Axis Stroke",
+    order: 1009,
+    section: "Labels",
+    type: "number",
+    display_size: "half",
+    default: 3,
+  };
+  optionsResponse["options"]["reference_line_y_width"] = {
+    label: "Y Axis Stroke",
+    order: 1010,
+    section: "Labels",
+    type: "number",
+    display_size: "half",
+    default: 3,
+  };
+
   return optionsResponse;
 }
