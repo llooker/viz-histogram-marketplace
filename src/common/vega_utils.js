@@ -230,7 +230,8 @@ export function getPercentile(p, field, myData) {
 export function positionRefLine(axis) {
   const parseTransform = (s) => s.split("(")[1].split(")")[0].split(",");
   let boundingbox = d3
-    .select(".mark-rect.role-mark.concat_1_concat_0_layer_0_marks")
+    .select(".mark-group.role-scope.concat_1_concat_0_group")
+    .select("path")
     .node()
     .getBBox();
   let line = d3
@@ -433,5 +434,20 @@ export function formatPointLegend(valFormat) {
     .selectAll("text")
     .each(function (d, i) {
       d3.select(this).text(SSF.format(valFormat, d.datum.value));
+    });
+}
+
+export function formatCrossfilterSelection(crossfilters, fields, color) {
+  let scatter = d3.select(".scatterplot_marks")
+    .selectAll("path")
+    .attr("fill", function(d) {
+      for(let f of crossfilters) {
+        let name = f.field.replace(".", "_")
+        if(f.values.indexOf(String(d.datum[name])) >= 0) {
+          return color
+        } else {
+          return "#DEE1E5"
+        }
+      }
     });
 }

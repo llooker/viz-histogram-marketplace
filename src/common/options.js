@@ -1,3 +1,4 @@
+export const FILTERED_LABELS = "_filterlabels";
 export const baseOptions = {
   // BINNING
   bin_type: {
@@ -332,6 +333,10 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
   var defaultMes2;
 
   queryResponse.fields.dimension_like.forEach(function (field) {
+    //ignore label filters
+    if (field.name === FILTERED_LABELS) {
+      return;
+    }
     if (!field.is_numeric && field.type !== "tier") {
       return;
     }
@@ -353,6 +358,10 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
   });
 
   queryResponse.fields.measure_like.forEach(function (field) {
+    //ignore label filters 
+    if (field.name === FILTERED_LABELS) {
+      return;
+    }
     var mesLib = {};
     var fieldName = field.name.replace(".", "_");
     if (typeof field.label_short != "undefined") {
@@ -628,23 +637,32 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
     max: 90,
     step: 1,
   };
+  optionsResponse["options"]["point_labels_font_size"] = {
+    label: "Point Label Font Size",
+    section: "Labels",
+    type: "string",
+    display: "text",
+    display_size: "half",
+    default: "12",
+    order: 1005
+  };
   optionsResponse["options"]["reference_line_divider"] = {
     label: "Reference Lines ----------------------------------------",
-    order: 1004,
+    order: 1006,
     section: "Labels",
     type: "string",
     display: "divder",
   };
   optionsResponse["options"]["reference_line_x"] = {
     label: "X Axis",
-    order: 1005,
+    order: 1007,
     section: "Labels",
     type: "boolean",
     display_size: "half",
   };
   optionsResponse["options"]["reference_line_y"] = {
     label: "Y Axis",
-    order: 1006,
+    order: 1008,
     section: "Labels",
     type: "boolean",
     display_size: "half",
@@ -652,7 +670,7 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
   optionsResponse["options"]["reference_line_x_p"] = {
     label: "X Axis Percentile",
     placeholder: "Value from 0 to 100",
-    order: 1007,
+    order: 1009,
     section: "Labels",
     type: "number",
     display_size: "half",
@@ -661,7 +679,7 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
   optionsResponse["options"]["reference_line_y_p"] = {
     label: "Y Axis Percentile",
     placeholder: "Value from 0 to 100",
-    order: 1008,
+    order: 1010,
     section: "Labels",
     type: "number",
     display_size: "half",
@@ -669,7 +687,7 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
   };
   optionsResponse["options"]["reference_line_x_width"] = {
     label: "X Axis Stroke",
-    order: 1009,
+    order: 1011,
     section: "Labels",
     type: "number",
     display_size: "half",
@@ -677,7 +695,7 @@ export function createOptions(queryResponse, baseOptions, config, maxX, maxY) {
   };
   optionsResponse["options"]["reference_line_y_width"] = {
     label: "Y Axis Stroke",
-    order: 1010,
+    order: 1012,
     section: "Labels",
     type: "number",
     display_size: "half",

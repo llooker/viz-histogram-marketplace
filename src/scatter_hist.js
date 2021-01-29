@@ -1,5 +1,4 @@
-import { isEqual } from "vega-lite";
-import { baseOptions, createOptions } from "./common/options";
+import { baseOptions, createOptions, FILTERED_LABELS } from "./common/options";
 import {
   prepareData,
   tooltipFormatter,
@@ -10,11 +9,12 @@ import {
   formatPointLegend,
   getPercentile,
   positionRefLine,
+  formatCrossfilterSelection
 } from "./common/vega_utils";
 
 const FONT_TYPE =
   "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif";
-export function scatterHist(
+  export function scatterHist(
   data,
   element,
   config,
@@ -86,21 +86,13 @@ export function scatterHist(
     myData = winsorize(myData, config["y"], config["percentile"]);
   }
 
-  let preBin = [];
-  //Breakpoints not currently supported for scatted histogram
-  // if(config['bin_type'] === 'breakpoints'){
-  //   preBin = makeBins(myData, config['x'], config['breakpointsX'], formatX, 'x')
-  //   preBin = preBin.concat(makeBins(myData, config['y'], config['breakpointsY'], formatY, 'y'))
-  // }
-  // if(true) {
-  //   let x = makeMedianBins(myData, 'x', config['x'], valFormatX)
-  //   let y = makeMedianBins(myData, 'y', config['y'], valFormatY)
-  //   preBin = x.concat(y).concat(myData)
-  // }
-
   // These tooltip fields are used for point labels
   const tooltipFields = [];
   for (let datum in dataProperties) {
+    //ignore filtered labels
+    if(datum === FILTERED_LABELS) {
+      continue;
+    }
     if (
       dataProperties[datum]["dtype"] === "nominal" ||
       datum === config["x"] ||
@@ -141,7 +133,7 @@ export function scatterHist(
   );
 
   // Move dimensions to back of array
-  for (let i = 0; i < queryResponse.fields.dimension_like.length; i++) {
+  for (let i = 0; i < queryResponse.fields.dimensions.length; i++) {
     tooltipFields.push(tooltipFields.shift());
   }
 
@@ -509,6 +501,7 @@ export function scatterHist(
   //SCATTERPLOT
   if (config["layer_points"]) {
     vegaChart.vconcat[1].hconcat[0].layer.push({
+      name: "scatterplot",
       mark: {
         cursor: "pointer",
         type: "circle",
@@ -539,6 +532,7 @@ export function scatterHist(
           angle: config["point_labels_angle"],
           dx: config["point_labels_x_offset"],
           dy: config["point_labels_y_offset"],
+          fontSize: config["point_labels_font_size"]
         },
         encoding: {
           x: {
@@ -549,7 +543,9 @@ export function scatterHist(
             field: config["y"],
             type: "quantitative",
           },
-          text: { field: mainDimensions[0] },
+          text: { 
+            field: dataProperties[FILTERED_LABELS] ? FILTERED_LABELS : mainDimensions[0] 
+          },
         },
       });
     }
@@ -582,6 +578,7 @@ export function scatterHist(
       config["x"],
       myData
     );
+    console.log(`X Axis Percentile: ${percentileX}`)
     vegaChart.vconcat[1].hconcat[0].layer.push({
       name: "refLineX",
       mark: {
@@ -605,6 +602,7 @@ export function scatterHist(
       config["y"],
       myData
     );
+    console.log(`Y Axis Percentile: ${percentileY}`)
     vegaChart.vconcat[1].hconcat[0].layer.push({
       name: "refLineY",
       mark: {
@@ -625,6 +623,9 @@ export function scatterHist(
   embed("#my-vega", vegaChart, { actions: false, renderer: "svg" }).then(
     ({ spec, view }) => {
       fixChartSizing();
+      if (details.crossfilterEnabled && details.crossfilters.length && config["layer_points"]) {
+        formatCrossfilterSelection(details.crossfilters, mainDimensions, config["color_col"])
+      }
       setFormatting("scatter", valFormatX, valFormatY);
       if (config["size"] && config["layer_points"]) {
         formatPointLegend(valFormatPoints);
@@ -653,13 +654,17 @@ export function scatterHist(
 
       // DRILL SUPPORT
       view.addEventListener("click", function (event, item) {
-        if (details.crossfilterEnabled && Object.keys(item.datum).length > 1) {
-          let row = {};
-          for (let dim of mainDimensions) {
-            row[dataProperties[dim]["lookerName"]] = { value: item.datum[dim] };
-          }
+        if (Object.keys(item.datum).length <= 1) {
+          return;
+        }
+        // only support crossfiltering for scatter points for now
+        if (details.crossfilterEnabled && item.mark.marktype !== "rect" ) {
+          // just taking first dimension for now -- can add more if needed
+          let _row = {
+            [dataProperties[mainDimensions[0]]["lookerName"]]: { value: item.datum[mainDimensions[0]] }
+          };
           LookerCharts.Utils.toggleCrossfilter({
-            row: row,
+            row: _row,
             event: event,
           });
         } else {
