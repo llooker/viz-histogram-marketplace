@@ -306,12 +306,13 @@ export function setFormatting(chartType, xAxisFormat, yAxisFormat = null) {
 }
 
 export function tooltipFormatter(
+  dataProperties,
   chartType,
   config,
   item,
   xAxisFormat,
   yAxisFormat = null,
-  pointFormat = null
+  pointFormat = null,
 ) {
   if (config === undefined || item === undefined) {
     return;
@@ -327,18 +328,22 @@ export function tooltipFormatter(
     return text.replace(/\u2013|\u2014|\u2212/g, "-");
   };
 
-  // Styling for tooltip div
-  let fontType =
-    "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif"; //config['font_type']
-  d3.selectAll("#vg-tooltip-element")
-    .style("background-color", "rgba(0, 0, 0, 0.75)")
-    .style("border-color", "rgba(0, 0, 0, 0.75)")
-    .style("border-radius", "5px")
-    .style("width", "auto")
-    .selectAll("td")
-    .style("text-align", "left")
-    .style("font-family", fontType)
-    .style("color", "#FFFFFF");
+  const getText = (axis) => {
+    let title = dataProperties[config[axis].replace(".", "_")].title
+    return item.tooltip[title].split(" ")
+  }
+
+  const getTextScatter = (axis) => {
+    let title = dataProperties[config[axis].replace(".", "_")].title
+    return Number(checkNeg(item.tooltip[title]))
+  }
+
+  const getFormatValue = (axis, text) => {
+    let format = axis === "x" ? xAxisFormat : yAxisFormat
+    let part1 = SSF.format(format, Number(checkNeg(text[0])))
+    let part2 = SSF.format(format, Number(checkNeg(text[2])))
+    return [part1, part2];
+  }
 
   // Breakpoint tool tips formatted when making bins
   if (config["bin_type"] === "breakpoints") {
@@ -366,60 +371,41 @@ export function tooltipFormatter(
     }
 
     // Applies tooltip formatting for scatter hist. Some complexity as there are essentially 4 different tooltips:
-    // 1)Heatmap on bin, 2)Heatmap on point, 3)Histogram on X, 4)Histogram on Y
-    // item.bounds is a vega refence to the <g> we're hovering over.
-    // pointTooltip -> #2, y2 === 60 -> #3, x1 === 0 ->  #4
+    // 1) Histogram on X, 
+    // 2) Histogram on Y,
+    // 3) Heatmap,
+    // 4) Scatterplot
   } else {
-    let tooltip = d3.selectAll("td.value");
-    let visible = !!tooltip._groups[0][0];
-    if (visible) {
-      let xTooltip = tooltip._groups[0][0];
-      let yTooltip = tooltip._groups[0][1];
-      let pointTooltip =
-        config["size"] &&
-        config["layer_points"] &&
-        tooltip._groups[0].length > 3
-          ? tooltip._groups[0][2]
-          : null;
-      // if the tooltip is on the y-axis histogram swap the references
-      if (item.bounds.x1 === 0) {
-        let swap = xTooltip;
-        xTooltip = yTooltip;
-        yTooltip = swap;
-      }
-      let xFormated = d3.select(xTooltip).text().split(" ");
-      let yFormated = d3.select(yTooltip).text().split(" ");
-      if (checkNumbers(xFormated)) {
-        if (item.bounds.x1 !== 0) {
-          xFormated[0] = SSF.format(
-            xAxisFormat,
-            Number(checkNeg(xFormated[0]))
-          );
-          if (xFormated.length > 1) {
-            xFormated[2] = SSF.format(
-              xAxisFormat,
-              Number(checkNeg(xFormated[2]))
-            );
-          }
-          d3.select(xTooltip).text(xFormated.join(" "));
+    if (item.mark.name === "X_HISTOGRAM_marks") {
+      let [a, b] = getFormatValue('x')
+      d3.select("td.value").text(a + " - " + b)
+    }
+
+    if (item.mark.name === "Y_HISTOGRAM_marks") {
+      let [a, b] = getFormatValue('y')
+      d3.select("td.value").text(a + " - " + b)
+    }
+
+    if (item.mark.name === "HEATMAP_marks") {
+      let [a, b] = getFormatValue('x', getText('x'))
+      let [c, d] = getFormatValue('y', getText('y'))
+      d3.selectAll("td.value").each(function(_d,i) {
+        if (i === 0) {
+          d3.select(this).text(a + " - " + b)
+        } else if(i === 1 && config['x'] !== config['y']) { // Weird edge case where the user selects the same field for both X and Y
+          d3.select(this).text(c + " - " + d)
         }
-      }
-      if (checkNumbers(yFormated) && item.bounds.y2 !== 60) {
-        yFormated[0] = SSF.format(yAxisFormat, Number(checkNeg(yFormated[0])));
-        if (yFormated.length > 1) {
-          yFormated[2] = SSF.format(
-            yAxisFormat,
-            Number(checkNeg(yFormated[2]))
-          );
+      })
+    }
+
+    if (item.mark.name === "SCATTERPLOT_marks") {
+      d3.selectAll("td.value").each(function(_d,i) {
+        if (i === 0) {
+          d3.select(this).text(SSF.format(xAxisFormat, getTextScatter('x')))
+        } else if(i === 1 && config['x'] !== config['y']) { // Weird edge case where the user selects the same field for both X and Y
+          d3.select(this).text(SSF.format(yAxisFormat, getTextScatter('y')))
         }
-        d3.select(yTooltip).text(yFormated.join(" "));
-      }
-      if (pointTooltip !== null) {
-        let text = d3.select(pointTooltip).text();
-        d3.select(pointTooltip).text(
-          SSF.format(pointFormat, Number(checkNeg(text)))
-        );
-      }
+      })
     }
   }
 }
@@ -438,7 +424,7 @@ export function formatPointLegend(valFormat) {
 }
 
 export function formatCrossfilterSelection(crossfilters, fields, color) {
-  let scatter = d3.select(".scatterplot_marks")
+  let scatter = d3.select(".SCATTERPLOT_marks")
     .selectAll("path")
     .attr("fill", function(d) {
       for(let f of crossfilters) {

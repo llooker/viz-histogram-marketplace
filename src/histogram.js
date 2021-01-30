@@ -3,7 +3,6 @@ import { scatterHist } from "./scatter_hist";
 import { simpleHist } from "./simple_hist";
 import { baseOptions } from "./common/options";
 import { handleErrors } from "./common/vega_utils";
-import "./common/font-loader.css";
 
 looker.plugins.visualizations.add({
   options: baseOptions,

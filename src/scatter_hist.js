@@ -9,8 +9,9 @@ import {
   formatPointLegend,
   getPercentile,
   positionRefLine,
-  formatCrossfilterSelection
+  formatCrossfilterSelection,
 } from "./common/vega_utils";
+import "./common/styles.css"
 
 const FONT_TYPE =
   "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif";
@@ -154,6 +155,7 @@ const FONT_TYPE =
             on: "mouseover",
           },
         },
+        name: "X_HISTOGRAM",
         mark: {
           type: "bar",
           cursor: "pointer",
@@ -238,6 +240,7 @@ const FONT_TYPE =
                     on: "mouseover",
                   },
                 },
+                name: "HEATMAP",
                 mark: {
                   zindex: -1,
                   type: "rect",
@@ -403,6 +406,7 @@ const FONT_TYPE =
           },
           // Y HISTOGRAM
           {
+            name: "Y_HISTOGRAM",
             mark: {
               type: "bar",
               cursor: "pointer",
@@ -501,7 +505,7 @@ const FONT_TYPE =
   //SCATTERPLOT
   if (config["layer_points"]) {
     vegaChart.vconcat[1].hconcat[0].layer.push({
-      name: "scatterplot",
+      name: "SCATTERPLOT",
       mark: {
         cursor: "pointer",
         type: "circle",
@@ -620,7 +624,7 @@ const FONT_TYPE =
     });
   }
 
-  embed("#my-vega", vegaChart, { actions: false, renderer: "svg" }).then(
+  embed("#my-vega", vegaChart, { actions: false, renderer: "svg", tooltip: {theme: "custom"} }).then(
     ({ spec, view }) => {
       fixChartSizing();
       if (details.crossfilterEnabled && details.crossfilters.length && config["layer_points"]) {
@@ -642,13 +646,13 @@ const FONT_TYPE =
 
       view.addEventListener("mousemove", (event, item) => {
         tooltipFormatter(
+          dataProperties,
           "binned",
           config,
           item,
           valFormatX,
           valFormatY,
           valFormatPoints,
-          dataProperties
         );
       });
 
