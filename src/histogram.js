@@ -3,6 +3,7 @@ import { scatterHist } from "./scatter_hist";
 import { simpleHist } from "./simple_hist";
 import { baseOptions } from "./common/options";
 import { handleErrors } from "./common/vega_utils";
+import "./common/styles.css";
 
 looker.plugins.visualizations.add({
   options: baseOptions,
@@ -14,8 +15,7 @@ looker.plugins.visualizations.add({
   updateAsync: function (data, element, config, queryResponse, details, done) {
     if (data.length === 0) {
       this.addError({ title: "No Results" });
-      // done();
-      return;
+      done();
     }
 
     if (config.bin_style === "binned_hist") {

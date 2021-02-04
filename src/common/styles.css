@@ -5,12 +5,12 @@
   width: auto;
 }
 
-#vg-tooltip-element > table  tr  td.key {
+#vg-tooltip-element > table tr td.key {
   text-align: left;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
-#vg-tooltip-element > table  tr  td.value {
+#vg-tooltip-element > table tr td.value {
   text-align: right;
-  color: #FFFFFF;
+  color: #ffffff;
 }

@@ -10,12 +10,12 @@ import {
   getPercentile,
   positionRefLine,
   formatCrossfilterSelection,
+  positionLegend,
 } from "./common/vega_utils";
-import "./common/styles.css"
 
 const FONT_TYPE =
   "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif";
-  export function scatterHist(
+export function scatterHist(
   data,
   element,
   config,
@@ -41,9 +41,10 @@ const FONT_TYPE =
     baseOptions,
     config,
     maxX,
-    maxY
+    maxY,
+    mainDimensions[1] !== undefined
   )["options"];
-  that.trigger("registerOptions", Object.assign(baseOptions, dynamicOptions));
+  that.trigger("registerOptions", dynamicOptions);
 
   if (config["bin_type"] === "breakpoints") {
     that.addError({
@@ -51,6 +52,12 @@ const FONT_TYPE =
     });
   }
 
+  if (
+    dataProperties[config["x"]] == undefined ||
+    dataProperties[config["y"]] == undefined
+  ) {
+    return;
+  }
   const defaultValFormatX = dataProperties[config["x"]]["valueFormat"];
   const defaultValFormatY = dataProperties[config["y"]]["valueFormat"];
   const valFormatOverrideX = config["x_axis_value_format"];
@@ -91,7 +98,7 @@ const FONT_TYPE =
   const tooltipFields = [];
   for (let datum in dataProperties) {
     //ignore filtered labels
-    if(datum === FILTERED_LABELS) {
+    if (datum === FILTERED_LABELS) {
       continue;
     }
     if (
@@ -113,9 +120,6 @@ const FONT_TYPE =
             return config["y_axis_override"] !== ""
               ? config["y_axis_override"]
               : dataProperties[datum]["title"];
-          // case config['size']: return (
-          //   config['points_legend_value_format'] !== "" ? config['points_legend_value_format'] : dataProperties[datum]['title']
-          // )
           default:
             return dataProperties[datum]["title"];
         }
@@ -149,6 +153,10 @@ const FONT_TYPE =
     vconcat: [
       {
         selection: {
+          grid: {
+            type: "interval", 
+            bind: "scales"
+          },
           highlight: {
             type: "single",
             empty: "none",
@@ -234,6 +242,10 @@ const FONT_TYPE =
             layer: [
               {
                 selection: {
+                  grid: {
+                    type: "interval", 
+                    bind: "scales"
+                  },
                   highlight: {
                     type: "single",
                     empty: "none",
@@ -252,20 +264,22 @@ const FONT_TYPE =
                 width: width,
                 encoding: {
                   x: {
-                    bin: {
-                      ...(config.bin_type === "bins" && {
-                        maxbins: config["max_bins"],
-                      }),
-                      ...(config.bin_type === "steps" && {
-                        step:
-                          config["num_step_x"] <= Math.floor(maxX / 200)
-                            ? Math.floor(maxX / 200)
-                            : config["num_step_x"],
-                      }),
-                      ...(config.bin_type === "breakpoints" && {
-                        binned: true,
-                      }),
-                    },
+                    ...(config["heatmap_off"] && {
+                      bin: {
+                        ...(config.bin_type === "bins" && {
+                          maxbins: config["max_bins"],
+                        }),
+                        ...(config.bin_type === "steps" && {
+                          step:
+                            config["num_step_x"] <= Math.floor(maxX / 200)
+                              ? Math.floor(maxX / 200)
+                              : config["num_step_x"],
+                        }),
+                        ...(config.bin_type === "breakpoints" && {
+                          binned: true,
+                        }),
+                      },
+                    }),
                     field:
                       config["bin_type"] === "breakpoints"
                         ? "bin_start_x"
@@ -295,20 +309,22 @@ const FONT_TYPE =
                     x2: { field: "bin_end_x" },
                   }),
                   y: {
-                    bin: {
-                      ...(config.bin_type === "bins" && {
-                        maxbins: config["max_bins"],
-                      }),
-                      ...(config.bin_type === "steps" && {
-                        step:
-                          config["num_step_y"] <= Math.floor(maxY / 200)
-                            ? Math.floor(maxY / 200)
-                            : config["num_step_y"],
-                      }),
-                      ...(config.bin_type === "breakpoints" && {
-                        binned: true,
-                      }),
-                    },
+                    ...(config["heatmap_off"] && {
+                      bin: {
+                        ...(config.bin_type === "bins" && {
+                          maxbins: config["max_bins"],
+                        }),
+                        ...(config.bin_type === "steps" && {
+                          step:
+                            config["num_step_y"] <= Math.floor(maxY / 200)
+                              ? Math.floor(maxY / 200)
+                              : config["num_step_y"],
+                        }),
+                        ...(config.bin_type === "breakpoints" && {
+                          binned: true,
+                        }),
+                      },
+                    }),
                     field:
                       config["bin_type"] === "breakpoints"
                         ? "bin_start_y"
@@ -412,6 +428,10 @@ const FONT_TYPE =
               cursor: "pointer",
             },
             selection: {
+              grid: {
+                type: "interval", 
+                bind: "scales"
+              },
               highlight: {
                 type: "single",
                 empty: "none",
@@ -507,11 +527,12 @@ const FONT_TYPE =
     vegaChart.vconcat[1].hconcat[0].layer.push({
       name: "SCATTERPLOT",
       mark: {
+        color: config["color_col"],
         cursor: "pointer",
         type: "circle",
-        color: config["color_col"],
         opacity: config["point_opacity"],
         zindex: 2,
+        size: 100,
       },
       height: height,
       width: width,
@@ -527,53 +548,80 @@ const FONT_TYPE =
         },
       },
     });
+  }
 
-    if (config["point_labels"]) {
-      vegaChart.vconcat[1].hconcat[0].layer.push({
-        mark: {
-          type: "text",
-          align: "left",
-          angle: config["point_labels_angle"],
-          dx: config["point_labels_x_offset"],
-          dy: config["point_labels_y_offset"],
-          fontSize: config["point_labels_font_size"]
-        },
-        encoding: {
-          x: {
-            field: config["x"],
-            type: "quantitative",
-          },
-          y: {
-            field: config["y"],
-            type: "quantitative",
-          },
-          text: { 
-            field: dataProperties[FILTERED_LABELS] ? FILTERED_LABELS : mainDimensions[0] 
-          },
-        },
-      });
-    }
+  //SIZE POINTS
+  if (
+    config["layer_points"] &&
+    config["size"] != "" &&
+    typeof config["size"] != "undefined"
+  ) {
+    vegaChart.vconcat[1].hconcat[0].layer[1].encoding.size = {
+      field: config["size"],
+      type: "quantitative",
+      title: dataProperties[config["size"]]["title"],
+      legend: {
+        orient: config["legend_orient"],
+        format: "d",
+        labelFontSize: config["legend_size"],
+        titleFontWeight: "normal",
+        titleFontSize: config["legend_size"],
+        titleFont: FONT_TYPE,
+        labelFont: FONT_TYPE,
+        labelColor: "#696969",
+        titleColor: "#696969",
+      },
+    };
+  }
 
-    //SIZE POINTS
-    if (config["size"] != "" && typeof config["size"] != "undefined") {
-      vegaChart.vconcat[1].hconcat[0].layer[1].encoding.size = {
-        field: config["size"],
-        type: "quantitative",
-        title: dataProperties[config["size"]]["title"],
-        legend: {
-          type: "symbol",
-          orient: config["legend_orient"],
-          format: "d",
-          labelFontSize: config["legend_size"],
-          titleFontWeight: "normal",
-          titleFontSize: config["legend_size"],
-          titleFont: FONT_TYPE, //config['font_type'],
-          labelFont: FONT_TYPE, //config['font_type'],
-          labelColor: "#696969",
-          titleColor: "#696969",
+  // COLOR POINTS
+  if (config["layer_points"] && mainDimensions[1] !== undefined) {
+    vegaChart.vconcat[1].hconcat[0].layer[1].encoding.color = {
+      scale: { scheme: config["point_group_colors"] },
+      field: mainDimensions[1],
+      legend: {
+        zindex: 1,
+        type: "symbol",
+        offset: 100,
+        title: dataProperties[mainDimensions[1]]["title"],
+        type: "symbol",
+        orient: config["legend_orient"],
+        labelFontSize: config["legend_size"],
+        titleFontWeight: "normal",
+        titleFontSize: config["legend_size"],
+        titleFont: FONT_TYPE,
+        labelFont: FONT_TYPE,
+        labelColor: "#696969",
+        titleColor: "#696969",
+      },
+    };
+  }
+  if (config["layer_points"] && config["point_labels"]) {
+    vegaChart.vconcat[1].hconcat[0].layer.push({
+      mark: {
+        type: "text",
+        align: "left",
+        angle: config["point_labels_angle"],
+        dx: config["point_labels_x_offset"],
+        dy: config["point_labels_y_offset"],
+        fontSize: config["point_labels_font_size"],
+      },
+      encoding: {
+        x: {
+          field: config["x"],
+          type: "quantitative",
         },
-      };
-    }
+        y: {
+          field: config["y"],
+          type: "quantitative",
+        },
+        text: {
+          field: dataProperties[FILTERED_LABELS]
+            ? FILTERED_LABELS
+            : mainDimensions[0],
+        },
+      },
+    });
   }
 
   if (config["reference_line_x"]) {
@@ -582,7 +630,6 @@ const FONT_TYPE =
       config["x"],
       myData
     );
-    console.log(`X Axis Percentile: ${percentileX}`)
     vegaChart.vconcat[1].hconcat[0].layer.push({
       name: "refLineX",
       mark: {
@@ -606,7 +653,6 @@ const FONT_TYPE =
       config["y"],
       myData
     );
-    console.log(`Y Axis Percentile: ${percentileY}`)
     vegaChart.vconcat[1].hconcat[0].layer.push({
       name: "refLineY",
       mark: {
@@ -624,116 +670,142 @@ const FONT_TYPE =
     });
   }
 
-  embed("#my-vega", vegaChart, { actions: false, renderer: "svg", tooltip: {theme: "custom"} }).then(
-    ({ spec, view }) => {
-      fixChartSizing();
-      if (details.crossfilterEnabled && details.crossfilters.length && config["layer_points"]) {
-        formatCrossfilterSelection(details.crossfilters, mainDimensions, config["color_col"])
-      }
-      setFormatting("scatter", valFormatX, valFormatY);
-      if (config["size"] && config["layer_points"]) {
-        formatPointLegend(valFormatPoints);
-      }
-      if (config["reference_line_x"]) {
-        positionRefLine("x");
-      }
-      if (config["reference_line_y"]) {
-        positionRefLine("y");
-      }
-      if (details.print) {
-        done();
-      }
-
-      view.addEventListener("mousemove", (event, item) => {
-        tooltipFormatter(
-          dataProperties,
-          "binned",
-          config,
-          item,
-          valFormatX,
-          valFormatY,
-          valFormatPoints,
-        );
-      });
-
-      // DRILL SUPPORT
-      view.addEventListener("click", function (event, item) {
-        if (Object.keys(item.datum).length <= 1) {
-          return;
-        }
-        // only support crossfiltering for scatter points for now
-        if (details.crossfilterEnabled && item.mark.marktype !== "rect" ) {
-          // just taking first dimension for now -- can add more if needed
-          let _row = {
-            [dataProperties[mainDimensions[0]]["lookerName"]]: { value: item.datum[mainDimensions[0]] }
-          };
-          LookerCharts.Utils.toggleCrossfilter({
-            row: _row,
-            event: event,
-          });
-        } else {
-          var links = item.datum.links;
-          if (Object.keys(item.datum)[0].startsWith("bin_")) {
-            let fields = [];
-            for (let field of queryResponse.fields.dimension_like.concat(
-              queryResponse.fields.measure_like
-            )) {
-              fields.push(field.name);
-            }
-
-            // Pull original Looker references from dataProperties
-            const aggFieldX = dataProperties[config["x"]]["lookerName"];
-            const aggFieldY = dataProperties[config["y"]]["lookerName"];
-            const boundsX = Object.keys(item.datum).filter((ele) =>
-              ele.includes(config["x"])
-            );
-            const boundsY = Object.keys(item.datum).filter((ele) =>
-              ele.includes(config["y"])
-            );
-
-            // Base URL points to all fields in queryResponse
-            let baseURL = myData[0].links;
-            if (baseURL.length < 1) {
-              links = [];
-            } else {
-              baseURL = baseURL
-                .filter((ele) => ele.url.includes("/explore/"))[0]
-                .url.split("?")[0];
-              let url = `${baseURL}?fields=${fields.join(",")}`;
-              // Apply appropriate filtering based on bounds
-              if (boundsX.length > 0) {
-                url += `&f[${aggFieldX}]=[${item.datum[boundsX[0]]}, ${
-                  item.datum[boundsX[1]]
-                })`;
-              }
-              if (boundsY.length > 0) {
-                url += `&f[${aggFieldY}]=[${item.datum[boundsY[0]]}, ${
-                  item.datum[boundsY[1]]
-                })`;
-              }
-              //Inherit filtering
-              if (queryResponse.applied_filters !== undefined) {
-                let filters = queryResponse.applied_filters;
-                for (let filter in filters) {
-                  url += `&f[${filters[filter].field.name}]=${filters[filter].value}`;
-                }
-              }
-              links = [
-                {
-                  label: `Show ${item.datum.__count} Records`,
-                  type: "drill",
-                  type_label: "Drill into Records",
-                  url: url,
-                },
-              ];
-            }
-          }
-          LookerCharts.Utils.openDrillMenu({
-            links: links,
-            event: event,
-          });
-        }
-      });
+  const runFormatting = () => {
+    if (
+      details.crossfilterEnabled &&
+      details.crossfilters.length &&
+      config["layer_points"]
+    ) {
+      formatCrossfilterSelection(
+        details.crossfilters,
+        mainDimensions,
+        config["color_col"]
+      );
     }
-  );
+    setFormatting("scatter", valFormatX, valFormatY);
+    if (config["size"] && config["layer_points"]) {
+      formatPointLegend(
+        valFormatPoints,
+        mainDimensions[1] !== undefined,
+        config["heatmap_off"]
+      );
+    }
+    if (config["reference_line_x"]) {
+      positionRefLine("x");
+    }
+    if (config["reference_line_y"]) {
+      positionRefLine("y");
+    }
+  }
+
+  embed("#my-vega", vegaChart, {
+    actions: false,
+    renderer: "svg",
+    tooltip: { theme: "custom" },
+  }).then(({ spec, view }) => {
+    fixChartSizing();
+    runFormatting();
+    if (details.print) {
+      done();
+    }
+
+    view.addEventListener("wheel", runFormatting);
+    view.addEventListener("mousedown", runFormatting);
+    view.addEventListener("mouseup", runFormatting);
+    view.addEventListener("drag", runFormatting);
+    view.addEventListener("mousemove", (event, item) => {
+      tooltipFormatter(
+        dataProperties,
+        "binned",
+        config,
+        item,
+        valFormatX,
+        valFormatY,
+        valFormatPoints
+      );
+    });
+    if (mainDimensions[1] !== undefined && config["size"]) {
+      positionLegend(config["legend_orient"]);
+    }
+    // DRILL SUPPORT
+    view.addEventListener("click", function (event, item) {
+      if (Object.keys(item.datum).length <= 1 || item.fillOpacity === 0) {
+        return;
+      }
+      // only support crossfiltering for scatter points for now
+      if (details.crossfilterEnabled && item.mark.marktype !== "rect") {
+        // just taking first dimension for now -- can add more if needed
+        let _row = {
+          [dataProperties[mainDimensions[0]]["lookerName"]]: {
+            value: item.datum[mainDimensions[0]],
+          },
+        };
+        LookerCharts.Utils.toggleCrossfilter({
+          row: _row,
+          event: event,
+        });
+      } else {
+        var links = item.datum.links;
+        if (Object.keys(item.datum)[0].startsWith("bin_")) {
+          let fields = [];
+          for (let field of queryResponse.fields.dimension_like.concat(
+            queryResponse.fields.measure_like
+          )) {
+            fields.push(field.name);
+          }
+
+          // Pull original Looker references from dataProperties
+          const aggFieldX = dataProperties[config["x"]]["lookerName"];
+          const aggFieldY = dataProperties[config["y"]]["lookerName"];
+          const boundsX = Object.keys(item.datum).filter((ele) =>
+            ele.includes(config["x"])
+          );
+          const boundsY = Object.keys(item.datum).filter((ele) =>
+            ele.includes(config["y"])
+          );
+
+          // Base URL points to all fields in queryResponse
+          let baseURL = myData[0].links;
+          if (baseURL.length < 1) {
+            links = [];
+          } else {
+            baseURL = baseURL
+              .filter((ele) => ele.url.includes("/explore/"))[0]
+              .url.split("?")[0];
+            let url = `${baseURL}?fields=${fields.join(",")}`;
+            // Apply appropriate filtering based on bounds
+            if (boundsX.length > 0) {
+              url += `&f[${aggFieldX}]=[${item.datum[boundsX[0]]}, ${
+                item.datum[boundsX[1]]
+              })`;
+            }
+            if (boundsY.length > 0) {
+              url += `&f[${aggFieldY}]=[${item.datum[boundsY[0]]}, ${
+                item.datum[boundsY[1]]
+              })`;
+            }
+            //Inherit filtering
+            if (queryResponse.applied_filters !== undefined) {
+              let filters = queryResponse.applied_filters;
+              for (let filter in filters) {
+                url += `&f[${filters[filter].field.name}]=${filters[filter].value}`;
+              }
+            }
+            links = [
+              {
+                label: `Show ${item.datum.__count} Records`,
+                type: "drill",
+                type_label: "Drill into Records",
+                url: url,
+              },
+            ];
+          }
+        }
+        LookerCharts.Utils.openDrillMenu({
+          links: links,
+          event: event,
+        });
+      }
+    });
+  });
 }
