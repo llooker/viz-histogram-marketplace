@@ -1,8 +1,8 @@
 import { baseOptions, createOptions, FILTERED_LABELS } from "./common/options";
+import { x_histogram, y_histogram, heatmap } from "./vega_specs/index"
 import {
   prepareData,
   tooltipFormatter,
-  binnedTooltipHandler,
   winsorize,
   fixChartSizing,
   setFormatting,
@@ -13,8 +13,7 @@ import {
   positionLegend,
 } from "./common/vega_utils";
 
-const FONT_TYPE =
-  "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif";
+
 export function scatterHist(
   data,
   element,
@@ -142,385 +141,42 @@ export function scatterHist(
     tooltipFields.push(tooltipFields.shift());
   }
 
-  //X HISTOGRAM
   var vegaChart = {
-    $schema: "https://vega.github.io/schema/vega-lite/v4.json",
-    data: {
-      values: myData,
-    },
-    spacing: 15,
-    bounds: "flush",
-    vconcat: [
-      {
-        selection: {
-          grid: {
-            type: "interval", 
-            bind: "scales"
-          },
-          highlight: {
-            type: "single",
-            empty: "none",
-            on: "mouseover",
-          },
+      $schema: "https://vega.github.io/schema/vega-lite/v4.json",
+      selection: {
+        grid: {
+          type: "interval", 
+          bind: "scales"
         },
-        name: "X_HISTOGRAM",
-        mark: {
-          type: "bar",
-          cursor: "pointer",
-        },
-        height: 60,
-        width: width,
-        encoding: {
-          x: {
-            bin: {
-              ...(config.bin_type === "bins" && {
-                maxbins: config["max_bins"],
-              }),
-              ...(config.bin_type === "steps" && {
-                step:
-                  config["num_step_x"] <= Math.floor(maxX / 200)
-                    ? Math.floor(maxX / 200)
-                    : config["num_step_x"],
-              }),
-              ...(config.bin_type === "breakpoints" && { binned: true }),
-            },
-            field:
-              config.bin_type === "breakpoints" ? "bin_start_x" : config["x"],
-            type: "quantitative",
-            axis: {
-              grid: config["x_grids"],
-              title: null,
-              labels: false,
-              ticks: false,
-            },
-          },
-          ...(config["bin_type"] === "breakpoints" && {
-            x2: { field: "bin_end_x" },
-          }),
-          y: {
-            ...(config["bin_type"] !== "breakpoints" && { aggregate: "count" }),
-            ...(config["bin_type"] === "breakpoints" && { field: "count_x" }),
-            type: "quantitative",
-            title: "",
-            axis: {
-              labelColor: "#696969",
-              titleColor: "#696969",
-              grid: config["y_grids"],
-            },
-          },
-          tooltip: binnedTooltipHandler(
-            dataProperties[config["x"]],
-            config["x_axis_override"],
+      },
+      data: {
+        values: myData,
+      },
+      spacing: 15,
+      bounds: "flush",
+      vconcat: [
+        x_histogram(dataProperties, config, maxX, width),
+        {
+          spacing: 15,
+          bounds: "flush",
+          hconcat: [
             {
-              ...(config.bin_type === "bins" && {
-                maxbins: config["max_bins"],
-              }),
-              ...(config.bin_type === "steps" && {
-                step:
-                  config["num_step_x"] <= Math.floor(maxX / 200)
-                    ? Math.floor(maxX / 200)
-                    : config["num_step_x"],
-              }),
-              ...(config.bin_type === "breakpoints" && { binned: true }),
-            }
-          ),
-          color: {
-            condition: {
-              selection: "highlight",
-              value: config["color_on_hover"],
+              layer: [
+                heatmap(dataProperties, config, maxX, maxY, height, width, valFormatX, valFormatY),
+                y_histogram(dataProperties, config, maxY, height)
+              ],
             },
-            value: config["color_col"],
+          ],
+        },
+      ],
+      config: {
+        range: {
+          heatmap: {
+            scheme: config["color_scheme"],
           },
         },
       },
-      //HEATMAP
-      {
-        spacing: 15,
-        bounds: "flush",
-        hconcat: [
-          {
-            layer: [
-              {
-                selection: {
-                  grid: {
-                    type: "interval", 
-                    bind: "scales"
-                  },
-                  highlight: {
-                    type: "single",
-                    empty: "none",
-                    on: "mouseover",
-                  },
-                },
-                name: "HEATMAP",
-                mark: {
-                  zindex: -1,
-                  type: "rect",
-                  invalid: null,
-                  ...(config["heatmap_off"] && { cursor: "pointer" }),
-                  ...(!config["heatmap_off"] && { fillOpacity: 0.0 }),
-                },
-                height: height,
-                width: width,
-                encoding: {
-                  x: {
-                    ...(config["heatmap_off"] && {
-                      bin: {
-                        ...(config.bin_type === "bins" && {
-                          maxbins: config["max_bins"],
-                        }),
-                        ...(config.bin_type === "steps" && {
-                          step:
-                            config["num_step_x"] <= Math.floor(maxX / 200)
-                              ? Math.floor(maxX / 200)
-                              : config["num_step_x"],
-                        }),
-                        ...(config.bin_type === "breakpoints" && {
-                          binned: true,
-                        }),
-                      },
-                    }),
-                    field:
-                      config["bin_type"] === "breakpoints"
-                        ? "bin_start_x"
-                        : config["x"],
-                    type: "quantitative",
-                    axis: {
-                      title:
-                        config["x_axis_override"] === ""
-                          ? dataProperties[config["x"]]["title"]
-                          : config["x_axis_override"],
-                      titleFontSize: config["x_axis_title_font_size"],
-                      format: "d",
-                      labelFontSize: config["x_axis_label_font_size"],
-                      grid: config["x_grids"],
-                      titleFontWeight: "normal",
-                      titleFont: FONT_TYPE, //config['font_type'],
-                      labelFont: FONT_TYPE, //config['font_type'],
-                      labelSeparation: 100 - config["x_label_separation"],
-                      labelOverlap: true,
-                      labelColor: "#696969",
-                      labelAngle: config["x_axis_label_angle"] * -1,
-                      titleColor: "#696969",
-                      titlePadding: 25 + valFormatX.length, //config['x_axis_title_padding']
-                    },
-                  },
-                  ...(config["bin_type"] === "breakpoints" && {
-                    x2: { field: "bin_end_x" },
-                  }),
-                  y: {
-                    ...(config["heatmap_off"] && {
-                      bin: {
-                        ...(config.bin_type === "bins" && {
-                          maxbins: config["max_bins"],
-                        }),
-                        ...(config.bin_type === "steps" && {
-                          step:
-                            config["num_step_y"] <= Math.floor(maxY / 200)
-                              ? Math.floor(maxY / 200)
-                              : config["num_step_y"],
-                        }),
-                        ...(config.bin_type === "breakpoints" && {
-                          binned: true,
-                        }),
-                      },
-                    }),
-                    field:
-                      config["bin_type"] === "breakpoints"
-                        ? "bin_start_y"
-                        : config["y"],
-                    type: "quantitative",
-                    axis: {
-                      title:
-                        config["y_axis_override"] === ""
-                          ? dataProperties[config["y"]]["title"]
-                          : config["y_axis_override"],
-                      titleFontSize: config["y_axis_title_font_size"],
-                      format: "d",
-                      labelFontSize: config["y_axis_label_font_size"],
-                      labelAngle: config["y_axis_label_angle"] * -1,
-                      grid: config["y_grids"],
-                      titleFontWeight: "normal",
-                      titleFont: FONT_TYPE, //config['font_type'],
-                      labelFont: FONT_TYPE, //config['font_type'],
-                      labelSeparation: 100 - config["y_label_separation"],
-                      labelOverlap: true,
-                      labelColor: "#696969",
-                      titleColor: "#696969",
-                      titlePadding: 25 + valFormatY.length * 3, //config['y_axis_title_padding']
-                    },
-                  },
-                  ...(config["bin_type"] === "breakpoints" && {
-                    y2: { field: "bin_end_y" },
-                  }),
-                  color: {
-                    aggregate: "count",
-                    type: "quantitative",
-                    legend: !config["heatmap_off"]
-                      ? false
-                      : {
-                          orient: config["legend_orient"],
-                          labelFontSize: config["legend_size"],
-                          titleFontSize: config["legend_size"],
-                          titleFontWeight: "normal",
-                          titleFont: FONT_TYPE, //config['font_type'],
-                          labelFont: FONT_TYPE, //config['font_type'],
-                          labelColor: "#696969",
-                          titleColor: "#696969",
-                        },
-                  },
-                  opacity: {
-                    condition: { selection: "highlight", value: 1 },
-                    value: config["heatmap_opacity"],
-                  },
-                  ...(config["heatmap_off"] && {
-                    tooltip: (() => {
-                      let arr = binnedTooltipHandler(
-                        dataProperties[config["x"]],
-                        config["x_axis_override"],
-                        {
-                          ...(config.bin_type === "bins" && {
-                            maxbins: config["max_bins"],
-                          }),
-                          ...(config.bin_type === "steps" && {
-                            step:
-                              config["num_step_x"] <= Math.floor(maxX / 200)
-                                ? Math.floor(maxX / 200)
-                                : config["num_step_x"],
-                          }),
-                          ...(config.bin_type === "breakpoints" && {
-                            binned: true,
-                          }),
-                        }
-                      ).concat(
-                        binnedTooltipHandler(
-                          dataProperties[config["y"]],
-                          config["y_axis_override"],
-                          {
-                            ...(config.bin_type === "bins" && {
-                              maxbins: config["max_bins"],
-                            }),
-                            ...(config.bin_type === "steps" && {
-                              step:
-                                config["num_step_y"] <= Math.floor(maxY / 200)
-                                  ? Math.floor(maxY / 200)
-                                  : config["num_step_y"],
-                            }),
-                            ...(config.bin_type === "breakpoints" && {
-                              binned: true,
-                            }),
-                          }
-                        )
-                      );
-                      arr = arr.concat(arr.splice(1, 1));
-                      return arr;
-                    })(),
-                  }),
-                },
-              },
-            ],
-          },
-          // Y HISTOGRAM
-          {
-            name: "Y_HISTOGRAM",
-            mark: {
-              type: "bar",
-              cursor: "pointer",
-            },
-            selection: {
-              grid: {
-                type: "interval", 
-                bind: "scales"
-              },
-              highlight: {
-                type: "single",
-                empty: "none",
-                on: "mouseover",
-              },
-            },
-            width: 60,
-            height: height,
-            encoding: {
-              y: {
-                bin: {
-                  ...(config.bin_type === "bins" && {
-                    maxbins: config["max_bins"],
-                  }),
-                  ...(config.bin_type === "steps" && {
-                    step:
-                      config["num_step_y"] <= Math.floor(maxY / 200)
-                        ? Math.floor(maxY / 200)
-                        : config["num_step_y"],
-                  }),
-                  ...(config.bin_type === "breakpoints" && { binned: true }),
-                },
-                field:
-                  config["bin_type"] === "breakpoints"
-                    ? "bin_start_y"
-                    : config["y"],
-                type: "quantitative",
-                axis: {
-                  grid: config["y_grids"],
-                  title: null,
-                  labels: false,
-                  ticks: false,
-                },
-              },
-              ...(config["bin_type"] === "breakpoints" && {
-                y2: { field: "bin_end_y" },
-              }),
-              x: {
-                ...(config["bin_type"] !== "breakpoints" && {
-                  aggregate: "count",
-                }),
-                ...(config["bin_type"] === "breakpoints" && {
-                  field: "count_y",
-                }),
-                type: "quantitative",
-                title: "",
-                axis: {
-                  labelColor: "#696969",
-                  titleColor: "#696969",
-                  grid: config["x_grids"],
-                  title: null,
-                },
-              },
-              tooltip: binnedTooltipHandler(
-                dataProperties[config["y"]],
-                config["y_axis_override"],
-                {
-                  ...(config.bin_type === "bins" && {
-                    maxbins: config["max_bins"],
-                  }),
-                  ...(config.bin_type === "steps" && {
-                    step:
-                      config["num_step_y"] <= Math.floor(maxY / 200)
-                        ? Math.floor(maxY / 200)
-                        : config["num_step_y"],
-                  }),
-                  ...(config.bin_type === "breakpoints" && { binned: true }),
-                }
-              ),
-              color: {
-                condition: {
-                  selection: "highlight",
-                  value: config["color_on_hover"],
-                },
-                value: config["color_col"],
-              },
-            },
-          },
-        ],
-      },
-    ],
-    config: {
-      range: {
-        heatmap: {
-          scheme: config["color_scheme"],
-        },
-      },
-    },
-  };
+    }
 
   //SCATTERPLOT
   if (config["layer_points"]) {
@@ -698,6 +354,7 @@ export function scatterHist(
     }
   }
 
+  debugger;
   embed("#my-vega", vegaChart, {
     actions: false,
     renderer: "svg",
@@ -708,7 +365,6 @@ export function scatterHist(
     if (details.print) {
       done();
     }
-
     view.addEventListener("wheel", runFormatting);
     view.addEventListener("mousedown", runFormatting);
     view.addEventListener("mouseup", runFormatting);

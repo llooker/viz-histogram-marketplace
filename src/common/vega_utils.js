@@ -2,6 +2,9 @@ import * as d3 from "./d3-loader";
 import percentile from "percentile";
 import SSF from "ssf";
 
+export const FONT_TYPE =
+  "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif";
+
 export function handleErrors(vis, res, options) {
   const check = (group, noun, count, min, max) => {
     if (!vis.addError || !vis.clearErrors) return false;
