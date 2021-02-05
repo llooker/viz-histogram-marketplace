@@ -1,6 +1,8 @@
 import { baseOptions, createOptions, FILTERED_LABELS } from "./common/options";
-import { x_histogram, y_histogram, heatmap } from "./vega_specs/index"
+import Scatterplot from "./vega_specs/Scatterplot";
+import getChart from "./vega_specs/index";
 import {
+  FONT_TYPE,
   prepareData,
   tooltipFormatter,
   winsorize,
@@ -12,7 +14,6 @@ import {
   formatCrossfilterSelection,
   positionLegend,
 } from "./common/vega_utils";
-
 
 export function scatterHist(
   data,
@@ -26,6 +27,7 @@ export function scatterHist(
 ) {
   that.clearErrors();
   let { dataProperties, myData } = prepareData(data, queryResponse);
+
   const width = element.clientWidth;
   const height = element.clientHeight;
   const maxX = Math.max(...myData.map((e) => e[config["x"]]));
@@ -35,6 +37,7 @@ export function scatterHist(
   const mainDimensions = queryResponse.fields.dimension_like.map((dim) =>
     dim.name.replace(".", "_")
   );
+
   const dynamicOptions = createOptions(
     queryResponse,
     baseOptions,
@@ -141,69 +144,45 @@ export function scatterHist(
     tooltipFields.push(tooltipFields.shift());
   }
 
-  var vegaChart = {
-      $schema: "https://vega.github.io/schema/vega-lite/v4.json",
-      selection: {
-        grid: {
-          type: "interval", 
-          bind: "scales"
-        },
-      },
-      data: {
-        values: myData,
-      },
-      spacing: 15,
-      bounds: "flush",
-      vconcat: [
-        x_histogram(dataProperties, config, maxX, width),
-        {
-          spacing: 15,
-          bounds: "flush",
-          hconcat: [
-            {
-              layer: [
-                heatmap(dataProperties, config, maxX, maxY, height, width, valFormatX, valFormatY),
-                y_histogram(dataProperties, config, maxY, height)
-              ],
-            },
-          ],
-        },
-      ],
-      config: {
-        range: {
-          heatmap: {
-            scheme: config["color_scheme"],
-          },
-        },
-      },
+  var baseChart = {
+    $schema: "https://vega.github.io/schema/vega-lite/v4.json",
+    data: {
+      values: myData,
+    },
+    spacing: 15,
+    bounds: "flush",
+  };
+  const vegaChart = Object.assign(
+    baseChart,
+    getChart({
+      dataProperties,
+      config,
+      maxX,
+      maxY,
+      height,
+      width,
+      valFormatX,
+      valFormatY,
+    })
+  );
+
+  const getScatterplotRef = () => {
+    if (config["x_hist"] && config["y_hist"]) {
+      return vegaChart.vconcat[1].hconcat[0].layer;
+    } else if (config["y_hist"]) {
+      return vegaChart.hconcat[0].layer;
+    } else if (config["x_hist"]) {
+      return vegaChart.vconcat[1].layer;
+    } else {
+      return vegaChart.vconcat[1].hconcat[0].layer;
     }
+  };
 
   //SCATTERPLOT
   if (config["layer_points"]) {
-    vegaChart.vconcat[1].hconcat[0].layer.push({
-      name: "SCATTERPLOT",
-      mark: {
-        color: config["color_col"],
-        cursor: "pointer",
-        type: "circle",
-        opacity: config["point_opacity"],
-        zindex: 2,
-        size: 100,
-      },
-      height: height,
-      width: width,
-      encoding: {
-        tooltip: tooltipFields,
-        x: {
-          field: config["x"],
-          type: "quantitative",
-        },
-        y: {
-          field: config["y"],
-          type: "quantitative",
-        },
-      },
-    });
+    getScatterplotRef().push(
+      Scatterplot({ config, tooltipFields, height, width })
+    );
   }
 
   //SIZE POINTS
@@ -212,7 +191,7 @@ export function scatterHist(
     config["size"] != "" &&
     typeof config["size"] != "undefined"
   ) {
-    vegaChart.vconcat[1].hconcat[0].layer[1].encoding.size = {
+    getScatterplotRef()[1].encoding.size = {
       field: config["size"],
       type: "quantitative",
       title: dataProperties[config["size"]]["title"],
@@ -232,7 +211,7 @@ export function scatterHist(
 
   // COLOR POINTS
   if (config["layer_points"] && mainDimensions[1] !== undefined) {
-    vegaChart.vconcat[1].hconcat[0].layer[1].encoding.color = {
+    getScatterplotRef()[1].encoding.color = {
       scale: { scheme: config["point_group_colors"] },
       field: mainDimensions[1],
       legend: {
@@ -253,7 +232,7 @@ export function scatterHist(
     };
   }
   if (config["layer_points"] && config["point_labels"]) {
-    vegaChart.vconcat[1].hconcat[0].layer.push({
+    getScatterplotRef().push({
       mark: {
         type: "text",
         align: "left",
@@ -286,7 +265,7 @@ export function scatterHist(
       config["x"],
       myData
     );
-    vegaChart.vconcat[1].hconcat[0].layer.push({
+    getScatterplotRef().push({
       name: "refLineX",
       mark: {
         type: "rule",
@@ -309,7 +288,7 @@ export function scatterHist(
       config["y"],
       myData
     );
-    vegaChart.vconcat[1].hconcat[0].layer.push({
+    getScatterplotRef().push({
       name: "refLineY",
       mark: {
         type: "rule",
@@ -352,9 +331,8 @@ export function scatterHist(
     if (config["reference_line_y"]) {
       positionRefLine("y");
     }
-  }
+  };
 
-  debugger;
   embed("#my-vega", vegaChart, {
     actions: false,
     renderer: "svg",

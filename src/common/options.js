@@ -377,17 +377,35 @@ export function createOptions(
     default: defaultMes2,
   };
   optionsResponse["options"]["heatmap_off"] = {
-    label: "Show Heatmap",
+    label: "Heatmap",
     section: "  Values",
     type: "boolean",
     order: 10,
     display: "select",
+    display_size: "half",
     default: true,
   };
+  // optionsResponse["options"]["x_hist"] = {
+  //   label: "X Histogram",
+  //   section: "  Values",
+  //   type: "boolean",
+  //   display_size: "half",
+  //   order: 11,
+  //   default: true,
+  // };
+  // optionsResponse["options"]["y_hist"] = {
+  //   label: "Y Histogram",
+  //   section: "  Values",
+  //   type: "boolean",
+  //   display_size: "half",
+  //   order: 11,
+  //   default: true,
+  // };
   optionsResponse["options"]["layer_points"] = {
-    label: "Show Points",
+    label: "Points",
     section: "  Values",
     type: "boolean",
+    display_size: "half",
     order: 11,
     display: "select",
     default: true,
