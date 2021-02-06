@@ -2,7 +2,7 @@ import embed from "vega-embed";
 import { scatterHist } from "./scatter_hist";
 import { simpleHist } from "./simple_hist";
 import { baseOptions } from "./common/options";
-import { handleErrors } from "./common/vega_utils";
+import { handleErrors } from "./common/utils/data";
 import "./common/styles.css";
 
 looker.plugins.visualizations.add({

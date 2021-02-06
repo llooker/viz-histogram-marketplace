@@ -1,4 +1,4 @@
-import { binnedTooltipHandler } from "../common/vega_utils";
+import { binnedTooltipHandler } from "../common/utils/tooltip";
 
 function XHistogram({ dataProperties, config, maxX, width }) {
   return {

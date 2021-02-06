@@ -1,4 +1,4 @@
-import { binnedTooltipHandler } from "../common/vega_utils";
+import { binnedTooltipHandler } from "../common/utils/tooltip";
 
 const YHistogram = ({ dataProperties, config, maxY, height }) => {
   return {

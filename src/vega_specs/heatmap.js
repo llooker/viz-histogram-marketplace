@@ -1,4 +1,5 @@
-import { binnedTooltipHandler, FONT_TYPE } from "../common/vega_utils";
+import { FONT_TYPE } from "../common/utils/vega_utils";
+import { binnedTooltipHandler } from "../common/utils/tooltip";
 
 function Heatmap({
   dataProperties,

@@ -1,16 +1,14 @@
-import { baseOptions, createOptionsSimple } from "./common/options";
+import { baseOptions } from "./common/options";
 import {
-  prepareData,
-  simpleHistTooltipHandler,
-  simpleTooltipFormatter,
-  makeBins,
-  winsorize,
   fixChartSizing,
   setFormatting,
-} from "./common/vega_utils";
-
-const FONT_TYPE =
-  "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif";
+  FONT_TYPE,
+} from "./common/utils/vega_utils";
+import { winsorize, prepareData, makeBins } from "./common/utils/data";
+import {
+  simpleHistTooltipHandler,
+  simpleTooltipFormatter,
+} from "./common/utils/tooltip";
 
 export function simpleHist(
   data,

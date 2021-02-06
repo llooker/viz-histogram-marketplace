@@ -1,19 +1,17 @@
 import { baseOptions, createOptions, FILTERED_LABELS } from "./common/options";
 import Scatterplot from "./vega_specs/Scatterplot";
 import getChart from "./vega_specs/index";
+import { prepareData, winsorize, getPercentile } from "./common/utils/data";
 import {
   FONT_TYPE,
-  prepareData,
-  tooltipFormatter,
-  winsorize,
   fixChartSizing,
   setFormatting,
   formatPointLegend,
-  getPercentile,
   positionRefLine,
   formatCrossfilterSelection,
   positionLegend,
-} from "./common/vega_utils";
+} from "./common/utils/vega_utils";
+import { tooltipFormatter } from "./common/utils/tooltip";
 
 export function scatterHist(
   data,
@@ -144,17 +142,14 @@ export function scatterHist(
     tooltipFields.push(tooltipFields.shift());
   }
 
-  var baseChart = {
+  var vegaChart = {
     $schema: "https://vega.github.io/schema/vega-lite/v4.json",
     data: {
       values: myData,
     },
     spacing: 15,
     bounds: "flush",
-  };
-  const vegaChart = Object.assign(
-    baseChart,
-    getChart({
+    ...getChart({
       dataProperties,
       config,
       maxX,
@@ -163,8 +158,8 @@ export function scatterHist(
       width,
       valFormatX,
       valFormatY,
-    })
-  );
+    }),
+  };
 
   const getScatterplotRef = () => {
     if (config["x_hist"] && config["y_hist"]) {

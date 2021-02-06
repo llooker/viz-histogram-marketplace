@@ -10,7 +10,7 @@ function getChart(props) {
   } else if (props.config.y_hist) {
     return YHistChart(props);
   } else {
-    // For saftey while deving 
+    // For saftey while deving
     return AxesHistChart(props);
   }
 }
