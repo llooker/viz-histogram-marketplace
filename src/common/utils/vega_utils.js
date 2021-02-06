@@ -4,15 +4,19 @@ import SSF from "ssf";
 export const FONT_TYPE =
   "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif";
 
-const parseTransform = (s) => s.split("(")[1].split(")")[0].split(",");
-export function positionRefLine(axis) {
+function parseTransform(str) {
+  return str.split("(")[1].split(")")[0].split(",");
+} 
+
+export function positionRefLine(axis, config) {
+  let selector = (!config["x_hist"] && !config["y_hist"]) ? ".mark-group.role-frame.root" : ".BOUNDING_BOX_group"
   let boundingbox = d3
-    .select(".mark-group.role-scope.concat_1_concat_0_group")
+    .select(selector)
     .select("path")
     .node()
     .getBBox();
   let line = d3
-    .select(`.${axis === "x" ? "refLineX" : "refLineY"}_marks`)
+    .select(`.${axis === "x" ? "refLinex" : "refLiney"}_marks`)
     .selectChildren();
   let translate = parseTransform(line.attr("transform"));
   if (axis === "x") {
@@ -33,9 +37,7 @@ export function positionLegend(orientation) {
     let legends = d3.selectAll(".mark-group.role-legend")._groups[0];
     let baseLegend = legends[legends.length - 2];
     let lastLegend = legends[legends.length - 1];
-    let translate = parseTransform(
-      d3.select(baseLegend).select("g").attr("transform")
-    );
+    let translate = parseTransform(d3.select(baseLegend).select("g").attr("transform"));
     let offset = d3.select(baseLegend).select("g").node().getBBox();
     let legendOffset = d3.select(lastLegend).select("g").node().getBBox();
     d3.select(lastLegend)
@@ -61,7 +63,7 @@ export function fixChartSizing() {
     .style("left", 0);
 }
 
-export function setFormatting(chartType, xAxisFormat, yAxisFormat = null) {
+export function setAxisFormatting(chartType, xAxisFormat, yAxisFormat = null) {
   if (chartType === "simple") {
     d3.select("g.mark-text.role-axis-label")
       .selectAll("text")
@@ -103,8 +105,7 @@ export function formatPointLegend(valFormat, coloredPoints, heatmap) {
 }
 
 export function formatCrossfilterSelection(crossfilters, fields, color) {
-  let scatter = d3
-    .select(".SCATTERPLOT_marks")
+  d3.select(".SCATTERPLOT_marks")
     .selectAll("path")
     .attr("fill", function (d) {
       for (let f of crossfilters) {
@@ -116,4 +117,35 @@ export function formatCrossfilterSelection(crossfilters, fields, color) {
         }
       }
     });
+}
+
+export function runFormatting(
+  details,
+  config,
+  mainDimensions,
+  valFormatX,
+  valFormatY,
+  valFormatPoints
+) {
+  if (
+    details.crossfilterEnabled &&
+    details.crossfilters.length &&
+    config["layer_points"]
+  ) {
+    formatCrossfilterSelection(details.crossfilters, mainDimensions, config["color_col"]);
+  }
+  setAxisFormatting("scatter", valFormatX, valFormatY);
+  if (config["size"] && config["layer_points"]) {
+    formatPointLegend(
+      valFormatPoints,
+      mainDimensions[1] !== undefined,
+      config["heatmap_off"]
+    );
+  }
+  if (config["reference_line_x"]) {
+    positionRefLine("x", config);
+  }
+  if (config["reference_line_y"]) {
+    positionRefLine("y", config);
+  }
 }

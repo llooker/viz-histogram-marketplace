@@ -1,6 +1,7 @@
-import AxesHistChart from "./AxesHistChart";
-import XHistChart from "./XHistChart";
-import Heatmap from "./Heatmap";
+import AxesHistChart from "./charts/AxesHistChart";
+import HeatChart from "./charts/HeatChart";
+import XHistChart from "./charts/XHistChart";
+import YHistChart from "./charts/YHistChart";
 
 function getChart(props) {
   if (props.config.x_hist && props.config.y_hist) {
@@ -10,8 +11,7 @@ function getChart(props) {
   } else if (props.config.y_hist) {
     return YHistChart(props);
   } else {
-    // For saftey while deving
-    return AxesHistChart(props);
+    return HeatChart(props);
   }
 }
 

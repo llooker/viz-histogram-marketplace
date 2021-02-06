@@ -1,17 +1,8 @@
-import { baseOptions, createOptions, FILTERED_LABELS } from "./common/options";
-import Scatterplot from "./vega_specs/Scatterplot";
 import getChart from "./vega_specs/index";
-import { prepareData, winsorize, getPercentile } from "./common/utils/data";
-import {
-  FONT_TYPE,
-  fixChartSizing,
-  setFormatting,
-  formatPointLegend,
-  positionRefLine,
-  formatCrossfilterSelection,
-  positionLegend,
-} from "./common/utils/vega_utils";
-import { tooltipFormatter } from "./common/utils/tooltip";
+import { prepareData, winsorize } from "./common/utils/data";
+import { fixChartSizing, positionLegend, runFormatting } from "./common/utils/vega_utils";
+import { tooltipFormatter, getScatterTooltipFields } from "./common/utils/tooltip";
+import { baseOptions, createOptions } from "./common/options";
 
 export function scatterHist(
   data,
@@ -58,32 +49,28 @@ export function scatterHist(
   ) {
     return;
   }
+
   const defaultValFormatX = dataProperties[config["x"]]["valueFormat"];
   const defaultValFormatY = dataProperties[config["y"]]["valueFormat"];
   const valFormatOverrideX = config["x_axis_value_format"];
   const valFormatOverrideY = config["y_axis_value_format"];
 
-  let valFormatX =
-    valFormatOverrideX !== "" ? valFormatOverrideX : defaultValFormatX;
+  let valFormatX = valFormatOverrideX !== "" ? valFormatOverrideX : defaultValFormatX;
   if (valFormatX === null || valFormatX === undefined) {
     valFormatX = "#,##0";
   }
 
-  let valFormatY =
-    valFormatOverrideY !== "" ? valFormatOverrideY : defaultValFormatY;
+  let valFormatY = valFormatOverrideY !== "" ? valFormatOverrideY : defaultValFormatY;
   if (valFormatY === null || valFormatY === undefined) {
     valFormatY = "#,##0";
   }
 
   let valFormatPoints;
   if (config["size"]) {
-    const defaultValFormatPoints =
-      dataProperties[config["size"]]["valueFormat"];
+    const defaultValFormatPoints = dataProperties[config["size"]]["valueFormat"];
     const valFormatOverridePoints = config["points_legend_value_format"];
     valFormatPoints =
-      valFormatOverridePoints !== ""
-        ? valFormatOverridePoints
-        : defaultValFormatPoints;
+      valFormatOverridePoints !== "" ? valFormatOverridePoints : defaultValFormatPoints;
     if (valFormatPoints === null || valFormatPoints === undefined) {
       valFormatPoints = "#,##0";
     }
@@ -94,54 +81,7 @@ export function scatterHist(
     myData = winsorize(myData, config["y"], config["percentile"]);
   }
 
-  // These tooltip fields are used for point labels
-  const tooltipFields = [];
-  for (let datum in dataProperties) {
-    //ignore filtered labels
-    if (datum === FILTERED_LABELS) {
-      continue;
-    }
-    if (
-      dataProperties[datum]["dtype"] === "nominal" ||
-      datum === config["x"] ||
-      datum === config["y"] ||
-      datum === config["size"]
-    ) {
-      let tip = {};
-      tip["field"] = datum;
-      tip["type"] = dataProperties[datum]["dtype"];
-      tip["title"] = ((datum) => {
-        switch (datum) {
-          case config["x"]:
-            return config["x_axis_override"] !== ""
-              ? config["x_axis_override"]
-              : dataProperties[datum]["title"];
-          case config["y"]:
-            return config["y_axis_override"] !== ""
-              ? config["y_axis_override"]
-              : dataProperties[datum]["title"];
-          default:
-            return dataProperties[datum]["title"];
-        }
-      })(datum);
-      tooltipFields.push(tip);
-    }
-  }
-
-  // Tooltip formatting expects a certain order { x, y, size } so we ensure ordering here
-  let order = [config["x"], config["y"]];
-  if (config["size"]) {
-    order.push(config["size"]);
-  }
-  tooltipFields.sort(
-    (a, b) => order.indexOf(a["field"]) - order.indexOf(b["field"])
-  );
-
-  // Move dimensions to back of array
-  for (let i = 0; i < queryResponse.fields.dimensions.length; i++) {
-    tooltipFields.push(tooltipFields.shift());
-  }
-
+  const tooltipFields = getScatterTooltipFields(dataProperties, queryResponse, config);
   var vegaChart = {
     $schema: "https://vega.github.io/schema/vega-lite/v4.json",
     data: {
@@ -150,202 +90,52 @@ export function scatterHist(
     spacing: 15,
     bounds: "flush",
     ...getChart({
+      data: myData,
       dataProperties,
       config,
       maxX,
+      minX,
       maxY,
+      minY,
       height,
       width,
       valFormatX,
       valFormatY,
+      tooltipFields,
+      mainDimensions,
     }),
   };
 
-  const getScatterplotRef = () => {
-    if (config["x_hist"] && config["y_hist"]) {
-      return vegaChart.vconcat[1].hconcat[0].layer;
-    } else if (config["y_hist"]) {
-      return vegaChart.hconcat[0].layer;
-    } else if (config["x_hist"]) {
-      return vegaChart.vconcat[1].layer;
-    } else {
-      return vegaChart.vconcat[1].hconcat[0].layer;
-    }
+  const formatChart = () => {
+    runFormatting(
+      details,
+      config,
+      mainDimensions,
+      valFormatX,
+      valFormatY,
+      valFormatPoints
+    );
   };
 
-  //SCATTERPLOT
-  if (config["layer_points"]) {
-    getScatterplotRef().push(
-      Scatterplot({ config, tooltipFields, height, width })
-    );
-  }
-
-  //SIZE POINTS
-  if (
-    config["layer_points"] &&
-    config["size"] != "" &&
-    typeof config["size"] != "undefined"
-  ) {
-    getScatterplotRef()[1].encoding.size = {
-      field: config["size"],
-      type: "quantitative",
-      title: dataProperties[config["size"]]["title"],
-      legend: {
-        orient: config["legend_orient"],
-        format: "d",
-        labelFontSize: config["legend_size"],
-        titleFontWeight: "normal",
-        titleFontSize: config["legend_size"],
-        titleFont: FONT_TYPE,
-        labelFont: FONT_TYPE,
-        labelColor: "#696969",
-        titleColor: "#696969",
-      },
-    };
-  }
-
-  // COLOR POINTS
-  if (config["layer_points"] && mainDimensions[1] !== undefined) {
-    getScatterplotRef()[1].encoding.color = {
-      scale: { scheme: config["point_group_colors"] },
-      field: mainDimensions[1],
-      legend: {
-        zindex: 1,
-        type: "symbol",
-        offset: 100,
-        title: dataProperties[mainDimensions[1]]["title"],
-        type: "symbol",
-        orient: config["legend_orient"],
-        labelFontSize: config["legend_size"],
-        titleFontWeight: "normal",
-        titleFontSize: config["legend_size"],
-        titleFont: FONT_TYPE,
-        labelFont: FONT_TYPE,
-        labelColor: "#696969",
-        titleColor: "#696969",
-      },
-    };
-  }
-  if (config["layer_points"] && config["point_labels"]) {
-    getScatterplotRef().push({
-      mark: {
-        type: "text",
-        align: "left",
-        angle: config["point_labels_angle"],
-        dx: config["point_labels_x_offset"],
-        dy: config["point_labels_y_offset"],
-        fontSize: config["point_labels_font_size"],
-      },
-      encoding: {
-        x: {
-          field: config["x"],
-          type: "quantitative",
-        },
-        y: {
-          field: config["y"],
-          type: "quantitative",
-        },
-        text: {
-          field: dataProperties[FILTERED_LABELS]
-            ? FILTERED_LABELS
-            : mainDimensions[0],
-        },
-      },
-    });
-  }
-
-  if (config["reference_line_x"]) {
-    const percentileX = getPercentile(
-      config["reference_line_x_p"],
-      config["x"],
-      myData
-    );
-    getScatterplotRef().push({
-      name: "refLineX",
-      mark: {
-        type: "rule",
-      },
-      encoding: {
-        x: { datum: percentileX },
-        y: { datum: minY },
-        x2: { datum: percentileX },
-        y2: { datum: maxY },
-        color: { value: "red" },
-        size: { value: config["reference_line_x_width"] },
-        strokeDash: { value: [4, 4] },
-      },
-    });
-  }
-
-  if (config["reference_line_y"]) {
-    const percentileY = getPercentile(
-      config["reference_line_y_p"],
-      config["y"],
-      myData
-    );
-    getScatterplotRef().push({
-      name: "refLineY",
-      mark: {
-        type: "rule",
-      },
-      encoding: {
-        x: { datum: minX },
-        y: { datum: percentileY },
-        x2: { datum: maxX },
-        y2: { datum: percentileY },
-        color: { value: "red" },
-        size: { value: config["reference_line_y_width"] },
-        strokeDash: { value: [4, 4] },
-      },
-    });
-  }
-
-  const runFormatting = () => {
-    if (
-      details.crossfilterEnabled &&
-      details.crossfilters.length &&
-      config["layer_points"]
-    ) {
-      formatCrossfilterSelection(
-        details.crossfilters,
-        mainDimensions,
-        config["color_col"]
-      );
-    }
-    setFormatting("scatter", valFormatX, valFormatY);
-    if (config["size"] && config["layer_points"]) {
-      formatPointLegend(
-        valFormatPoints,
-        mainDimensions[1] !== undefined,
-        config["heatmap_off"]
-      );
-    }
-    if (config["reference_line_x"]) {
-      positionRefLine("x");
-    }
-    if (config["reference_line_y"]) {
-      positionRefLine("y");
-    }
-  };
-
+  debugger;
   embed("#my-vega", vegaChart, {
     actions: false,
     renderer: "svg",
     tooltip: { theme: "custom" },
   }).then(({ spec, view }) => {
     fixChartSizing();
-    runFormatting();
+    formatChart();
     if (details.print) {
       done();
     }
-    view.addEventListener("wheel", runFormatting);
-    view.addEventListener("mousedown", runFormatting);
-    view.addEventListener("mouseup", runFormatting);
-    view.addEventListener("drag", runFormatting);
+    view.addEventListener("wheel", formatChart);
+    view.addEventListener("mousedown", formatChart);
+    view.addEventListener("mouseup", formatChart);
+    view.addEventListener("drag", formatChart);
+
     view.addEventListener("mousemove", (event, item) => {
       tooltipFormatter(
         dataProperties,
-        "binned",
         config,
         item,
         valFormatX,
@@ -353,9 +143,11 @@ export function scatterHist(
         valFormatPoints
       );
     });
+
     if (mainDimensions[1] !== undefined && config["size"]) {
       positionLegend(config["legend_orient"]);
     }
+
     // DRILL SUPPORT
     view.addEventListener("click", function (event, item) {
       if (Object.keys(item.datum).length <= 1 || item.fillOpacity === 0) {

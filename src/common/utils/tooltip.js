@@ -1,5 +1,6 @@
 import * as d3 from "../d3-loader";
 import SSF from "ssf";
+import { FILTERED_LABELS } from "../options";
 
 export function simpleHistTooltipHandler(datum, label, bins) {
   return [
@@ -36,13 +37,7 @@ export function binnedTooltipHandler(datum, labelOverride, bins) {
   ];
 }
 
-export function simpleTooltipFormatter(
-  dataProperties,
-  config,
-  measure,
-  item,
-  valFormat
-) {
+export function simpleTooltipFormatter(dataProperties, config, measure, item, valFormat) {
   if (
     config === undefined ||
     item === undefined ||
@@ -75,12 +70,11 @@ export function simpleTooltipFormatter(
 // 4) Scatterplot
 export function tooltipFormatter(
   dataProperties,
-  chartType,
   config,
   item,
-  xAxisFormat,
-  yAxisFormat = null,
-  pointFormat = null
+  valFormatX,
+  valFormatY,
+  valFormatPoints
 ) {
   if (
     config === undefined ||
@@ -108,7 +102,7 @@ export function tooltipFormatter(
   };
 
   const getFormatValue = (axis, text) => {
-    let format = axis === "x" ? xAxisFormat : yAxisFormat;
+    let format = axis === "x" ? valFormatX : valFormatY;
     let part1 = SSF.format(format, Number(checkNeg(text[0])));
     let part2 = SSF.format(format, Number(checkNeg(text[2])));
     return [part1, part2];
@@ -140,11 +134,59 @@ export function tooltipFormatter(
   if (item.mark.name === "SCATTERPLOT_marks") {
     d3.selectAll("td.value").each(function (_d, i) {
       if (i === 0) {
-        d3.select(this).text(SSF.format(xAxisFormat, getTextScatter("x")));
+        d3.select(this).text(SSF.format(valFormatX, getTextScatter("x")));
       } else if (i === 1 && config["x"] !== config["y"]) {
         // Weird edge case where the user selects the same field for both X and Y
-        d3.select(this).text(SSF.format(yAxisFormat, getTextScatter("y")));
+        d3.select(this).text(SSF.format(valFormatY, getTextScatter("y")));
       }
     });
   }
+}
+
+export function getScatterTooltipFields(dataProperties, queryResponse, config) {
+  let tooltipFields = [];
+  for (let datum in dataProperties) {
+    //ignore filtered labels
+    if (datum === FILTERED_LABELS) {
+      continue;
+    }
+    if (
+      dataProperties[datum]["dtype"] === "nominal" ||
+      datum === config["x"] ||
+      datum === config["y"] ||
+      datum === config["size"]
+    ) {
+      let tip = {};
+      tip["field"] = datum;
+      tip["type"] = dataProperties[datum]["dtype"];
+      tip["title"] = ((datum) => {
+        // Switch to apply label overrides for x and y
+        switch (datum) {
+          case config["x"]:
+            return config["x_axis_override"] !== ""
+              ? config["x_axis_override"]
+              : dataProperties[datum]["title"];
+          case config["y"]:
+            return config["y_axis_override"] !== ""
+              ? config["y_axis_override"]
+              : dataProperties[datum]["title"];
+          default:
+            return dataProperties[datum]["title"];
+        }
+      })(datum);
+      tooltipFields.push(tip);
+    }
+  }
+  // Tooltip formatting expects a certain order { x, y, size } so we ensure ordering here
+  let order = [config["x"], config["y"]];
+  if (config["size"]) {
+    order.push(config["size"]);
+  }
+  tooltipFields.sort((a, b) => order.indexOf(a["field"]) - order.indexOf(b["field"]));
+
+  // Move dimensions to back of array
+  for (let i = 0; i < queryResponse.fields.dimensions.length; i++) {
+    tooltipFields.push(tooltipFields.shift());
+  }
+  return tooltipFields;
 }

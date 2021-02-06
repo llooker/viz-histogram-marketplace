@@ -385,22 +385,22 @@ export function createOptions(
     display_size: "half",
     default: true,
   };
-  // optionsResponse["options"]["x_hist"] = {
-  //   label: "X Histogram",
-  //   section: "  Values",
-  //   type: "boolean",
-  //   display_size: "half",
-  //   order: 11,
-  //   default: true,
-  // };
-  // optionsResponse["options"]["y_hist"] = {
-  //   label: "Y Histogram",
-  //   section: "  Values",
-  //   type: "boolean",
-  //   display_size: "half",
-  //   order: 11,
-  //   default: true,
-  // };
+  optionsResponse["options"]["x_hist"] = {
+    label: "X Histogram",
+    section: "  Values",
+    type: "boolean",
+    display_size: "half",
+    order: 11,
+    default: true,
+  };
+  optionsResponse["options"]["y_hist"] = {
+    label: "Y Histogram",
+    section: "  Values",
+    type: "boolean",
+    display_size: "half",
+    order: 11,
+    default: true,
+  };
   optionsResponse["options"]["layer_points"] = {
     label: "Points",
     section: "  Values",
@@ -411,9 +411,7 @@ export function createOptions(
     default: true,
   };
   var defaultVal =
-    optionsResponse["measures"].length > 2
-      ? optionsResponse["measures"][2]
-      : "";
+    optionsResponse["measures"].length > 2 ? optionsResponse["measures"][2] : "";
   var size_arr = optionsResponse["measures"].concat([{ None: "" }]);
   optionsResponse["options"]["size"] = {
     label: "Size Points By",
@@ -496,12 +494,7 @@ export function createOptions(
     type: "string",
     display: "select",
     order: 6,
-    values: [
-      { Left: "left" },
-      { Right: "right" },
-      { Top: "top" },
-      { Bottom: "bottom" },
-    ],
+    values: [{ Left: "left" }, { Right: "right" }, { Top: "top" }, { Bottom: "bottom" }],
     display_size: "half",
     default: "right",
   };

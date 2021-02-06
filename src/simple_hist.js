@@ -1,14 +1,7 @@
 import { baseOptions } from "./common/options";
-import {
-  fixChartSizing,
-  setFormatting,
-  FONT_TYPE,
-} from "./common/utils/vega_utils";
+import { fixChartSizing, setAxisFormatting, FONT_TYPE } from "./common/utils/vega_utils";
 import { winsorize, prepareData, makeBins } from "./common/utils/data";
-import {
-  simpleHistTooltipHandler,
-  simpleTooltipFormatter,
-} from "./common/utils/tooltip";
+import { simpleHistTooltipHandler, simpleTooltipFormatter } from "./common/utils/tooltip";
 
 export function simpleHist(
   data,
@@ -23,21 +16,10 @@ export function simpleHist(
   that.clearErrors();
 
   let { dataProperties, myData } = prepareData(data, queryResponse);
-  const vegaSafeNameMes = queryResponse.fields.measure_like[0].name.replace(
-    ".",
-    "_"
-  );
-  const vegaSafeNameDim = queryResponse.fields.dimensions[0].name.replace(
-    ".",
-    "_"
-  );
+  const vegaSafeNameMes = queryResponse.fields.measure_like[0].name.replace(".", "_");
+  const vegaSafeNameDim = queryResponse.fields.dimensions[0].name.replace(".", "_");
   const max = Math.max(...myData.map((e) => e[vegaSafeNameMes]));
-
-  // As of 21.0.10 Dashboard-Next does not support removing options
-  // from the viz config (only additive). Attempting to do so causes
-  // an infinite rerender. Removing dynamic options for now
-  // ----------------------------------------------------------------
-
+  
   //Need to reassign some options when toggling from scatter to simple hist
   const options = Object.assign({}, baseOptions);
   if (options["bin_type"]["values"].length < 3) {
@@ -72,9 +54,9 @@ export function simpleHist(
       section: "  Values",
       order: 4,
       type: "string",
-      default: `min, ${Math.floor(max / 5)}, ${Math.floor(
-        max / 4
-      )}, ${Math.floor(max / 3)}, ${Math.floor(max / 2)}, max`,
+      default: `min, ${Math.floor(max / 5)}, ${Math.floor(max / 4)}, ${Math.floor(
+        max / 3
+      )}, ${Math.floor(max / 2)}, max`,
     };
     options["breakpoint_ordinal"] = {
       label: "Use Equal Sized Columns (Ordinal Bins)",
@@ -106,8 +88,7 @@ export function simpleHist(
   const defaultValFormat = dataProperties[vegaSafeNameMes]["valueFormat"];
   const valFormatOverride = config["x_axis_value_format"];
 
-  let valFormat =
-    valFormatOverride !== "" ? valFormatOverride : defaultValFormat;
+  let valFormat = valFormatOverride !== "" ? valFormatOverride : defaultValFormat;
   if (valFormat === null || valFormat === undefined) {
     valFormat = "#,##0";
   }
@@ -236,19 +217,13 @@ export function simpleHist(
     tooltip: { theme: "custom" },
   }).then(({ spec, view }) => {
     fixChartSizing();
-    setFormatting("simple", valFormat);
+    setAxisFormatting("simple", valFormat);
     if (details.print) {
       done();
     }
 
     view.addEventListener("mousemove", (event, item) => {
-      simpleTooltipFormatter(
-        dataProperties,
-        config,
-        vegaSafeNameMes,
-        item,
-        valFormat
-      );
+      simpleTooltipFormatter(dataProperties, config, vegaSafeNameMes, item, valFormat);
     });
 
     //DRILL SUPPORT
@@ -260,9 +235,7 @@ export function simpleHist(
       const bounds =
         config["bin_type"] === "breakpoints"
           ? ["bin_start_x", "bin_end_x"]
-          : Object.keys(item.datum).filter((ele) =>
-              ele.includes(vegaSafeNameMes)
-            );
+          : Object.keys(item.datum).filter((ele) => ele.includes(vegaSafeNameMes));
 
       let links = item.datum.links;
       let baseURL = myData[0].links;
@@ -282,9 +255,7 @@ export function simpleHist(
         let url = `${baseURL}?fields=${fields.join(",")}`;
 
         // Apply appropriate filtering based on bounds
-        url += `&f[${aggField}]=[${item.datum[bounds[0]]}, ${
-          item.datum[bounds[1]]
-        })`;
+        url += `&f[${aggField}]=[${item.datum[bounds[0]]}, ${item.datum[bounds[1]]})`;
 
         //Inherit query filters
         if (queryResponse.applied_filters !== undefined) {

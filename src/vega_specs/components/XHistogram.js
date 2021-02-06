@@ -1,6 +1,6 @@
-import { binnedTooltipHandler } from "../common/utils/tooltip";
+import { binnedTooltipHandler } from "../../common/utils/tooltip";
 
-const YHistogram = ({ dataProperties, config, maxY, height }) => {
+function XHistogram({ dataProperties, config, maxX, width }) {
   return {
     selection: {
       grid: {
@@ -13,68 +13,62 @@ const YHistogram = ({ dataProperties, config, maxY, height }) => {
         on: "mouseover",
       },
     },
-    name: "Y_HISTOGRAM",
+    name: "X_HISTOGRAM",
     mark: {
       type: "bar",
       cursor: "pointer",
     },
-    width: 60,
-    height: height,
+    height: 60,
+    width: width,
     encoding: {
-      y: {
+      x: {
         bin: {
           ...(config.bin_type === "bins" && {
             maxbins: config["max_bins"],
           }),
           ...(config.bin_type === "steps" && {
             step:
-              config["num_step_y"] <= Math.floor(maxY / 200)
-                ? Math.floor(maxY / 200)
-                : config["num_step_y"],
+              config["num_step_x"] <= Math.floor(maxX / 200)
+                ? Math.floor(maxX / 200)
+                : config["num_step_x"],
           }),
           ...(config.bin_type === "breakpoints" && { binned: true }),
         },
-        field:
-          config["bin_type"] === "breakpoints" ? "bin_start_y" : config["y"],
+        field: config.bin_type === "breakpoints" ? "bin_start_x" : config["x"],
         type: "quantitative",
         axis: {
-          grid: config["y_grids"],
+          grid: config["x_grids"],
           title: null,
           labels: false,
           ticks: false,
         },
       },
       ...(config["bin_type"] === "breakpoints" && {
-        y2: { field: "bin_end_y" },
+        x2: { field: "bin_end_x" },
       }),
-      x: {
-        ...(config["bin_type"] !== "breakpoints" && {
-          aggregate: "count",
-        }),
-        ...(config["bin_type"] === "breakpoints" && {
-          field: "count_y",
-        }),
+      y: {
+        ...(config["bin_type"] !== "breakpoints" && { aggregate: "count" }),
+        ...(config["bin_type"] === "breakpoints" && { field: "count_x" }),
         type: "quantitative",
         title: "",
         axis: {
           labelColor: "#696969",
           titleColor: "#696969",
-          grid: config["x_grids"],
-          title: null,
+          grid: config["y_grids"],
         },
       },
       tooltip: binnedTooltipHandler(
-        dataProperties[config["y"]],
-        config["y_axis_override"],
+        dataProperties[config["x"]],
+        config["x_axis_override"],
         {
           ...(config.bin_type === "bins" && {
             maxbins: config["max_bins"],
           }),
           ...(config.bin_type === "steps" && {
             step:
-              config["num_step_y"] <= Math.floor(maxY / 200)
-                ? Math.floor(maxY / 200)
-                : config["num_step_y"],
+              config["num_step_x"] <= Math.floor(maxX / 200)
+                ? Math.floor(maxX / 200)
+                : config["num_step_x"],
           }),
           ...(config.bin_type === "breakpoints" && { binned: true }),
         }
@@ -88,6 +82,6 @@ const YHistogram = ({ dataProperties, config, maxY, height }) => {
       },
     },
   };
-};
+}
 
-export default YHistogram;
+export default XHistogram;
