@@ -1,6 +1,6 @@
-import XHistogram from "../components/XHistogram";
-import Heatmap from "../components/Heatmap";
-import useLayers from "../components/useLayers";
+import XHistogram from "../vega_components/XHistogram";
+import Heatmap from "../vega_components/Heatmap";
+import useLayers from "../vega_components/useLayers";
 
 function XHistChart({
   data,

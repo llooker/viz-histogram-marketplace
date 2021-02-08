@@ -1,6 +1,6 @@
-import YHistogram from "../components/YHistogram";
-import Heatmap from "../components/Heatmap";
-import useLayers from "../components/useLayers";
+import YHistogram from "../vega_components/YHistogram";
+import Heatmap from "../vega_components/Heatmap";
+import useLayers from "../vega_components/useLayers";
 
 function YHistChart({
   data,

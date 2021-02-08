@@ -51,7 +51,7 @@ export function simpleTooltipFormatter(dataProperties, config, measure, item, va
     return text.replace(/\u2013|\u2014|\u2212/g, "-");
   };
   const getText = (item) => {
-    let title = dataProperties[measure].title;
+    let title = config[`x_axis_override`] !== "" ? config[`x_axis_override`] : dataProperties[measure].title;
     return item.tooltip[title].split(" ");
   };
   const format = (text) => {
@@ -92,12 +92,12 @@ export function tooltipFormatter(
   };
 
   const getText = (axis) => {
-    let title = dataProperties[config[axis].replace(".", "_")].title;
+    let title = config[`${axis}_axis_override`] !== "" ? config[`${axis}_axis_override`] : dataProperties[config[axis].replace(".", "_")].title;
     return item.tooltip[title].split(" ");
   };
 
   const getTextScatter = (axis) => {
-    let title = dataProperties[config[axis].replace(".", "_")].title;
+    let title = config[`${axis}_axis_override`] !== "" ? config[`${axis}_axis_override`] : dataProperties[config[axis].replace(".", "_")].title;
     return Number(checkNeg(item.tooltip[title]));
   };
 

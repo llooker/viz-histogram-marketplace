@@ -1,7 +1,7 @@
-import XHistogram from "../components/XHistogram";
-import YHistogram from "../components/YHistogram";
-import Heatmap from "../components/Heatmap";
-import useLayers from "../components/useLayers";
+import XHistogram from "../vega_components/XHistogram";
+import YHistogram from "../vega_components/YHistogram";
+import Heatmap from "../vega_components/Heatmap";
+import useLayers from "../vega_components/useLayers";
 
 function AxesHistChart({
   data,

@@ -1,5 +1,5 @@
-import Heatmap from "../components/Heatmap";
-import useLayers from "../components/useLayers";
+import Heatmap from "../vega_components/Heatmap";
+import useLayers from "../vega_components/useLayers";
 
 function HeatChart({
   data,

@@ -1,6 +1,6 @@
-import ScatterLabels from "../components/ScatterLabels";
-import { useScatterplot } from "../components/Scatterplot";
-import ReferenceLine from "../components/ReferenceLine";
+import ScatterLabels from "./ScatterLabels";
+import { useScatterplot } from "./Scatterplot";
+import ReferenceLine from "./ReferenceLine";
 
 function useLayers({
   layers,
