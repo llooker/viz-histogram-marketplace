@@ -1,7 +1,11 @@
 import { getPercentile } from "../../common/utils/data";
 
-function ReferenceLine({axis, config, data, min, max}) {
-  const percentile = getPercentile(config[`reference_line_${axis}_p`], config[axis], data);
+function ReferenceLine({ axis, config, data, min, max }) {
+  const percentile = getPercentile(
+    config[`reference_line_${axis}_p`],
+    config[axis],
+    data
+  );
   return {
     name: `refLine${axis}`,
     mark: {
@@ -19,4 +23,4 @@ function ReferenceLine({axis, config, data, min, max}) {
   };
 }
 
-export default ReferenceLine
+export default ReferenceLine;

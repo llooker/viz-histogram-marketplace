@@ -1,6 +1,6 @@
 import YHistogram from "../components/YHistogram";
 import Heatmap from "../components/Heatmap";
-import useLayers from "../components/useLayers"
+import useLayers from "../components/useLayers";
 
 function YHistChart({
   data,
@@ -19,7 +19,8 @@ function YHistChart({
 }) {
   const chart = {
     hconcat: [
-      { name: "BOUNDING_BOX",
+      {
+        name: "BOUNDING_BOX",
         layer: [
           Heatmap({
             dataProperties,
@@ -51,7 +52,7 @@ function YHistChart({
 
   let layers = chart.hconcat[0].layer;
   useLayers({
-    layers,  
+    layers,
     data,
     dataProperties,
     config,
@@ -65,7 +66,7 @@ function YHistChart({
     valFormatX,
     valFormatY,
     mainDimensions,
-  })
+  });
 
   return chart;
 }

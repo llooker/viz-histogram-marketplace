@@ -1,5 +1,5 @@
 import Heatmap from "../components/Heatmap";
-import useLayers from "../components/useLayers"
+import useLayers from "../components/useLayers";
 
 function HeatChart({
   data,
@@ -39,9 +39,9 @@ function HeatChart({
     },
   };
 
-  let layers = chart.layer
+  let layers = chart.layer;
   useLayers({
-    layers,  
+    layers,
     data,
     dataProperties,
     config,
@@ -55,7 +55,7 @@ function HeatChart({
     valFormatX,
     valFormatY,
     mainDimensions,
-  })
+  });
 
   return chart;
 }

@@ -1,6 +1,6 @@
 import XHistogram from "../components/XHistogram";
 import Heatmap from "../components/Heatmap";
-import useLayers from "../components/useLayers"
+import useLayers from "../components/useLayers";
 
 function XHistChart({
   data,
@@ -25,7 +25,8 @@ function XHistChart({
         maxX,
         width,
       }),
-      { name: "BOUNDING_BOX",
+      {
+        name: "BOUNDING_BOX",
         layer: [
           Heatmap({
             dataProperties,
@@ -51,7 +52,7 @@ function XHistChart({
 
   let layers = chart.vconcat[1].layer;
   useLayers({
-    layers,  
+    layers,
     data,
     dataProperties,
     config,
@@ -65,7 +66,7 @@ function XHistChart({
     valFormatX,
     valFormatY,
     mainDimensions,
-  })
+  });
 
   return chart;
 }

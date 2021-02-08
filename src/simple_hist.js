@@ -19,7 +19,7 @@ export function simpleHist(
   const vegaSafeNameMes = queryResponse.fields.measure_like[0].name.replace(".", "_");
   const vegaSafeNameDim = queryResponse.fields.dimensions[0].name.replace(".", "_");
   const max = Math.max(...myData.map((e) => e[vegaSafeNameMes]));
-  
+
   //Need to reassign some options when toggling from scatter to simple hist
   const options = Object.assign({}, baseOptions);
   if (options["bin_type"]["values"].length < 3) {
@@ -217,7 +217,7 @@ export function simpleHist(
     tooltip: { theme: "custom" },
   }).then(({ spec, view }) => {
     fixChartSizing();
-    setAxisFormatting("simple", valFormat);
+    setAxisFormatting(config, "simple", valFormat);
     if (details.print) {
       done();
     }

@@ -1,7 +1,7 @@
 import XHistogram from "../components/XHistogram";
 import YHistogram from "../components/YHistogram";
 import Heatmap from "../components/Heatmap";
-import useLayers from "../components/useLayers"
+import useLayers from "../components/useLayers";
 
 function AxesHistChart({
   data,
@@ -30,7 +30,8 @@ function AxesHistChart({
         spacing: 15,
         bounds: "flush",
         hconcat: [
-          { name: "BOUNDING_BOX",
+          {
+            name: "BOUNDING_BOX",
             layer: [
               Heatmap({
                 dataProperties,
@@ -64,7 +65,7 @@ function AxesHistChart({
 
   let layers = chart.vconcat[1].hconcat[0].layer;
   useLayers({
-    layers,  
+    layers,
     data,
     dataProperties,
     config,
@@ -78,7 +79,7 @@ function AxesHistChart({
     valFormatX,
     valFormatY,
     mainDimensions,
-  })
+  });
 
   return chart;
 }

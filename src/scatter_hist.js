@@ -117,7 +117,6 @@ export function scatterHist(
     );
   };
 
-  debugger;
   embed("#my-vega", vegaChart, {
     actions: false,
     renderer: "svg",
@@ -128,10 +127,11 @@ export function scatterHist(
     if (details.print) {
       done();
     }
-    view.addEventListener("wheel", formatChart);
-    view.addEventListener("mousedown", formatChart);
-    view.addEventListener("mouseup", formatChart);
-    view.addEventListener("drag", formatChart);
+
+    view.addEventListener("wheel", formatChart, {passive: true});
+    view.addEventListener("mousedown", formatChart, {passive: true});
+    view.addEventListener("mouseup", formatChart, {passive: true});
+    view.addEventListener("drag", formatChart, {passive: true});
 
     view.addEventListener("mousemove", (event, item) => {
       tooltipFormatter(
@@ -144,13 +144,17 @@ export function scatterHist(
       );
     });
 
-    if (mainDimensions[1] !== undefined && config["size"]) {
+    if (
+      mainDimensions[1] !== undefined &&
+      config["size"] &&
+      (config["x_hist"] || config["y_hist"])
+    ) {
       positionLegend(config["legend_orient"]);
     }
 
     // DRILL SUPPORT
     view.addEventListener("click", function (event, item) {
-      if (Object.keys(item.datum).length <= 1 || item.fillOpacity === 0) {
+      if (item === undefined || item.datum === undefined || Object.keys(item.datum).length <= 1 || item.fillOpacity === 0) {
         return;
       }
       // only support crossfiltering for scatter points for now

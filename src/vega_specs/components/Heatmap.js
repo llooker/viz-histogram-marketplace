@@ -54,6 +54,7 @@ function Heatmap({
         field: config["bin_type"] === "breakpoints" ? "bin_start_x" : config["x"],
         type: "quantitative",
         axis: {
+          name: "xAxis",
           title:
             config["x_axis_override"] === ""
               ? dataProperties[config["x"]]["title"]
@@ -128,6 +129,7 @@ function Heatmap({
               labelFontSize: config["legend_size"],
               titleFontSize: config["legend_size"],
               titleFontWeight: "normal",
+              offset: config["y_hist"] ? 100 : 10,
               titleFont: FONT_TYPE,
               labelFont: FONT_TYPE,
               labelColor: "#696969",
@@ -178,7 +180,7 @@ function Heatmap({
         })(),
       }),
     },
-  };
+  }
 }
 
 export default Heatmap;

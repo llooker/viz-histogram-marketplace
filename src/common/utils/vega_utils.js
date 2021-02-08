@@ -1,6 +1,12 @@
 import * as d3 from "../d3-loader";
 import SSF from "ssf";
 
+/* Because of https://github.com/vega/vega-lite/issues/6874 we are currently unable 
+to register custom formatters in vega-lite charts that use bins. 
+As a consequence, this file is a ton of terse d3 selections to apply formatting. 
+since vega-lite precludes granular naming of elements (can only `name` top level `mark`)
+It's annoying but gets the job done. Hopefully we can remove most of this once that issue has been solved. */
+
 export const FONT_TYPE =
   "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif";
 
@@ -16,7 +22,7 @@ export function positionRefLine(axis, config) {
     .node()
     .getBBox();
   let line = d3
-    .select(`.${axis === "x" ? "refLinex" : "refLiney"}_marks`)
+    .select(`.refLine${axis}_marks`)
     .selectChildren();
   let translate = parseTransform(line.attr("transform"));
   if (axis === "x") {
@@ -63,7 +69,7 @@ export function fixChartSizing() {
     .style("left", 0);
 }
 
-export function setAxisFormatting(chartType, xAxisFormat, yAxisFormat = null) {
+export function setAxisFormatting(config, chartType, xAxisFormat, yAxisFormat = null) {
   if (chartType === "simple") {
     d3.select("g.mark-text.role-axis-label")
       .selectAll("text")
@@ -71,26 +77,30 @@ export function setAxisFormatting(chartType, xAxisFormat, yAxisFormat = null) {
         d3.select(this).text(SSF.format(xAxisFormat, d.datum.value));
       });
   } else {
-    let labels = d3.selectAll("g.mark-text.role-axis-label");
-    let xAxis = labels._groups[0][1];
-    let yAxis = labels._groups[0][2];
-    d3.select(xAxis)
-      .selectAll("text")
-      .each(function (d, i) {
-        d3.select(this).text(SSF.format(xAxisFormat, d.datum.value));
-      });
-    d3.select(yAxis)
-      .selectAll("text")
-      .each(function (d, i) {
-        d3.select(this).text(SSF.format(yAxisFormat, d.datum.value));
-      });
+    let selector = (config["x_hist"] || config["y_hist"]) ? ".BOUNDING_BOX_group" : ".mark-group.role-frame.root" 
+    d3.selectAll(selector).selectAll(".mark-text.role-axis-label")
+      .each(function(d, i) {
+        if (i == 0) {
+          d3.select(this).selectAll("text").each(function (d, i) {
+              d3.select(this).text(SSF.format(xAxisFormat, d.datum.value));
+          })
+        }
+        if (i == 1) {
+          d3.select(this).selectAll("text").each(function (d, i) {
+            d3.select(this).text(SSF.format(yAxisFormat, d.datum.value));
+          });
+        }
+      })
+    }
   }
-}
 
-export function formatPointLegend(valFormat, coloredPoints, heatmap) {
-  let legends = d3.selectAll("g.mark-group.role-legend-entry");
+
+export function formatPointLegend(valFormat, coloredPoints, heatmap, hist) {
+  let legends = d3.selectAll(".mark-group.role-legend-entry");
   let pointLegend;
-  if (!heatmap && coloredPoints) {
+  if (!hist) {
+    pointLegend = legends._groups[0][0];
+  } else if (!heatmap && coloredPoints) {
     pointLegend = legends._groups[0][1];
   } else if (heatmap && coloredPoints) {
     pointLegend = legends._groups[0][2];
@@ -134,12 +144,13 @@ export function runFormatting(
   ) {
     formatCrossfilterSelection(details.crossfilters, mainDimensions, config["color_col"]);
   }
-  setAxisFormatting("scatter", valFormatX, valFormatY);
+  setAxisFormatting(config, "scatter", valFormatX, valFormatY);
   if (config["size"] && config["layer_points"]) {
     formatPointLegend(
       valFormatPoints,
       mainDimensions[1] !== undefined,
-      config["heatmap_off"]
+      config["heatmap_off"],
+      (config["x_hist"] || config["y_hist"])
     );
   }
   if (config["reference_line_x"]) {

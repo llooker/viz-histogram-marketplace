@@ -3,20 +3,20 @@ import { useScatterplot } from "../components/Scatterplot";
 import ReferenceLine from "../components/ReferenceLine";
 
 function useLayers({
-    layers,
-    data,
-    config,
-    tooltipFields,
-    dataProperties,
-    width,
-    height,
-    mainDimensions,
-    minX,
-    minY,
-    maxX,
-    maxY
+  layers,
+  data,
+  config,
+  tooltipFields,
+  dataProperties,
+  width,
+  height,
+  mainDimensions,
+  minX,
+  minY,
+  maxX,
+  maxY,
 }) {
-if (config["layer_points"]) {
+  if (config["layer_points"]) {
     layers.push(
       useScatterplot({
         config,
@@ -32,22 +32,26 @@ if (config["layer_points"]) {
     layers.push(ScatterLabels({ config, dataProperties, mainDimensions }));
   }
   if (config["reference_line_x"]) {
-    layers.push(ReferenceLine({
-      axis: "x",
-      min: minY,
-      max: maxY,
-      config, 
-      data,
-    }));
+    layers.push(
+      ReferenceLine({
+        axis: "x",
+        min: minY,
+        max: maxY,
+        config,
+        data,
+      })
+    );
   }
   if (config["reference_line_y"]) {
-    layers.push(ReferenceLine({
-      axis: "y",
-      min: minX,
-      max: maxX,
-      config, 
-      data,
-    }));
+    layers.push(
+      ReferenceLine({
+        axis: "y",
+        min: minX,
+        max: maxX,
+        config,
+        data,
+      })
+    );
   }
 }
 
