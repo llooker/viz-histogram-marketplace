@@ -122,9 +122,9 @@ export function prepareData(data, queryResponse) {
         dataProperties[allFields[field]]["lookerName"] = measure["name"];
         //get label short or label to handle table calcs
         if (typeof measure["label_short"] != "undefined") {
-          dataProperties[allFields[field]]["title"] = measure["label_short"];
+          dataProperties[allFields[field]]["title"] = measure["label_short"].trim();
         } else {
-          dataProperties[allFields[field]]["title"] = measure["label"];
+          dataProperties[allFields[field]]["title"] = measure["label"].trim();
         }
         dataProperties[allFields[field]]["valueFormat"] = measure["value_format"];
         if (measure["type"] == "yesno") {
