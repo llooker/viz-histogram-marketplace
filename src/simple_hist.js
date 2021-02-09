@@ -14,7 +14,6 @@ export function simpleHist(
   embed
 ) {
   that.clearErrors();
-  console.log(queryResponse)
   let { dataProperties, myData } = prepareData(data, queryResponse);
   const vegaSafeNameMes = queryResponse.fields.measure_like[0].name.replace(".", "_");
   const vegaSafeNameDim = queryResponse.fields.dimensions[0].name.replace(".", "_");
