@@ -129,7 +129,7 @@ function Heatmap({
               labelFontSize: config["legend_size"],
               titleFontSize: config["legend_size"],
               titleFontWeight: "normal",
-              offset: config["y_hist"] ? 80 : 10,
+              offset: config["y_hist"] ? 85 : 10,
               titleFont: FONT_TYPE,
               labelFont: FONT_TYPE,
               labelColor: "#696969",

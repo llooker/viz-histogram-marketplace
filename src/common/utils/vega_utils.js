@@ -98,8 +98,10 @@ export function setAxisFormatting(config, chartType, xAxisFormat, yAxisFormat = 
 export function formatPointLegend(valFormat, coloredPoints, heatmap, hist) {
   let legends = d3.selectAll(".mark-group.role-legend-entry");
   let pointLegend;
-  if (!hist) {
+  if (!hist && !heatmap) {
     pointLegend = legends._groups[0][0];
+  } else if (!hist && heatmap && coloredPoints) {
+      pointLegend = legends._groups[0][0];
   } else if (!heatmap && coloredPoints || heatmap && !coloredPoints) {
     pointLegend = legends._groups[0][1];
   } else if (heatmap && coloredPoints) {
