@@ -155,6 +155,7 @@ export function prepareData(data, queryResponse) {
 }
 
 export function makeBins(myData, field, breakpointsArray, valFormat, axis) {
+  if (!(myData && field && breakpointsArray && valFormat && axis)) { return; }
   let preBin = [];
   let orderedArray = myData.map((e) => e[field]).sort((a, b) => a - b);
   let breakpoints = breakpointsArray.split(",").map((e) => {

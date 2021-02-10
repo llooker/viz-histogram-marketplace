@@ -35,7 +35,7 @@ export function simpleHist(
       section: "  Values",
       type: "string",
       order: 4,
-      display: "string",
+      display: "text",
       default: "10",
     };
   } else if (config["bin_type"] === "steps") {

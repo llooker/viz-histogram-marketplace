@@ -61,7 +61,7 @@ function useSize(scatterplot, config, dataProperties) {
       format: "d",
       labelFontSize: config["legend_size"],
       titleFontWeight: "normal",
-      offset: config["y_hist"] ? 100 : 10,
+      offset: config["y_hist"] ? 85 : 10,
       titleFontSize: config["legend_size"],
       titleFont: FONT_TYPE,
       labelFont: FONT_TYPE,
@@ -77,7 +77,7 @@ function useColor(scatterplot, config, dataProperties, mainDimensions) {
     field: mainDimensions[1],
     legend: {
       type: "symbol",
-      offset: config["y_hist"] ? 100 : 10,
+      offset: config["y_hist"] ? 85 : 10,
       title: dataProperties[mainDimensions[1]]["title"],
       type: "symbol",
       orient: config["legend_orient"],
