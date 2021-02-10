@@ -1,7 +1,9 @@
 # Histogram for Looker
+
 **NOTE: This visualization is subject to [standard Explore row limits (max 5,000 rows)](https://help.looker.com/hc/en-us/articles/360001285567-What-are-all-the-Row-Limits-in-Looker-). If dealing with more than 5,000 rows, please consider [creating a tiered dimension](https://help.looker.com/hc/en-us/articles/360023419834-Tiers-on-a-Measure) and using the [native column chart.](https://docs.looker.com/exploring-data/visualizing-query-results/column-options)**
 
-Histogram visualization for quickly identifying frequency distributions of aggregated data. Useful for binning measures without the need for [a derived table](https://help.looker.com/hc/en-us/articles/360023900353-Bucketing-in-Looker). 
+Histogram visualization for quickly identifying frequency distributions of aggregated data. Useful for binning measures without the need for [a derived table](https://help.looker.com/hc/en-us/articles/360023900353-Bucketing-in-Looker).
+
 ## Chart Types
 
 The Histogram visualization provides two chart styles to choose from. A "Simple Histogram" and a "Scatter Histogram".

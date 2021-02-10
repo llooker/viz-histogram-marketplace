@@ -1,10 +1,10 @@
 {
   "name": "viz-binned-hist-marketplace",
+  "author": "TJ Banghart <tjbanghart@google.com>",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "@looker/design-tokens": "^0.9.23",
     "d3-format": "^2.0.0",
     "d3-selection": "^2.0.0",
     "percentile": "^1.4.0",

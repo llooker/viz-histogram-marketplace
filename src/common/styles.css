@@ -1,0 +1,16 @@
+#vg-tooltip-element.vg-tooltip.custom-theme {
+  background-color: rgba(0, 0, 0, 0.75);
+  border-color: rgba(0, 0, 0, 0.7);
+  border-radius: 5px;
+  width: auto;
+}
+
+#vg-tooltip-element > table tr td.key {
+  text-align: left;
+  color: #ffffff;
+}
+
+#vg-tooltip-element > table tr td.value {
+  text-align: right;
+  color: #ffffff;
+}

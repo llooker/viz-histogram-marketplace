@@ -1,16 +1,7 @@
-import { baseOptions, createOptionsSimple } from "./common/options";
-import {
-  prepareData,
-  simpleHistTooltipHandler,
-  tooltipFormatter,
-  makeBins,
-  winsorize,
-  fixChartSizing,
-  setFormatting,
-} from "./common/vega_utils";
-
-const FONT_TYPE =
-    "'Roboto', 'Noto Sans JP', 'Noto Sans CJK KR', 'Noto Sans Arabic UI', 'Noto Sans Devanagari UI', 'Noto Sans Hebre', 'Noto Sans Thai UI', 'Helvetica', 'Arial', sans-serif";
+import { baseOptions } from "./common/options";
+import { fixChartSizing, setAxisFormatting, FONT_TYPE } from "./common/utils/vega_utils";
+import { winsorize, prepareData, makeBins } from "./common/utils/data";
+import { simpleHistTooltipHandler, simpleTooltipFormatter } from "./common/utils/tooltip";
 
 export function simpleHist(
   data,
@@ -23,85 +14,71 @@ export function simpleHist(
   embed
 ) {
   that.clearErrors();
-
   let { dataProperties, myData } = prepareData(data, queryResponse);
-  const vegaSafeNameMes = queryResponse.fields.measure_like[0].name.replace(
-    ".",
-    "_"
-  );
-  const vegaSafeNameDim = queryResponse.fields.dimensions[0].name.replace(
-    ".",
-    "_"
-  );
+  const vegaSafeNameMes = queryResponse.fields.measure_like[0].name.replace(".", "_");
+  const vegaSafeNameDim = queryResponse.fields.dimensions[0].name.replace(".", "_");
   const max = Math.max(...myData.map((e) => e[vegaSafeNameMes]));
 
-  // As of 21.0.10 Dashboard-Next does not support removing options 
-  // from the viz config (only additive). Attempting to do so causes 
-  // an infinite rerender. Removing dynamic options for now
-  // ----------------------------------------------------------------
-  // if (options["bin_type"]["values"].length < 3) {
-  //   options["bin_type"]["values"][options["bin_type"]["values"].length] = {
-  //     Breakpoints: {
-  //       description: "An array of allowable step sizes to choose from.",
-  //       value: "breakpoints",
-  //     },
-  //   };
-  //  }
-  // if (config["bin_type"] === "bins") {
-  //   options["max_bins"] = {
-  //     label: "Max number of Bins",
-  //     section: "  Values",
-  //     type: "number",
-  //     order: 4,
-  //     display: "range",
-  //     step: 1,
-  //     min: 1,
-  //     max: 50,
-  //     default: 10,
-  //   };
-  // } else if (config["bin_type"] === "steps") {
-  //   options["step_size"] = {
-  //     label: "Step Size",
-  //     section: "  Values",
-  //     type: "number",
-  //     order: 4,
-  //     display: "text",
-  //     default: Math.floor(max / 10),
-  //   };
-  // } else {
-    // options["breakpoint_array"] = {
-    //   label: "Breakpoints",
-    //   section: "  Values",
-    //   order: 4,
-    //   type: "string",
-    //   default: `min, ${Math.floor(max / 5)}, ${Math.floor(
-    //     max / 4
-    //   )}, ${Math.floor(max / 3)}, ${Math.floor(max / 2)}, max`,
-    // };
-    // options["breakpoint_ordinal"] = {
-    //   label: "Use Equal Sized Columns (Ordinal Bins)",
-    //   order: 4,
-    //   section: "  Values",
-    //   type: "boolean",
-    //   display: "select",
-    //   default: false,
-    // };
-    //}
-  // if (config["winsorization"]) {
-  //   options["percentile"] = {
-  //     label: "Percentiles",
-  //     section: "  Values",
-  //     type: "string",
-  //     order: 7,
-  //     display: "select",
-  //     display_size: "half",
-  //     default: "1_99",
-  //     values: [{ "1% - 99%": "1_99" }, { "5% - 95%": "5_95" }],
-  //   };
-  // }
-  
-  let newOpts = createOptionsSimple(max)
-  that.trigger("registerOptions", Object.assign(baseOptions, newOpts));
+  //Need to reassign some options when toggling from scatter to simple hist
+  const options = Object.assign({}, baseOptions);
+  if (options["bin_type"]["values"].length < 3) {
+    options["bin_type"]["values"][options["bin_type"]["values"].length] = {
+      Breakpoints: {
+        description: "An array of allowable step sizes to choose from.",
+        value: "breakpoints",
+      },
+    };
+  }
+  if (config["bin_type"] === "bins") {
+    options["max_bins"] = {
+      label: "Max number of Bins",
+      section: "  Values",
+      type: "string",
+      order: 4,
+      display: "text",
+      default: "10",
+    };
+  } else if (config["bin_type"] === "steps") {
+    options["step_size"] = {
+      label: "Step Size",
+      section: "  Values",
+      type: "number",
+      order: 4,
+      display: "text",
+      default: Math.floor(max / 10),
+    };
+  } else {
+    options["breakpoint_array"] = {
+      label: "Breakpoints",
+      section: "  Values",
+      order: 4,
+      type: "string",
+      default: `min, ${Math.floor(max / 5)}, ${Math.floor(max / 4)}, ${Math.floor(
+        max / 3
+      )}, ${Math.floor(max / 2)}, max`,
+    };
+    options["breakpoint_ordinal"] = {
+      label: "Use Equal Sized Columns (Ordinal Bins)",
+      order: 4,
+      section: "  Values",
+      type: "boolean",
+      display: "select",
+      default: false,
+    };
+  }
+  if (config["winsorization"]) {
+    options["percentile"] = {
+      label: "Percentiles",
+      section: "  Values",
+      type: "string",
+      order: 7,
+      display: "select",
+      display_size: "half",
+      default: "1_99",
+      values: [{ "1% - 99%": "1_99" }, { "5% - 95%": "5_95" }],
+    };
+  }
+  that.trigger("registerOptions", options);
 
   if (config["winsorization"]) {
     myData = winsorize(myData, vegaSafeNameMes, config["percentile"]);
@@ -110,8 +87,7 @@ export function simpleHist(
   const defaultValFormat = dataProperties[vegaSafeNameMes]["valueFormat"];
   const valFormatOverride = config["x_axis_value_format"];
 
-  let valFormat =
-    valFormatOverride !== "" ? valFormatOverride : defaultValFormat;
+  let valFormat = valFormatOverride !== "" ? valFormatOverride : defaultValFormat;
   if (valFormat === null || valFormat === undefined) {
     valFormat = "#,##0";
   }
@@ -234,78 +210,77 @@ export function simpleHist(
     },
   };
 
-  embed("#my-vega", vegaChart, { actions: false, renderer: "svg" }).then(
-    ({ spec, view }) => {
-      fixChartSizing();
-      setFormatting("simple", valFormat);
-      if (details.print) {
-        done();
-      }
-
-      view.addEventListener("mousemove", (event, item) => {
-        tooltipFormatter("simple", config, item, valFormat);
-      });
-
-      //DRILL SUPPORT
-      view.addEventListener("click", function (event, item) {
-        if (item.datum === undefined) {
-          return;
-        }
-        const aggField = dataProperties[vegaSafeNameMes]["lookerName"];
-        const bounds =
-          config["bin_type"] === "breakpoints"
-            ? ["bin_start_x", "bin_end_x"]
-            : Object.keys(item.datum).filter((ele) =>
-                ele.includes(vegaSafeNameMes)
-              );
-
-        let links = item.datum.links;
-        let baseURL = myData[0].links;
-        let fields = [];
-        for (let field of queryResponse.fields.dimension_like.concat(
-          queryResponse.fields.measure_like
-        )) {
-          fields.push(field.name);
-        }
-        // Base URL points to all fields in queryResponse
-        if (baseURL.length < 1) {
-          links = [];
-        } else {
-          baseURL = baseURL
-            .filter((ele) => ele.url.includes("/explore/"))[0]
-            .url.split("?")[0];
-          let url = `${baseURL}?fields=${fields.join(",")}`;
-
-          // Apply appropriate filtering based on bounds
-          url += `&f[${aggField}]=[${item.datum[bounds[0]]}, ${
-            item.datum[bounds[1]]
-          })`;
-
-          //Inherit query filters
-          if (queryResponse.applied_filters !== undefined) {
-            let filters = queryResponse.applied_filters;
-            for (let filter in filters) {
-              url += `&f[${filters[filter].field.name}]=${filters[filter].value}`;
-            }
-          }
-          links = [
-            {
-              label: `Show ${
-                config["bin_type"] === "breakpoints"
-                  ? item.datum.count_x
-                  : item.datum.__count
-              } Records`,
-              type: "drill",
-              type_label: "Drill into Records",
-              url: url,
-            },
-          ];
-        }
-        LookerCharts.Utils.openDrillMenu({
-          links: links,
-          event: event,
-        });
-      });
+  embed("#my-vega", vegaChart, {
+    actions: false,
+    renderer: "svg",
+    tooltip: { theme: "custom" },
+  }).then(({ spec, view }) => {
+    fixChartSizing();
+    setAxisFormatting(config, "simple", valFormat);
+    if (details.print) {
+      done();
+      return;
     }
-  );
+
+    view.addEventListener("mousemove", (event, item) => {
+      simpleTooltipFormatter(dataProperties, config, vegaSafeNameMes, item, valFormat);
+    });
+
+    //DRILL SUPPORT
+    view.addEventListener("click", function (event, item) {
+      if (item.datum === undefined) {
+        return;
+      }
+      const aggField = dataProperties[vegaSafeNameMes]["lookerName"];
+      const bounds =
+        config["bin_type"] === "breakpoints"
+          ? ["bin_start_x", "bin_end_x"]
+          : Object.keys(item.datum).filter((ele) => ele.includes(vegaSafeNameMes));
+
+      let links = item.datum.links;
+      let baseURL = myData[0].links;
+      let fields = [];
+      for (let field of queryResponse.fields.dimension_like.concat(
+        queryResponse.fields.measure_like
+      )) {
+        fields.push(field.name);
+      }
+      // Base URL points to all fields in queryResponse
+      if (baseURL.length < 1) {
+        links = [];
+      } else {
+        baseURL = baseURL
+          .filter((ele) => ele.url.includes("/explore/"))[0]
+          .url.split("?")[0];
+        let url = `${baseURL}?fields=${fields.join(",")}`;
+
+        // Apply appropriate filtering based on bounds
+        url += `&f[${aggField}]=[${item.datum[bounds[0]]}, ${item.datum[bounds[1]]})`;
+
+        //Inherit query filters
+        if (queryResponse.applied_filters !== undefined) {
+          let filters = queryResponse.applied_filters;
+          for (let filter in filters) {
+            url += `&f[${filters[filter].field.name}]=${filters[filter].value}`;
+          }
+        }
+        links = [
+          {
+            label: `Show ${
+              config["bin_type"] === "breakpoints"
+                ? item.datum.count_x
+                : item.datum.__count
+            } Records`,
+            type: "drill",
+            type_label: "Drill into Records",
+            url: url,
+          },
+        ];
+      }
+      LookerCharts.Utils.openDrillMenu({
+        links: links,
+        event: event,
+      });
+    });
+  });
 }
