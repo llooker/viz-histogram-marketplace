@@ -126,6 +126,7 @@ export function scatterHist(
     formatChart();
     if (details.print) {
       done();
+      return;
     }
 
     view.addEventListener("wheel", formatChart, {passive: true});

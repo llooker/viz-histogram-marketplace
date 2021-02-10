@@ -16,6 +16,7 @@ looker.plugins.visualizations.add({
     if (data.length === 0) {
       this.addError({ title: "No Results" });
       done();
+      return;
     }
 
     if (config.bin_style === "binned_hist") {

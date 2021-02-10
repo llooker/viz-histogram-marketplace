@@ -105,7 +105,7 @@ export function formatPointLegend(valFormat, coloredPoints, heatmap, hist) {
   } else if (heatmap && coloredPoints) {
     pointLegend = legends._groups[0][2];
   } else {
-    pointLegend = legends._groups[0][0];
+    pointLegend = legends._groups[0][1];
   }
   d3.select(pointLegend)
     .selectAll("text")

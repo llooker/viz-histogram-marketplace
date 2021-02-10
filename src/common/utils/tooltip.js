@@ -97,7 +97,7 @@ export function tooltipFormatter(
   };
 
   const getTextScatter = (axis) => {
-    let title = config[`${axis}_axis_override`] !== "" ? config[`${axis}_axis_override`] : dataProperties[config[axis].replace(".", "_")].title;
+    let title = (axis !== "size" && config[`${axis}_axis_override`] !== "") ? config[`${axis}_axis_override`] : dataProperties[config[axis].replace(".", "_")].title;
     return Number(checkNeg(item.tooltip[title]));
   };
 
@@ -132,12 +132,22 @@ export function tooltipFormatter(
   }
 
   if (item.mark.name === "SCATTERPLOT_marks") {
+    let scatterFlag = 0;
     d3.selectAll("td.value").each(function (_d, i) {
       if (i === 0) {
         d3.select(this).text(SSF.format(valFormatX, getTextScatter("x")));
-      } else if (i === 1 && config["x"] !== config["y"]) {
-        // Weird edge case where the user selects the same field for both X and Y
-        d3.select(this).text(SSF.format(valFormatY, getTextScatter("y")));
+      }
+      else if (i === 1) {
+        if (config["x"] !== config["y"]) {
+          // Weird edge case where the user selects the same field for both X and Y
+          d3.select(this).text(SSF.format(valFormatY, getTextScatter("y")));
+        } else if (config["size"]) {
+          d3.select(this).text(SSF.format(valFormatPoints, getTextScatter("size")));
+          scatterFlag = 1;
+        }
+      } 
+      else if (i === 2 && !scatterFlag && config["size"] && (config["x"] !== config["size"] && config["y"] !== config["size"])) {
+        d3.select(this).text(SSF.format(valFormatPoints, getTextScatter("size")));
       }
     });
   }

@@ -2,6 +2,7 @@ import percentile from "percentile";
 import SSF from "ssf";
 
 export function winsorize(myData, field, p) {
+  if (p === undefined ) { return; }
   p = p.split("_").map((e) => eval(e));
   let thresholds = percentile(
     p,
@@ -192,6 +193,6 @@ export function makeBins(myData, field, breakpointsArray, valFormat, axis) {
 export function getPercentile(p, field, myData) {
   return percentile(
     p,
-    myData.map((e) => e[field])
+    myData.map((e) => e[field]).filter(e => e !== null)
   );
 }

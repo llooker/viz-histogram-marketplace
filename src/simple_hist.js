@@ -219,6 +219,7 @@ export function simpleHist(
     setAxisFormatting(config, "simple", valFormat);
     if (details.print) {
       done();
+      return;
     }
 
     view.addEventListener("mousemove", (event, item) => {

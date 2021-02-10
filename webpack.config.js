@@ -1,5 +1,5 @@
 var webpackConfig = {
-  mode: "production",
+  mode: "development",
   entry: {
     histogram: "./src/histogram.js",
   },
