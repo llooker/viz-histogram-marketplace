@@ -324,9 +324,8 @@ export function createOptions(
     optionsResponse["options"]["max_bins"] = {
       label: "Max number of Bins",
       section: "  Values",
-      type: "number",
+      type: "string",
       order: 4,
-      display: "string",
       default: "10",
     };
   } else if (config["bin_type"] === "breakpoints") {
@@ -579,7 +578,7 @@ export function createOptions(
   optionsResponse["options"]["point_labels_font_size"] = {
     label: "Point Label Font Size",
     section: "Labels",
-    type: "string",
+    type: "number",
     display: "text",
     display_size: "half",
     default: "12",
