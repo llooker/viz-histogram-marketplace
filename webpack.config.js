@@ -1,7 +1,8 @@
 var webpackConfig = {
   mode: "production",
   entry: {
-    histogram: "./src/histogram.js",
+    simple_hist: "./src/simple_hist_entry.js",
+    scatter_hist: "./src/scatter_heatmap_entry.js",
   },
   output: {
     filename: "[name].js",

@@ -30,18 +30,6 @@ export const baseOptions = {
     ],
     default: "bins",
   },
-  bin_style: {
-    label: "Chart Type",
-    section: "  Values",
-    type: "string",
-    order: 1,
-    display: "select",
-    default: "simple_hist",
-    values: [
-      { "Simple Histogram": "simple_hist" },
-      { "Scatter Histogram": "binned_hist" },
-    ],
-  },
   winsorization: {
     label: "Limit Outliers (Winsorize)",
     section: "  Values",
