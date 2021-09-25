@@ -48,5 +48,6 @@ looker.plugins.visualizations.add({
 
       simpleHist(data, element, config, queryResponse, details, done, this, embed);
     }
+    done();
   },
 });
