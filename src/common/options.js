@@ -6,26 +6,16 @@ export const baseOptions = {
     section: "  Values",
     type: "string",
     order: 2,
-    display: "radio",
+    display: "select",
     values: [
       {
-        "Max Bins": {
-          description: "Set a maximum number of bins",
-          value: "bins",
-        },
+        "Max Bins": "bins"
       },
       {
-        Steps: {
-          description:
-            "Set an exact step size to use between bins. Step sizes that would create more than 50 bins are ignored.",
-          value: "steps",
-        },
+        Steps: "steps"
       },
       {
-        Breakpoints: {
-          description: "An array of allowable step sizes to choose from.",
-          value: "breakpoints",
-        },
+        Breakpoints: "breakpoints"
       },
     ],
     default: "bins",
