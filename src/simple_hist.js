@@ -22,12 +22,8 @@ export function simpleHist(
   //Need to reassign some options when toggling from scatter to simple hist
   const options = Object.assign({}, baseOptions);
   if (options["bin_type"]["values"].length < 3) {
-    options["bin_type"]["values"][options["bin_type"]["values"].length] = {
-      Breakpoints: {
-        description: "An array of allowable step sizes to choose from.",
-        value: "breakpoints",
-      },
-    };
+    let len = options["bin_type"]["values"].length
+    options["bin_type"]["values"][len] = { Breakpoints: "breakpoints" }
   }
   if (config["bin_type"] === "bins") {
     options["max_bins"] = {
@@ -44,7 +40,6 @@ export function simpleHist(
       section: "  Values",
       type: "number",
       order: 4,
-      display: "text",
       default: Math.floor(max / 10),
     };
   } else {
